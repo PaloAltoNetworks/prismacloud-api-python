@@ -1,3 +1,9 @@
+# Ignore .conf files for keys security
+*.conf
+
+# Ignore IDE stuff
+.idea
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
