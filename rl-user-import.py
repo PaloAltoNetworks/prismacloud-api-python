@@ -1,6 +1,7 @@
 from __future__ import print_function
 import argparse
 import rl_api_lib
+import json
 
 
 def api_user_role_list_get(jwt):
@@ -87,27 +88,38 @@ print('Done.')
 print('Formatting imported user list and checking for duplicates by e-mail...', end='')
 users_added_count = 0
 users_skipped_count = 0
+users_duplicate_count = 0
 users_list_new_formatted = []
+
 for user_new in user_list_new:
+    #Check for duplicates in the imported CSV
     user_exists = False
-    for user_old in user_list_old:
-        if user_new['User Email'].lower() == user_old['email'].lower():
-            users_skipped_count = users_skipped_count + 1
+    for user_duplicate_check in users_list_new_formatted:
+        if user_duplicate_check['email'].lower() == user_new['email'].lower():
+            users_duplicate_count = users_duplicate_count + 1
             user_exists = True
             break
     if not user_exists:
-        user_new_temp = {}
-        user_new_temp['email'] = user_new['User Email']
-        user_new_temp['firstName'] = user_new['Preferred First Name']
-        user_new_temp['lastName'] = user_new['Last Name']
-        user_new_temp['timeZone'] = 'America/Los_Angeles'
-        user_new_temp['roleId'] = user_role_id
-        users_list_new_formatted.append(user_new_temp)
-        users_added_count = users_added_count + 1
+        # Check for duplicates already in the Redlock Account
+        for user_old in user_list_old:
+            if user_new['email'].lower() == user_old['email'].lower():
+                users_skipped_count = users_skipped_count + 1
+                user_exists = True
+                break
+        if not user_exists:
+            user_new_temp = {}
+            user_new_temp['email'] = user_new['email']
+            user_new_temp['firstName'] = user_new['firstName']
+            user_new_temp['lastName'] = user_new['lastName']
+            user_new_temp['timeZone'] = 'America/Los_Angeles'
+            user_new_temp['roleId'] = user_role_id
+            users_list_new_formatted.append(user_new_temp)
+            users_added_count = users_added_count + 1
 print('Done.')
 
 print('Users to add: ' + str(users_added_count))
 print('Users skipped (Duplicates): ' + str(users_skipped_count))
+print('Users removed as duplicates from CSV: ' + str(users_duplicate_count))
 
 print('API - Adding users...')
 for user_new in users_list_new_formatted:
