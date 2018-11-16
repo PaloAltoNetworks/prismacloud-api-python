@@ -28,6 +28,15 @@ Example:
 python rl-configure.py -u user@email.com -p somepasswordhere -c SomeCaseSensitiveCustomerAccountName
 ```
 
+**rl-policy-status.py**
+- Use this to enable/disable policies globally for an account (filtered on policy type).
+- It will enable or disable all policies of a given type (or all) for a customer account (global).  This is used primarity for setting up a new environment that wants to begin with everything enabled out of the gate or to update after a large number of new policies have been released.
+
+Example:
+```
+python rl-policy-status.py config enable
+```
+
 **rl-user-import.py**
 - Use this to import a list of users from a CSV file.
 - It will import the list from CSV then try to check for duplicates before import.
