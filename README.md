@@ -45,3 +45,13 @@ Example:
 ```
 python rl-user-import.py "some user list.csv" "Redlock user role name for my new users"
 ```
+
+**rl-compliance-copy.py**
+- Use this to copy an existing Compliance Standard (and related requirements and sections) into a new Compliance Standard.
+- It will copy the entire specified standard into the new standard name specified.  Please use the -policy switch to also attempt to add the newly copied standard to all of the existing standards attached policies.
+- Note: The policy attachment is currently having some issues with updating certain built-in policies.  I am working on this, but at this moment, it will simply skip any policies it has an issue updating and give a list on the command line of the ones it has issues with.  This list can then be manually attached to the new standard after the copy completes.
+
+Example:
+```
+python rl-compliance-copy.py "SOC 2" "SOC 2 Copy" -policy
+```

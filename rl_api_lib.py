@@ -89,8 +89,8 @@ def rl_call_api(action, api_url, jwt=None, data=None, params=None, count=0):
             rl_exit_error(501, 'The server returned an unexpected server response.')
 
 
-# Get JWT for access
-def rl_jwt_get(username, password, customername):
+# Work out login information
+def rl_login_get(username, password, customername):
     rl_settings = {}
     if username is None and password is None and customername is None:
         rl_settings = rl_settings_read()
@@ -100,6 +100,11 @@ def rl_jwt_get(username, password, customername):
         rl_settings['username'] = username
         rl_settings['password'] = password
         rl_settings['customerName'] = customername
+    return rl_settings
+
+
+# Get JWT for access (Needs data from rl_login_get)
+def rl_jwt_get(rl_settings):
     url = "https://api.redlock.io/login"
     action = "POST"
     response = rl_call_api(action, url, data=rl_settings)
