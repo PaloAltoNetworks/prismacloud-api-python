@@ -22,14 +22,14 @@ On to the tools themselves (Everything requires the rl_api_lib.py library file -
 - REQUIRED - -u switch for the username used to log into the Redlock UI.
 - REQUIRED - -p switch for the password used to log into the Redlock UI.
 - REQUIRED - -c switch for the customer name (tenant name) for your account (this is case sensitive at this time).
-- REQUIRED - -a switch for the API base URL found in the URL used to access the Redlock UI (app.redlock.io, app2.redlock.io, etc.)
+- REQUIRED - -url switch for the Redlock UI base URL found in the URL used to access the Redlock UI (app.redlock.io, app2.redlock.io, etc.)
 - Also you can run this without any args to see what e-mail and customer is being used.
 
 NOTE: This is stored in clear JSON text in the same folder as the tools.  Keep the resulting conf file protected and do not give it out to anyone.
 
 Example:
 ```
-python rl-configure.py -u "user@email.com" -p "somepasswordhere" -c "SomeCaseSensitiveCustomerAccountName" -a "app.redlock.io"
+python rl-configure.py -u "user@email.com" -p "somepasswordhere" -c "SomeCaseSensitiveCustomerAccountName" -url "app.redlock.io"
 ```
 
 **rl-policy-status.py**
