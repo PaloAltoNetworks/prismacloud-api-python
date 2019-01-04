@@ -112,22 +112,8 @@ jwt = rl_api_lib.rl_jwt_get(rl_login_settings)
 apiBase = rl_login_settings['apiBase']
 print('Done.')
 
-print('API - Getting current user list...', end='')
-user_list_old = api_user_list_get(jwt, apiBase)
-print('Done.')
-
-update_needed = False
-user_found = False
-user_new = None
-
-print('API - Getting current user...', end='')
-for user_old in user_list_old:
-    if args.useremail.lower() == user_old['email'].lower():
-        user_new = api_user_get(jwt, apiBase, user_old['email'])
-        user_found = True
-        break
-if user_new is None:
-    rl_api_lib.rl_exit_error(400, 'No user with that email found.  Please check the email address and try again.')
+print('API - Getting user...', end='')
+user_new = api_user_get(jwt, apiBase, args.useremail.lower())
 print('Done.')
 
 # Figure out what was updated and then post the changes as a complete package
@@ -137,6 +123,7 @@ if args.role is not None:
     print('Done.')
 
     print('Searching for role name to get role ID...', end='')
+    update_needed = False
     for user_role in user_role_list:
         if user_role['name'].lower() == args.role.lower():
             user_new['roleId'] = user_role['id']
@@ -147,10 +134,8 @@ if args.role is not None:
     print('Done.')
 if args.firstname is not None:
     user_new['firstName'] = args.firstname
-    update_needed = True
 if args.lastname is not None:
     user_new['lastName'] = args.lastname
-    update_needed = True
 
 print('API - Updating user...', end='')
 user_update_response = api_user_update(jwt, apiBase, user_new)
