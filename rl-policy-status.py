@@ -7,15 +7,15 @@ import argparse
 import rl_api_lib
 
 
-def api_policy_list_get(jwt):
+def api_policy_list_get(jwt, api_base):
     action = "GET"
-    url = "https://api.redlock.io/policy"
+    url = "https://" + api_base + "/policy"
     return rl_api_lib.rl_call_api(action, url, jwt=jwt)
 
 
-def api_policy_status_update(jwt, policy_id, status):
+def api_policy_status_update(jwt, api_base, policy_id, status):
     action = "PATCH"
-    url = "https://api.redlock.io/policy/" + policy_id + "/status/" + status
+    url = "https://" + api_base + "/policy/" + policy_id + "/status/" + status
     return rl_api_lib.rl_call_api(action, url, jwt=jwt)
 
 
@@ -27,19 +27,26 @@ parser.add_argument(
     '-u',
     '--username',
     type=str,
-    help='*Required* - Redlock API UserName that you want to set to access your Redlock account.')
+    help='*Required if no settings file has been created* - Redlock API UserName that you want to set to access your Redlock account.')
 
 parser.add_argument(
     '-p',
     '--password',
     type=str,
-    help='*Required* - Redlock API password that you want to set to access your Redlock account.')
+    help='*Required if no settings file has been created* - Redlock API password that you want to set to access your Redlock account.')
 
 parser.add_argument(
     '-c',
     '--customername',
     type=str,
-    help='*Required* - Name of the Redlock account to be used.')
+    help='*Required if no settings file has been created* - Name of the Redlock account to be used.')
+
+parser.add_argument(
+    '-url',
+    '--uiurl',
+    type=str,
+    help='*Required if no settings file has been created* - Base URL used in the UI for connecting to Redlock.  '
+         'Formatted as app.redlock.io or app2.redlock.io or app.eu.redlock.io, etc.')
 
 parser.add_argument(
     '-y',
@@ -64,7 +71,7 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_login_settings = rl_api_lib.rl_login_get(args.username, args.password, args.customername)
+rl_login_settings = rl_api_lib.rl_login_get(args.username, args.password, args.customername, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
@@ -79,10 +86,11 @@ if not args.yes:
 # Sort out API Login
 print('API - Getting authentication token...', end='')
 jwt = rl_api_lib.rl_jwt_get(rl_login_settings)
+apiBase = rl_login_settings['apiBase']
 print('Done.')
 
 print('API - Getting list of Policies...', end='')
-policy_list_old = api_policy_list_get(jwt)
+policy_list_old = api_policy_list_get(jwt, apiBase)
 print('Done.')
 
 print('Filter policy list for indicated policy types of ' + args.policytype + '...', end='')
@@ -102,9 +110,10 @@ for policy_old in policy_list_old:
             policy_list_filtered.append(policy_old)
         elif policy_old['policyType'] == policy_type:
             policy_list_filtered.append(policy_old)
+print('Done.')
 
 print('API - Updating policy statuses...')
 for policy_update in policy_list_filtered:
     print('Updating policy: ' + policy_update['name'])
-    policy_update_response = api_policy_status_update(jwt, policy_update['policyId'], policy_enabled_str)
+    policy_update_response = api_policy_status_update(jwt, apiBase, policy_update['policyId'], policy_enabled_str)
 print('Done.')

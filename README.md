@@ -18,14 +18,18 @@ pip install requests --upgrade
 On to the tools themselves (Everything requires the rl_api_lib.py library file - keep it in the same directory as the other tools):
 
 **rl-configure.py**
-- Use this to set up your Redlock username, password, and customer name for use in the remaining tools.  You add the -u and -p switch with your username and password used to log into the Redlock UI.  The -c switch should be the customer name for your account (this is case sensitive at this time).  Please do not add any ' or " to the keys as it will store the exact thing you type/paste in.
+- Use this to set up your Redlock username, password, and customer name for use in the remaining tools.
+- REQUIRED - -u switch for the username used to log into the Redlock UI.
+- REQUIRED - -p switch for the password used to log into the Redlock UI.
+- REQUIRED - -c switch for the customer name (tenant name) for your account (this is case sensitive at this time).
+- REQUIRED - -a switch for the API base URL found in the URL used to access the Redlock UI (app.redlock.io, app2.redlock.io, etc.)
 - Also you can run this without any args to see what e-mail and customer is being used.
 
 NOTE: This is stored in clear JSON text in the same folder as the tools.  Keep the resulting conf file protected and do not give it out to anyone.
 
 Example:
 ```
-python rl-configure.py -u user@email.com -p somepasswordhere -c SomeCaseSensitiveCustomerAccountName
+python rl-configure.py -u "user@email.com" -p "somepasswordhere" -c "SomeCaseSensitiveCustomerAccountName" -a "app.redlock.io"
 ```
 
 **rl-policy-status.py**

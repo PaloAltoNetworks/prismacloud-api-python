@@ -9,58 +9,58 @@ import requests
 
 
 # --Helper Functions (Local)-- #
-def api_compliance_standard_list_get(jwt):
+def api_compliance_standard_list_get(jwt, api_base):
     action = "GET"
-    url = "https://api.redlock.io/compliance"
+    url = "https://" + api_base + "/compliance"
     return rl_api_lib.rl_call_api(action, url, jwt=jwt)
 
 
-def api_compliance_standard_requirement_list_get(jwt, compliance_standard_id):
+def api_compliance_standard_requirement_list_get(jwt, api_base, compliance_standard_id):
     action = "GET"
-    url = "https://api.redlock.io/compliance/" + compliance_standard_id + "/requirement"
+    url = "https://" + api_base + "/compliance/" + compliance_standard_id + "/requirement"
     return rl_api_lib.rl_call_api(action, url, jwt=jwt)
 
 
-def api_compliance_standard_requirement_section_list_get(jwt, compliance_requirement_id):
+def api_compliance_standard_requirement_section_list_get(jwt, api_base, compliance_requirement_id):
     action = "GET"
-    url = "https://api.redlock.io/compliance/" + compliance_requirement_id + "/section"
+    url = "https://" + api_base + "/compliance/" + compliance_requirement_id + "/section"
     return rl_api_lib.rl_call_api(action, url, jwt=jwt)
 
 
-def api_compliance_standard_policy_list_get(jwt, source_compliance_standard_name):
+def api_compliance_standard_policy_list_get(jwt, api_base, source_compliance_standard_name):
     action = "GET"
-    url = "https://api.redlock.io/policy"
+    url = "https://" + api_base + "/policy"
     filters = [('policy.complianceStandard', source_compliance_standard_name)]
     return rl_api_lib.rl_call_api(action, url, jwt=jwt, params=filters)
 
 
-def api_compliance_standard_add(jwt, compliance_standard_new):
+def api_compliance_standard_add(jwt, api_base, compliance_standard_new):
     action = "POST"
-    url = "https://api.redlock.io/compliance"
+    url = "https://" + api_base + "/compliance"
     return rl_api_lib.rl_call_api(action, url, jwt=jwt, data=compliance_standard_new)
 
 
-def api_compliance_standard_requirement_add(jwt, compliance_standard_id, compliance_requirement_new):
+def api_compliance_standard_requirement_add(jwt, api_base, compliance_standard_id, compliance_requirement_new):
     action = "POST"
-    url = "https://api.redlock.io/compliance/" + compliance_standard_id + "/requirement"
+    url = "https://" + api_base + "/compliance/" + compliance_standard_id + "/requirement"
     return rl_api_lib.rl_call_api(action, url, jwt=jwt, data=compliance_requirement_new)
 
 
-def api_compliance_standard_requirement_section_add(jwt, compliance_requirement_id, compliance_section_new):
+def api_compliance_standard_requirement_section_add(jwt, api_base, compliance_requirement_id, compliance_section_new):
     action = "POST"
-    url = "https://api.redlock.io/compliance/" + compliance_requirement_id + "/section"
+    url = "https://" + api_base + "/compliance/" + compliance_requirement_id + "/section"
     return rl_api_lib.rl_call_api(action, url, jwt=jwt, data=compliance_section_new)
 
 
-def api_policy_update(jwt, policy_id, policy_update):
+def api_policy_update(jwt, api_base, policy_id, policy_update):
     action = "PUT"
-    url = "https://api.redlock.io/policy/" + policy_id
+    url = "https://" + api_base + "/policy/" + policy_id
     return rl_api_lib.rl_call_api(action, url, jwt=jwt, data=policy_update)
 
 
-def api_policy_get(jwt, policy_id):
+def api_policy_get(jwt, api_base, policy_id):
     action = "GET"
-    url = "https://api.redlock.io/policy/" + policy_id
+    url = "https://" + api_base + "/policy/" + policy_id
     return rl_api_lib.rl_call_api(action, url, jwt=jwt)
 
 
@@ -135,19 +135,26 @@ parser.add_argument(
     '-u',
     '--username',
     type=str,
-    help='*Required* - Redlock API UserName that you want to set to access your Redlock account.')
+    help='*Required if no settings file has been created* - Redlock API UserName that you want to set to access your Redlock account.')
 
 parser.add_argument(
     '-p',
     '--password',
     type=str,
-    help='*Required* - Redlock API password that you want to set to access your Redlock account.')
+    help='*Required if no settings file has been created* - Redlock API password that you want to set to access your Redlock account.')
 
 parser.add_argument(
     '-c',
     '--customername',
     type=str,
-    help='*Required* - Name of the Redlock account to be used.')
+    help='*Required if no settings file has been created* - Name of the Redlock account to be used.')
+
+parser.add_argument(
+    '-url',
+    '--uiurl',
+    type=str,
+    help='*Required if no settings file has been created* - Base URL used in the UI for connecting to Redlock.  '
+         'Formatted as app.redlock.io or app2.redlock.io or app.eu.redlock.io, etc.')
 
 parser.add_argument(
     '-y',
@@ -176,7 +183,7 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_login_settings = rl_api_lib.rl_login_get(args.username, args.password, args.customername)
+rl_login_settings = rl_api_lib.rl_login_get(args.username, args.password, args.customername, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
@@ -191,13 +198,14 @@ if not args.yes:
 # Sort out API Login
 print('API - Getting authentication token...', end='')
 jwt = rl_api_lib.rl_jwt_get(rl_login_settings)
+apiBase = rl_login_settings['apiBase']
 print('Done.')
 
 ## Compliance Copy ##
 
 # Check the compliance standard and get the JSON information
 print('API - Getting the Compliance Standards list...', end='')
-compliance_standard_list_temp = api_compliance_standard_list_get(jwt)
+compliance_standard_list_temp = api_compliance_standard_list_get(jwt, apiBase)
 compliance_standard_original = search_list_object_lower(compliance_standard_list_temp, 'name', args.source_compliance_standard_name)
 if compliance_standard_original is None:
     rl_api_lib.rl_exit_error(400, 'Compliance Standard not found.  Please check the Compliance Standard name and try again.')
@@ -212,10 +220,10 @@ compliance_standard_new_temp = {}
 compliance_standard_new_temp['name'] = args.destination_compliance_standard_name
 if 'description' in compliance_standard_original:
     compliance_standard_new_temp['description'] = compliance_standard_original['description']
-compliance_standard_new_response = api_compliance_standard_add(jwt, compliance_standard_new_temp)
+compliance_standard_new_response = api_compliance_standard_add(jwt, apiBase, compliance_standard_new_temp)
 
 # Find the new Standard object
-compliance_standard_list_temp = api_compliance_standard_list_get(jwt)
+compliance_standard_list_temp = api_compliance_standard_list_get(jwt, apiBase)
 compliance_standard_new = search_list_object(compliance_standard_list_temp, 'name', compliance_standard_new_temp['name'])
 if compliance_standard_new is None:
     rl_api_lib.rl_exit_error(500, 'New Compliance Standard was not found!  Sync error?.')
@@ -223,7 +231,7 @@ print('Done.')
 
 # Get the list of requirements that need to be created
 print('API - Getting Compliance Standard Requirements...', end='')
-compliance_requirement_list_original = api_compliance_standard_requirement_list_get(jwt, compliance_standard_original['id'])
+compliance_requirement_list_original = api_compliance_standard_requirement_list_get(jwt, apiBase, compliance_standard_original['id'])
 print('Done.')
 
 # Create the new requirements
@@ -234,12 +242,12 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
     compliance_requirement_new_temp['requirementId'] = compliance_requirement_original_temp['requirementId']
     if 'description' in compliance_requirement_original_temp:
         compliance_requirement_new_temp['description'] = compliance_requirement_original_temp['description']
-    compliance_requirement_new_response = api_compliance_standard_requirement_add(jwt, compliance_standard_new['id'], compliance_requirement_new_temp)
+    compliance_requirement_new_response = api_compliance_standard_requirement_add(jwt, apiBase, compliance_standard_new['id'], compliance_requirement_new_temp)
 print('Done.')
 
 # Get new list of requirements
 print('API - Getting the new list of requirements...', end='')
-compliance_requirement_list_new = api_compliance_standard_requirement_list_get(jwt, compliance_standard_new['id'])
+compliance_requirement_list_new = api_compliance_standard_requirement_list_get(jwt, apiBase, compliance_standard_new['id'])
 print('Done.')
 
 
@@ -250,7 +258,7 @@ map_section_list = []
 for compliance_requirement_original_temp in compliance_requirement_list_original:
 
     # Get sections for requirement
-    compliance_section_list_original_temp = api_compliance_standard_requirement_section_list_get(jwt, compliance_requirement_original_temp['id'])
+    compliance_section_list_original_temp = api_compliance_standard_requirement_section_list_get(jwt, apiBase, compliance_requirement_original_temp['id'])
 
     # Find new ID for requirement
     compliance_requirement_new_temp = search_list_object(compliance_requirement_list_new, 'name', compliance_requirement_original_temp['name'])
@@ -261,7 +269,7 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
         compliance_section_new_temp['sectionId'] = compliance_section_original_temp['sectionId']
         if 'description' in compliance_section_original_temp:
             compliance_section_new_temp['description'] = compliance_section_original_temp['description']
-        compliance_section_new_response = api_compliance_standard_requirement_section_add(jwt, compliance_requirement_new_temp['id'], compliance_section_new_temp)
+        compliance_section_new_response = api_compliance_standard_requirement_section_add(jwt, apiBase, compliance_requirement_new_temp['id'], compliance_section_new_temp)
 
         # Add entry for mapping table for Policy updates later
         compliance_section_new_temp['requirementGUIDOriginal'] = compliance_requirement_original_temp['id']
@@ -282,7 +290,7 @@ else:
     for compliance_requirement_new_temp in compliance_requirement_list_new:
 
         # Get new sections for requirement
-        compliance_section_list_new_temp = api_compliance_standard_requirement_section_list_get(jwt, compliance_requirement_new_temp['id'])
+        compliance_section_list_new_temp = api_compliance_standard_requirement_section_list_get(jwt, apiBase, compliance_requirement_new_temp['id'])
 
         # Get new GUID and update mapping table
         for compliance_section_new_temp in compliance_section_list_new_temp:
@@ -298,7 +306,7 @@ else:
 
     # Get the policy list that will need to be updated (filtered to the original standard)
     print('API - Getting the compliance standard policy list to update...', end='')
-    policy_list_original = api_compliance_standard_policy_list_get(jwt, compliance_standard_original['name'])
+    policy_list_original = api_compliance_standard_policy_list_get(jwt, apiBase, compliance_standard_original['name'])
     print('Done.')
 
     # Work though the list of policies to build the update package
@@ -306,7 +314,7 @@ else:
     header_text = False
     for policy_original_temp in policy_list_original:
         # Get the individual policy JSON object
-        policy_specific_temp = api_policy_get(jwt, policy_original_temp['policyId'])
+        policy_specific_temp = api_policy_get(jwt, apiBase, policy_original_temp['policyId'])
 
         # Edit existing complianceMetadata field for update PUT
         complianceMetadata_section_list_new_temp = []
@@ -358,7 +366,7 @@ else:
 
         # Post the updated policy to the API
         try:
-            policy_update_response = api_policy_update(jwt, policy_specific_temp['policyId'], policy_specific_temp)
+            policy_update_response = api_policy_update(jwt, apiBase, policy_specific_temp['policyId'], policy_specific_temp)
         except requests.exceptions.HTTPError as e:
             if not header_text:
                 print()
