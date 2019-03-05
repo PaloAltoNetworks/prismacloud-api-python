@@ -15,7 +15,7 @@ pip install requests --upgrade
 
 ------------------------------------------------------------------
 
-On to the tools themselves (Everything requires the rl_api_lib.py library file - keep it in the same directory as the other tools):
+On to the tools themselves (Everything requires the rl_lib_api.py and rl_lib_general.py library files - keep them in the same directory as the other tools):
 
 **rl-configure.py**
 - Use this to set up your Redlock username, password, and customer name for use in the remaining tools.

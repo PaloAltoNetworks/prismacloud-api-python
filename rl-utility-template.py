@@ -4,7 +4,8 @@ try:
 except NameError:
     pass
 import argparse
-import rl_api_lib
+import rl_lib_api
+import rl_lib_general
 
 
 # --Execution Block-- #
@@ -47,7 +48,7 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_login_settings = rl_api_lib.rl_login_get(args.username, args.password, args.customername, args.uiurl)
+rl_login_settings = rl_lib_general.rl_login_get(args.username, args.password, args.customername, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
@@ -57,10 +58,10 @@ if not args.yes:
     continue_response = {'yes', 'y'}
     print()
     if verification_response not in continue_response:
-        rl_api_lib.rl_exit_error(400, 'Verification failed due to user response.  Exiting...')
+        rl_lib_general.rl_exit_error(400, 'Verification failed due to user response.  Exiting...')
 
 # Sort out API Login
 print('API - Getting authentication token...', end='')
-jwt = rl_api_lib.rl_jwt_get(rl_login_settings)
+jwt = rl_lib_api.rl_jwt_get(rl_login_settings)
 apiBase = rl_login_settings['apiBase']
 print('Done.')

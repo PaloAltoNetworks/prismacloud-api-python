@@ -1,11 +1,10 @@
 import json
 import os.path
-import requests
 import sys
 import csv
 
 # --Description-- #
-# Redlock API Helper library.  Used to contain the API calls and other general useful shared functions.
+# Redlock General Helper library.  Used to contain the general useful shared functions.
 # --End Description-- #
 
 
@@ -17,7 +16,7 @@ DEFAULT_SETTINGS_FILE_VERSION = 2
 
 
 # --Helper Methods-- #
-# Exit handlers
+# Exit handler (Error)
 def rl_exit_error(error_code, error_message=None, system_message=None):
     print(error_code)
     if error_message is not None:
@@ -27,6 +26,7 @@ def rl_exit_error(error_code, error_message=None, system_message=None):
     sys.exit(1)
 
 
+# Exit handler (Success)
 def rl_exit_success():
     sys.exit(0)
 
@@ -60,23 +60,20 @@ def rl_settings_upgrade(old_settings):
 # Read in settings
 def rl_settings_read(settings_file_name=DEFAULT_SETTINGS_FILE_NAME, settings_file_version=DEFAULT_SETTINGS_FILE_VERSION):
     settings_file_name_and_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), settings_file_name)
-    rl_settings = {}
     if os.path.isfile(settings_file_name_and_path):
-        try:
-            with open(settings_file_name_and_path, 'r') as f:
-                rl_settings = json.load(f)
-        except Exception as ex:
-            rl_exit_error(400, "Error in reading/parsing the rl-settings file.  Please reset the settings using the rl-configure.py utility.", ex)
-        if rl_settings['settings_file_version'] == settings_file_version:
+        rl_settings = rl_file_read_json(settings_file_name)
+        if rl_settings is None or rl_settings == {}:
+            rl_exit_error(500, "The settings file appears to exist, but is empty?  Check the settings file or rerun the rl-configure.py utility.")
+        elif rl_settings['settings_file_version'] == settings_file_version:
             return rl_settings
         elif rl_settings['settings_file_version'] < settings_file_version:
             return rl_settings_upgrade(rl_settings)
         else:
             rl_exit_error(500, "The settings file being used is newer than the utility understands.  "
-                            "Please recreate the settings file using the rl-settings.py utility or "
+                            "Please recreate the settings file using the rl-configure.py utility or "
                             "update the Redlock tools in use.")
     else:
-        rl_exit_error(400, "Cannot find the rl-settings file.  Please create one using the rl-settings.py utility.")
+        rl_exit_error(400, "Cannot find the rl-settings file.  Please create one using the rl-configure.py utility.")
 
 
 # Write settings to a file
@@ -92,27 +89,7 @@ def rl_settings_write(username, password, customername, uiBase,
     new_settings['password'] = password
     new_settings['customerName'] = customername
     new_settings['apiBase'] = apiBase
-    settings_file_name_and_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), settings_file_name)
-    try:
-        with open(settings_file_name_and_path, 'w') as f:
-            json.dump(new_settings, f)
-    except Exception as ex:
-        rl_exit_error(500, "Failed to create settings file.", ex)
-
-
-# API Call Function
-def rl_call_api(action, api_url, jwt=None, data=None, params=None, count=0):
-    headers = {'Content-Type': 'application/json', 'x-redlock-auth': jwt}
-    response = requests.request(action, api_url, params=params, headers=headers, data=json.dumps(data))
-    # Check for successful API call
-    response.raise_for_status()
-    try:
-        return response.json()
-    except ValueError:
-        if response.text == '':
-            return None
-        else:
-            rl_exit_error(501, 'The server returned an unexpected server response.')
+    rl_file_write_json(settings_file_name, new_settings)
 
 
 # Work out login information
@@ -130,14 +107,6 @@ def rl_login_get(username, password, customername, uibase):
     return rl_settings
 
 
-# Get JWT for access (Needs data from rl_login_get)
-def rl_jwt_get(rl_settings):
-    url = "https://" + rl_settings['apiBase'] + "/login"
-    action = "POST"
-    response = rl_call_api(action, url, data=rl_settings)
-    return response['token']
-
-
 # Load the CSV file into Dict
 def rl_file_load_csv(file_name):
     csv_list = []
@@ -146,3 +115,26 @@ def rl_file_load_csv(file_name):
         for row in file_reader:
             csv_list.append(row)
     return csv_list
+
+
+# Write JSON file
+def rl_file_write_json(file_name, data_to_write):
+    file_name_and_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), file_name)
+    try:
+        with open(file_name_and_path, 'w') as f:
+            json.dump(data_to_write, f)
+    except Exception as ex:
+        rl_exit_error(500, "Failed to write JSON file.", ex)
+
+
+# Read JSON file into Dict
+def rl_file_read_json(file_name):
+    json_data = None
+    file_name_and_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), file_name)
+    try:
+        with open(file_name_and_path, 'r') as f:
+            json_data = json.load(f)
+    except Exception as ex:
+        rl_exit_error(500, "Failed to read JSON file.  Check the file name?", ex)
+    return json_data
+

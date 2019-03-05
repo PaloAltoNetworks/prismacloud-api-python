@@ -4,19 +4,8 @@ try:
 except NameError:
     pass
 import argparse
-import rl_api_lib
-
-
-def api_policy_list_get(jwt, api_base):
-    action = "GET"
-    url = "https://" + api_base + "/policy"
-    return rl_api_lib.rl_call_api(action, url, jwt=jwt)
-
-
-def api_policy_status_update(jwt, api_base, policy_id, status):
-    action = "PATCH"
-    url = "https://" + api_base + "/policy/" + policy_id + "/status/" + status
-    return rl_api_lib.rl_call_api(action, url, jwt=jwt)
+import rl_lib_general
+import rl_lib_api
 
 
 # --Execution Block-- #
@@ -71,7 +60,7 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_login_settings = rl_api_lib.rl_login_get(args.username, args.password, args.customername, args.uiurl)
+rl_login_settings = rl_lib_general.rl_login_get(args.username, args.password, args.customername, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
@@ -81,16 +70,16 @@ if not args.yes:
     continue_response = {'yes', 'y'}
     print()
     if verification_response not in continue_response:
-        rl_api_lib.rl_exit_error(400, 'Verification failed due to user response.  Exiting...')
+        rl_lib_general.rl_exit_error(400, 'Verification failed due to user response.  Exiting...')
 
 # Sort out API Login
 print('API - Getting authentication token...', end='')
-jwt = rl_api_lib.rl_jwt_get(rl_login_settings)
+jwt = rl_lib_api.rl_jwt_get(rl_login_settings)
 apiBase = rl_login_settings['apiBase']
 print('Done.')
 
 print('API - Getting list of Policies...', end='')
-policy_list_old = api_policy_list_get(jwt, apiBase)
+policy_list_old = rl_lib_api.api_policy_list_get(jwt, apiBase)
 print('Done.')
 
 print('Filter policy list for indicated policy types of ' + args.policytype + '...', end='')
@@ -115,5 +104,5 @@ print('Done.')
 print('API - Updating policy statuses...')
 for policy_update in policy_list_filtered:
     print('Updating policy: ' + policy_update['name'])
-    policy_update_response = api_policy_status_update(jwt, apiBase, policy_update['policyId'], policy_enabled_str)
+    policy_update_response = rl_lib_api.api_policy_status_update(jwt, apiBase, policy_update['policyId'], policy_enabled_str)
 print('Done.')

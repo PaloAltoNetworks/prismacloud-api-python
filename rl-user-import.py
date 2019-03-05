@@ -4,25 +4,8 @@ try:
 except NameError:
     pass
 import argparse
-import rl_api_lib
-
-
-def api_user_role_list_get(jwt, api_base):
-    action = "GET"
-    url = "https://" + api_base + "/user/role"
-    return rl_api_lib.rl_call_api(action, url, jwt=jwt)
-
-
-def api_user_list_get(jwt, api_base):
-    action = "GET"
-    url = "https://" + api_base + "/user"
-    return rl_api_lib.rl_call_api(action, url, jwt=jwt)
-
-
-def api_user_add(jwt, api_base, user_to_add):
-    action = "POST"
-    url = "https://" + api_base + "/user"
-    return rl_api_lib.rl_call_api(action, url, jwt=jwt, data=user_to_add)
+import rl_lib_api
+import rl_lib_general
 
 
 # --Execution Block-- #
@@ -75,7 +58,7 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_login_settings = rl_api_lib.rl_login_get(args.username, args.password, args.customername, args.uiurl)
+rl_login_settings = rl_lib_general.rl_login_get(args.username, args.password, args.customername, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
@@ -85,24 +68,24 @@ if not args.yes:
     continue_response = {'yes', 'y'}
     print()
     if verification_response not in continue_response:
-        rl_api_lib.rl_exit_error(400, 'Verification failed due to user response.  Exiting...')
+        rl_lib_general.rl_exit_error(400, 'Verification failed due to user response.  Exiting...')
 
 # Sort out API Login
 print('API - Getting authentication token...', end='')
-jwt = rl_api_lib.rl_jwt_get(rl_login_settings)
+jwt = rl_lib_api.rl_jwt_get(rl_login_settings)
 apiBase = rl_login_settings['apiBase']
 print('Done.')
 
 print('API - Getting current user list...', end='')
-user_list_old = api_user_list_get(jwt, apiBase)
+user_list_old = rl_lib_api.api_user_list_get(jwt, apiBase)
 print('Done.')
 
 print('File - Loading CSV user data...', end='')
-user_list_new = rl_api_lib.rl_file_load_csv(args.importfile)
+user_list_new = rl_lib_general.rl_file_load_csv(args.importfile)
 print('Done.')
 
 print('API - Getting user roles...', end='')
-user_role_list = api_user_role_list_get(jwt, apiBase)
+user_role_list = rl_lib_api.api_user_role_list_get(jwt, apiBase)
 print('Done.')
 
 print('Searching for role name to get role ID...', end='')
@@ -112,7 +95,7 @@ for user_role in user_role_list:
         user_role_id = user_role['id']
         break
 if user_role_id is None:
-    rl_api_lib.rl_exit_error(400, 'No role by that name found.  Please check the role name and try again.')
+    rl_lib_general.rl_exit_error(400, 'No role by that name found.  Please check the role name and try again.')
 print('Done.')
 
 print('Formatting imported user list and checking for duplicates by e-mail...', end='')
@@ -154,5 +137,5 @@ print('Users removed as duplicates from CSV: ' + str(users_duplicate_count))
 print('API - Adding users...')
 for user_new in users_list_new_formatted:
     print('Adding user email: ' + user_new['email'])
-    user_new_response = api_user_add(jwt, apiBase, user_new)
+    user_new_response = rl_lib_api.api_user_add(jwt, apiBase, user_new)
 print('Done.')

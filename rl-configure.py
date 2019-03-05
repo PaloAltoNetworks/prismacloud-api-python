@@ -1,6 +1,6 @@
 from __future__ import print_function
 import argparse
-import rl_api_lib
+import rl_lib_general
 
 
 # --Execution Block-- #
@@ -37,10 +37,10 @@ args = parser.parse_args()
 
 # --Main-- #
 if args.username is not None and args.password is not None and args.customername is not None and args.uiurl is not None:
-    rl_api_lib.rl_settings_write(args.username, args.password, args.customername, args.uiurl)
+    rl_lib_general.rl_settings_write(args.username, args.password, args.customername, args.uiurl)
     print('Settings successfully saved to disk.')
 elif args.username is None and args.password is None and args.customername is None:
-    rl_settings = rl_api_lib.rl_settings_read()
+    rl_settings = rl_lib_general.rl_settings_read()
     print("Your currently configured Redlock UserName is:")
     print(rl_settings['username'])
     print("Your currently configured Redlock CustomerName is:")
@@ -49,6 +49,6 @@ elif args.username is None and args.password is None and args.customername is No
         print("Your currently configured Redlock API Base URL is:")
         print(rl_settings['apiBase'])
 else:
-    rl_api_lib.rl_exit_error(400,"Please input a username (-u), password (-p), customer name (-c), and UI base URL (-url)"
+    rl_lib_general.rl_exit_error(400,"Please input a username (-u), password (-p), customer name (-c), and UI base URL (-url)"
                                  " or no switches at all to see currently set information.  Note: The Redlock UI Base URL should be "
                                  "similar to app.redlock.io, app2.redlock.io, etc.")
