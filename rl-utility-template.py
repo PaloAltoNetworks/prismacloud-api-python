@@ -48,12 +48,12 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_login_settings = rl_lib_general.rl_login_get(args.username, args.password, args.customername, args.uiurl)
+rl_settings = rl_lib_general.rl_login_get(args.username, args.password, args.customername, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
     print()
-    print('This action will be done against the customer account name of "' + rl_login_settings['customerName'] + '".')
+    print('This action will be done against the customer account name of "' + rl_settings['customerName'] + '".')
     verification_response = str(input('Is this correct (y or yes to continue)?'))
     continue_response = {'yes', 'y'}
     print()
@@ -62,6 +62,5 @@ if not args.yes:
 
 # Sort out API Login
 print('API - Getting authentication token...', end='')
-jwt = rl_lib_api.rl_jwt_get(rl_login_settings)
-apiBase = rl_login_settings['apiBase']
+rl_settings = rl_lib_api.rl_jwt_get(rl_settings)[0]
 print('Done.')

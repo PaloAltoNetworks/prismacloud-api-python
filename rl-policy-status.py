@@ -60,12 +60,12 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_login_settings = rl_lib_general.rl_login_get(args.username, args.password, args.customername, args.uiurl)
+rl_settings = rl_lib_general.rl_login_get(args.username, args.password, args.customername, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
     print()
-    print('This action will be done against the customer account name of "' + rl_login_settings['customerName'] + '".')
+    print('This action will be done against the customer account name of "' + rl_settings['customerName'] + '".')
     verification_response = str(input('Is this correct (y or yes to continue)?'))
     continue_response = {'yes', 'y'}
     print()
@@ -74,12 +74,12 @@ if not args.yes:
 
 # Sort out API Login
 print('API - Getting authentication token...', end='')
-jwt = rl_lib_api.rl_jwt_get(rl_login_settings)
-apiBase = rl_login_settings['apiBase']
+rl_settings = rl_lib_api.rl_jwt_get(rl_settings)[0]
 print('Done.')
 
 print('API - Getting list of Policies...', end='')
-policy_list_old = rl_lib_api.api_policy_list_get(jwt, apiBase)
+rl_settings, response_package = rl_lib_api.api_policy_list_get(rl_settings)
+policy_list_old = response_package['data']
 print('Done.')
 
 print('Filter policy list for indicated policy types of ' + args.policytype + '...', end='')
@@ -104,5 +104,5 @@ print('Done.')
 print('API - Updating policy statuses...')
 for policy_update in policy_list_filtered:
     print('Updating policy: ' + policy_update['name'])
-    policy_update_response = rl_lib_api.api_policy_status_update(jwt, apiBase, policy_update['policyId'], policy_enabled_str)
+    rl_settings, response_package = rl_lib_api.api_policy_status_update(rl_settings, policy_update['policyId'], policy_enabled_str)
 print('Done.')

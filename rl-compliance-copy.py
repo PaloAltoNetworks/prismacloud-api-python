@@ -129,12 +129,12 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_login_settings = rl_lib_general.rl_login_get(args.username, args.password, args.customername, args.uiurl)
+rl_settings = rl_lib_general.rl_login_get(args.username, args.password, args.customername, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
     print()
-    print('This action will be done against the customer account name of "' + rl_login_settings['customerName'] + '".')
+    print('This action will be done against the customer account name of "' + rl_settings['customerName'] + '".')
     verification_response = str(input('Is this correct (y or yes to continue)?'))
     continue_response = {'yes', 'y'}
     print()
@@ -143,15 +143,15 @@ if not args.yes:
 
 # Sort out API Login
 print('API - Getting authentication token...', end='')
-jwt = rl_lib_api.rl_jwt_get(rl_login_settings)
-apiBase = rl_login_settings['apiBase']
+rl_settings = rl_lib_api.rl_jwt_get(rl_settings)[0]
 print('Done.')
 
 ## Compliance Copy ##
 
 # Check the compliance standard and get the JSON information
 print('API - Getting the Compliance Standards list...', end='')
-compliance_standard_list_temp = rl_lib_api.api_compliance_standard_list_get(jwt, apiBase)
+rl_settings, response_package = rl_lib_api.api_compliance_standard_list_get(rl_settings)
+compliance_standard_list_temp = response_package['data']
 compliance_standard_original = search_list_object_lower(compliance_standard_list_temp, 'name', args.source_compliance_standard_name)
 if compliance_standard_original is None:
     rl_lib_general.rl_exit_error(400, 'Compliance Standard not found.  Please check the Compliance Standard name and try again.')
@@ -166,10 +166,12 @@ compliance_standard_new_temp = {}
 compliance_standard_new_temp['name'] = args.destination_compliance_standard_name
 if 'description' in compliance_standard_original:
     compliance_standard_new_temp['description'] = compliance_standard_original['description']
-compliance_standard_new_response = rl_lib_api.api_compliance_standard_add(jwt, apiBase, compliance_standard_new_temp)
+rl_settings, response_package = rl_lib_api.api_compliance_standard_add(rl_settings, compliance_standard_new_temp)
+compliance_standard_new_response = response_package['data']
 
 # Find the new Standard object
-compliance_standard_list_temp = rl_lib_api.api_compliance_standard_list_get(jwt, apiBase)
+rl_settings, response_package = rl_lib_api.api_compliance_standard_list_get(rl_settings)
+compliance_standard_list_temp = response_package['data']
 compliance_standard_new = search_list_object(compliance_standard_list_temp, 'name', compliance_standard_new_temp['name'])
 if compliance_standard_new is None:
     rl_lib_general.rl_exit_error(500, 'New Compliance Standard was not found!  Sync error?.')
@@ -177,7 +179,8 @@ print('Done.')
 
 # Get the list of requirements that need to be created
 print('API - Getting Compliance Standard Requirements...', end='')
-compliance_requirement_list_original = rl_lib_api.api_compliance_standard_requirement_list_get(jwt, apiBase, compliance_standard_original['id'])
+rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_list_get(rl_settings, compliance_standard_original['id'])
+compliance_requirement_list_original = response_package['data']
 print('Done.')
 
 # Create the new requirements
@@ -188,12 +191,14 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
     compliance_requirement_new_temp['requirementId'] = compliance_requirement_original_temp['requirementId']
     if 'description' in compliance_requirement_original_temp:
         compliance_requirement_new_temp['description'] = compliance_requirement_original_temp['description']
-    compliance_requirement_new_response = rl_lib_api.api_compliance_standard_requirement_add(jwt, apiBase, compliance_standard_new['id'], compliance_requirement_new_temp)
+        rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_add(rl_settings, compliance_standard_new['id'], compliance_requirement_new_temp)
+    compliance_requirement_new_response = response_package['data']
 print('Done.')
 
 # Get new list of requirements
 print('API - Getting the new list of requirements...', end='')
-compliance_requirement_list_new = rl_lib_api.api_compliance_standard_requirement_list_get(jwt, apiBase, compliance_standard_new['id'])
+rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_list_get(rl_settings, compliance_standard_new['id'])
+compliance_requirement_list_new = response_package['data']
 print('Done.')
 
 
@@ -204,7 +209,8 @@ map_section_list = []
 for compliance_requirement_original_temp in compliance_requirement_list_original:
 
     # Get sections for requirement
-    compliance_section_list_original_temp = rl_lib_api.api_compliance_standard_requirement_section_list_get(jwt, apiBase, compliance_requirement_original_temp['id'])
+    rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_section_list_get(rl_settings, compliance_requirement_original_temp['id'])
+    compliance_section_list_original_temp = response_package['data']
 
     # Find new ID for requirement
     compliance_requirement_new_temp = search_list_object(compliance_requirement_list_new, 'name', compliance_requirement_original_temp['name'])
@@ -215,7 +221,8 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
         compliance_section_new_temp['sectionId'] = compliance_section_original_temp['sectionId']
         if 'description' in compliance_section_original_temp:
             compliance_section_new_temp['description'] = compliance_section_original_temp['description']
-        compliance_section_new_response = rl_lib_api.api_compliance_standard_requirement_section_add(jwt, apiBase, compliance_requirement_new_temp['id'], compliance_section_new_temp)
+            rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_section_add(rl_settings, compliance_requirement_new_temp['id'], compliance_section_new_temp)
+        compliance_section_new_response = response_package['data']
 
         # Add entry for mapping table for Policy updates later
         compliance_section_new_temp['requirementGUIDOriginal'] = compliance_requirement_original_temp['id']
@@ -236,7 +243,8 @@ else:
     for compliance_requirement_new_temp in compliance_requirement_list_new:
 
         # Get new sections for requirement
-        compliance_section_list_new_temp = rl_lib_api.api_compliance_standard_requirement_section_list_get(jwt, apiBase, compliance_requirement_new_temp['id'])
+        rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_section_list_get(rl_settings, compliance_requirement_new_temp['id'])
+        compliance_section_list_new_temp = response_package['data']
 
         # Get new GUID and update mapping table
         for compliance_section_new_temp in compliance_section_list_new_temp:
@@ -252,7 +260,8 @@ else:
 
     # Get the policy list that will need to be updated (filtered to the original standard)
     print('API - Getting the compliance standard policy list to update...', end='')
-    policy_list_original = rl_lib_api.api_compliance_standard_policy_list_get(jwt, apiBase, compliance_standard_original['name'])
+    rl_settings, response_package = rl_lib_api.api_compliance_standard_policy_list_get(rl_settings, compliance_standard_original['name'])
+    policy_list_original = response_package['data']
     print('Done.')
 
     # Work though the list of policies to build the update package
@@ -260,7 +269,8 @@ else:
     header_text = False
     for policy_original_temp in policy_list_original:
         # Get the individual policy JSON object
-        policy_specific_temp = rl_lib_api.api_policy_get(jwt, apiBase, policy_original_temp['policyId'])
+        rl_settings, response_package = rl_lib_api.api_policy_get(rl_settings, policy_original_temp['policyId'])
+        policy_specific_temp = response_package['data']
 
         # Edit existing complianceMetadata field for update PUT
         complianceMetadata_section_list_new_temp = []
@@ -312,7 +322,8 @@ else:
 
         # Post the updated policy to the API
         try:
-            policy_update_response = rl_lib_api.api_policy_update(jwt, apiBase, policy_specific_temp['policyId'], policy_specific_temp)
+            rl_settings, response_package = rl_lib_api.api_policy_update(rl_settings, policy_specific_temp['policyId'], policy_specific_temp)
+            policy_update_response = response_package['data']
         except requests.exceptions.HTTPError as e:
             if not header_text:
                 print()

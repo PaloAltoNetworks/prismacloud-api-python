@@ -104,6 +104,8 @@ def rl_login_get(username, password, customername, uibase):
         rl_settings['password'] = password
         rl_settings['customerName'] = customername
         rl_settings['apiBase'] = rl_find_api_base(uibase)
+    # Add a placeholder for jwt
+    rl_settings['jwt'] = None
     return rl_settings
 
 
