@@ -85,7 +85,7 @@ if not args.yes:
 
 # Sort out API Login
 print('API - Getting authentication token...', end='')
-rl_settings = rl_lib_api.rl_jwt_get(rl_settings)[0]
+rl_settings = rl_lib_api.rl_jwt_get(rl_settings)
 print('Done.')
 
 print('API - Getting user...', end='')

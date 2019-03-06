@@ -31,7 +31,7 @@ def rl_call_api(action, api_url, rl_settings, data=None, params=None, try_count=
     elif response.status_code in auth_statuses and rl_settings['jwt'] is not None:
         auth_count = auth_count + 1
         if auth_count <= auth_retries:
-            jwt = rl_jwt_get(rl_settings)
+            rl_settings = rl_jwt_get(rl_settings)
             return rl_call_api(action=action, api_url=api_url, rl_settings=rl_settings, data=data, params=params,
                                try_count=try_count, max_retries=max_retries, auth_count=auth_count,auth_retries=auth_retries)
         else:
@@ -40,25 +40,24 @@ def rl_call_api(action, api_url, rl_settings, data=None, params=None, try_count=
         response.raise_for_status()
 
     # Check for valid response and catch if blank or unexpected
-    response_package = {}
-    response_package['statusCode'] = response.status_code
+    api_response_package = {}
+    api_response_package['statusCode'] = response.status_code
     try:
-        response_package['data'] = response.json()
+        api_response_package['data'] = response.json()
     except ValueError:
         if response.text == '':
-            response_package['data'] = None
+            api_response_package['data'] = None
         else:
             rl_lib_general.rl_exit_error(501, 'The server returned an unexpected server response.')
-    return rl_settings, response_package
+    return rl_settings, api_response_package
 
 
 # Get JWT for access
 def rl_jwt_get(rl_settings):
     url = "https://" + rl_settings['apiBase'] + "/login"
     action = "POST"
-    rl_settings, response_package = rl_call_api(action, url, rl_settings, data=rl_settings)
-    rl_settings['jwt'] = response_package['data']['token']
-    return rl_settings, response_package
+    rl_settings['jwt'] = rl_call_api(action, url, rl_settings, data=rl_settings)[1]['data']['token']
+    return rl_settings
 
 
 # Get Compliance Standards list

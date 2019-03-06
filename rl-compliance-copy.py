@@ -143,7 +143,7 @@ if not args.yes:
 
 # Sort out API Login
 print('API - Getting authentication token...', end='')
-rl_settings = rl_lib_api.rl_jwt_get(rl_settings)[0]
+rl_settings = rl_lib_api.rl_jwt_get(rl_settings)
 print('Done.')
 
 ## Compliance Copy ##
@@ -191,8 +191,7 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
     compliance_requirement_new_temp['requirementId'] = compliance_requirement_original_temp['requirementId']
     if 'description' in compliance_requirement_original_temp:
         compliance_requirement_new_temp['description'] = compliance_requirement_original_temp['description']
-        rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_add(rl_settings, compliance_standard_new['id'], compliance_requirement_new_temp)
-    compliance_requirement_new_response = response_package['data']
+    rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_add(rl_settings, compliance_standard_new['id'], compliance_requirement_new_temp)
 print('Done.')
 
 # Get new list of requirements
@@ -200,7 +199,6 @@ print('API - Getting the new list of requirements...', end='')
 rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_list_get(rl_settings, compliance_standard_new['id'])
 compliance_requirement_list_new = response_package['data']
 print('Done.')
-
 
 # Get list of sections and create for each requirement section
 print('API - Get list of sections, create them, and associate them to the new requirements (might take a while)...', end='')
@@ -222,7 +220,6 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
         if 'description' in compliance_section_original_temp:
             compliance_section_new_temp['description'] = compliance_section_original_temp['description']
             rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_section_add(rl_settings, compliance_requirement_new_temp['id'], compliance_section_new_temp)
-        compliance_section_new_response = response_package['data']
 
         # Add entry for mapping table for Policy updates later
         compliance_section_new_temp['requirementGUIDOriginal'] = compliance_requirement_original_temp['id']
@@ -323,7 +320,6 @@ else:
         # Post the updated policy to the API
         try:
             rl_settings, response_package = rl_lib_api.api_policy_update(rl_settings, policy_specific_temp['policyId'], policy_specific_temp)
-            policy_update_response = response_package['data']
         except requests.exceptions.HTTPError as e:
             if not header_text:
                 print()
