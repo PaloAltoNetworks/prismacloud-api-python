@@ -115,6 +115,13 @@ parser.add_argument(
     help='(Optional) - If you want to try update the policies with your new compliance standard, add this switch to the command.  Any policies not able to be updated will be listed out during the process.')
 
 parser.add_argument(
+    '-label',
+    '--label',
+    action='store_true',
+    help='(Optional) - Add a label to any policy updated with the new compliance standard.  This only works if you have also specified the -policy switch.')
+
+
+parser.add_argument(
     'source_compliance_standard_name',
     type=str,
     help='Name of the compliance standard to copy from.  Please enter it exactly as listed in the Redlock UI')
@@ -316,6 +323,13 @@ else:
 
         # Patch in the new list to the specific policy object
         policy_specific_temp['complianceMetadata'] = complianceMetadata_section_list_new_temp
+
+        # Add a label (optional) for the new compliance report name
+        if not args.label:
+            print()
+            print("Label switch not specified.  Skipping adding a label for this compliance to all attached policies.")
+        else:
+            policy_specific_temp['labels'].append(args.destination_compliance_standard_name)
 
         # Post the updated policy to the API
         try:
