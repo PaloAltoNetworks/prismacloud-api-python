@@ -6,7 +6,6 @@ except NameError:
 import argparse
 import rl_lib_api
 import rl_lib_general
-import requests
 
 
 # --Helper Functions (Local)-- #
