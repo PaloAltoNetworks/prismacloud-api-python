@@ -60,3 +60,21 @@ Example:
 ```
 python rl-compliance-copy.py "SOC 2" "SOC 2 Copy" -policy
 ```
+
+**rl-compliance-export.py**
+- Use this to export an existing Compliance Standard (and related requirements and sections) into a file for import later or in another tenant.
+
+Example:
+```
+python rl-compliance-export.py "SOC 2" "soc2.json"
+```
+
+**rl-compliance-import.py**
+- Use this to import a saved Compliance Standard (and related requirements and sections) into a new Compliance Standard in Redlock.
+- It will copy the entire specified standard into the new standard name specified.
+- Note: This will import the Standard, Requirements, and Sections.  It will NOT attach policies (yet - working on this).
+
+Example:
+```
+python rl-compliance-import.py "soc2.json" "SOC 2 Copy"
+```
