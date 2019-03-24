@@ -10,7 +10,7 @@ import rl_lib_general
 
 # --Helper Methods-- #
 # Main API Call Function
-def rl_call_api(action, api_url, rl_settings, data=None, params=None, try_count=1, max_retries=3, auth_count=0, auth_retries=1):
+def rl_call_api(action, api_url, rl_settings, data=None, params=None, try_count=0, max_retries=2, auth_count=0, auth_retries=1):
     retry_statuses = [429, 500, 502, 503, 504]
     auth_statuses = [401]
     retry_wait_timer = 5
@@ -25,7 +25,7 @@ def rl_call_api(action, api_url, rl_settings, data=None, params=None, try_count=
         if try_count <= max_retries:
             time.sleep(retry_wait_timer)
             return rl_call_api(action=action, api_url=api_url, rl_settings=rl_settings, data=data, params=params,
-                               try_count=try_count, max_retries=max_retries, auth_count=auth_count,auth_retries=auth_retries)
+                               try_count=try_count, max_retries=max_retries, auth_count=auth_count, auth_retries=auth_retries)
         else:
             response.raise_for_status()
     elif response.status_code in auth_statuses and rl_settings['jwt'] is not None:

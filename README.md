@@ -54,7 +54,7 @@ python rl-user-import.py "some user list.csv" "Redlock user role name for my new
 - Use this to copy an existing Compliance Standard (and related requirements and sections) into a new Compliance Standard.
 - It will copy the entire specified standard into the new standard name specified.  Please use the -policy switch to also attempt to add the newly copied standard to all of the existing standards attached policies.
 - If you would like to also add a label to a policy object with the new compliance name, use the -label switch.  This will add a label to any policy attached (must be used witht he -policy switch, otherwise it will be ignored).
-- Note: The policy attachment is currently having some issues with updating certain built-in policies.  I am working on this, but at this moment, it will simply skip any policies it has an issue updating and give a list on the command line of the ones it has issues with.  This list can then be manually attached to the new standard after the copy completes.
+- Note: The policy attachment is currently having some issues with updating certain built-in policies.  It will simply skip any policies it has an issue updating and give a list on the command line of the ones it has issues with.  This list can then be manually attached to the new standard after the copy completes.
 
 Example:
 ```

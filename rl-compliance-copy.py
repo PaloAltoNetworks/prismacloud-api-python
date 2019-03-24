@@ -7,6 +7,7 @@ import argparse
 import rl_lib_api
 import rl_lib_general
 import requests
+import time
 
 
 # --Helper Functions (Local)-- #
@@ -120,7 +121,6 @@ parser.add_argument(
     action='store_true',
     help='(Optional) - Add a label to any policy updated with the new compliance standard.  This only works if you have also specified the -policy switch.')
 
-
 parser.add_argument(
     'source_compliance_standard_name',
     type=str,
@@ -154,7 +154,7 @@ rl_settings = rl_lib_api.rl_jwt_get(rl_settings)
 print('Done.')
 
 ## Compliance Copy ##
-
+wait_timer = 5
 # Check the compliance standard and get the JSON information
 print('API - Getting the Compliance Standards list...', end='')
 rl_settings, response_package = rl_lib_api.api_compliance_standard_list_get(rl_settings)
@@ -162,27 +162,33 @@ compliance_standard_list_temp = response_package['data']
 compliance_standard_original = search_list_object_lower(compliance_standard_list_temp, 'name', args.source_compliance_standard_name)
 if compliance_standard_original is None:
     rl_lib_general.rl_exit_error(400, 'Compliance Standard not found.  Please check the Compliance Standard name and try again.')
+
 compliance_standard_new_temp = search_list_object_lower(compliance_standard_list_temp, 'name', args.destination_compliance_standard_name)
 if compliance_standard_new_temp is not None:
     rl_lib_general.rl_exit_error(400, 'New Compliance Standard appears to already exist.  Please check the new Compliance Standard name and try again.')
+
 print('Done.')
 
 # Create the new Standard
-print('API - Creating the new Compliance Standard...', end='')
+print('API - Creating the new Compliance Standard...')
 compliance_standard_new_temp = {}
 compliance_standard_new_temp['name'] = args.destination_compliance_standard_name
 if 'description' in compliance_standard_original:
     compliance_standard_new_temp['description'] = compliance_standard_original['description']
+
+print('Adding ' + compliance_standard_new_temp['name'])
 rl_settings, response_package = rl_lib_api.api_compliance_standard_add(rl_settings, compliance_standard_new_temp)
 compliance_standard_new_response = response_package['data']
 
-# Find the new Standard object
+# Find the new Standard object with wait state
+time.sleep(wait_timer)
 rl_settings, response_package = rl_lib_api.api_compliance_standard_list_get(rl_settings)
 compliance_standard_list_temp = response_package['data']
 compliance_standard_new = search_list_object(compliance_standard_list_temp, 'name', compliance_standard_new_temp['name'])
 if compliance_standard_new is None:
-    rl_lib_general.rl_exit_error(500, 'New Compliance Standard was not found!  Sync error?.')
-print('Done.')
+    rl_lib_general.rl_exit_error(500, 'New Compliance Standard was not found!  Try it again or increase the wait timer.')
+
+print()
 
 # Get the list of requirements that need to be created
 print('API - Getting Compliance Standard Requirements...', end='')
@@ -191,24 +197,27 @@ compliance_requirement_list_original = response_package['data']
 print('Done.')
 
 # Create the new requirements
-print('API - Creating the Requirements and adding them to the new Standard...', end='')
+print('API - Creating the Requirements and adding them to the new Standard...')
 for compliance_requirement_original_temp in compliance_requirement_list_original:
     compliance_requirement_new_temp = {}
     compliance_requirement_new_temp['name'] = compliance_requirement_original_temp['name']
     compliance_requirement_new_temp['requirementId'] = compliance_requirement_original_temp['requirementId']
     if 'description' in compliance_requirement_original_temp:
         compliance_requirement_new_temp['description'] = compliance_requirement_original_temp['description']
-    rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_add(rl_settings, compliance_standard_new['id'], compliance_requirement_new_temp)
-print('Done.')
 
-# Get new list of requirements
+    print('Adding ' + compliance_requirement_new_temp['name'])
+    rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_add(rl_settings, compliance_standard_new['id'], compliance_requirement_new_temp)
+print()
+
+# Get new list of requirements with wait timer
 print('API - Getting the new list of requirements...', end='')
+time.sleep(wait_timer)
 rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_list_get(rl_settings, compliance_standard_new['id'])
 compliance_requirement_list_new = response_package['data']
 print('Done.')
 
 # Get list of sections and create for each requirement section
-print('API - Get list of sections, create them, and associate them to the new requirements (might take a while)...', end='')
+print('API - Get list of sections, create them, and associate them to the new requirements (might take a while)...')
 # Create mapping list source for policy updates later
 map_section_list = []
 for compliance_requirement_original_temp in compliance_requirement_list_original:
@@ -226,7 +235,9 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
         compliance_section_new_temp['sectionId'] = compliance_section_original_temp['sectionId']
         if 'description' in compliance_section_original_temp:
             compliance_section_new_temp['description'] = compliance_section_original_temp['description']
-            rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_section_add(rl_settings, compliance_requirement_new_temp['id'], compliance_section_new_temp)
+
+        print('Adding ' + compliance_section_new_temp['sectionId'])
+        rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_section_add(rl_settings, compliance_requirement_new_temp['id'], compliance_section_new_temp)
 
         # Add entry for mapping table for Policy updates later
         compliance_section_new_temp['requirementGUIDOriginal'] = compliance_requirement_original_temp['id']
@@ -234,16 +245,23 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
         compliance_section_new_temp['sectionGUIDOriginal'] = compliance_section_original_temp['id']
         compliance_section_new_temp['sectionGUIDNew'] = None
         map_section_list.append(compliance_section_new_temp)
-print('Done.')
+print()
+if args.policy:
+    print('Compliance framework copy complete.  Policy switch detected.  Starting policy mapping for new compliance framework.')
+else:
+    print('Compliance framework copy complete.')
+print()
 
 ## Policy Updates ##
 
 # Check to see if the user wants to try to update the policies
 if not args.policy:
-    print('Policy switch not specified.  Skipping policy update/attach.')
+    print('Policy switch not specified.  Skipping policy update/attach.  Done.')
 else:
     # Need to add the new GUID from the new sections to the mapping tables
     print('API - Getting the new section IDs for the policy mapping and creating a map table...', end='')
+    # Timer to make sure everything is posted
+    time.sleep(wait_timer)
     for compliance_requirement_new_temp in compliance_requirement_list_new:
 
         # Get new sections for requirement
@@ -269,44 +287,17 @@ else:
     print('Done.')
 
     # Work though the list of policies to build the update package
-    print('API - Individual policy retrieval and update (might take a while)...', end='')
-    header_text = False
+    print('API - Individual policy retrieval and update (might take a while)...')
+    policy_update_error = False
+    policy_update_error_list = []
     for policy_original_temp in policy_list_original:
         # Get the individual policy JSON object
         rl_settings, response_package = rl_lib_api.api_policy_get(rl_settings, policy_original_temp['policyId'])
         policy_specific_temp = response_package['data']
 
-        # Edit existing complianceMetadata field for update PUT
-        complianceMetadata_section_list_new_temp = []
-        for complianceMetadata_section_temp in policy_specific_temp['complianceMetadata']:
-            complianceMetadata_section_new_temp = {}
-
-            # Set values already in the specific policy
-            if complianceMetadata_section_temp['customAssigned'] == True:
-                complianceMetadata_section_new_temp['customAssigned'] = True
-            else:
-                complianceMetadata_section_new_temp['customAssigned'] = False
-            if complianceMetadata_section_temp['systemDefault'] == True:
-                complianceMetadata_section_new_temp['systemDefault'] = True
-            else:
-                complianceMetadata_section_new_temp['systemDefault'] = False
-
-            # Find and set the complianceId from the policy list object
-            for policy_original_complianceMetadata_temp in policy_original_temp['complianceMetadata']:
-                if policy_original_complianceMetadata_temp['standardName'] == complianceMetadata_section_temp['standardName']:
-                    if policy_original_complianceMetadata_temp['requirementId'] == complianceMetadata_section_temp['requirementId']:
-                        if policy_original_complianceMetadata_temp['sectionId'] == complianceMetadata_section_temp['sectionId']:
-                            complianceMetadata_section_new_temp['complianceId'] = policy_original_complianceMetadata_temp['complianceId']
-                            break
-            if 'complianceId' not in complianceMetadata_section_new_temp:
-                rl_lib_general.rl_exit_error(500, 'Error matching policy specific pull with list pull!  Sync error?.')
-
-            # Create the new existing list of complianceMetadata
-            complianceMetadata_section_list_new_temp.append(complianceMetadata_section_new_temp)
-
         # Add new compliance section(s)
         complianceMetadata_section_list_new_temp_2 = []
-        for complianceMetadata_section_temp in complianceMetadata_section_list_new_temp:
+        for complianceMetadata_section_temp in policy_specific_temp['complianceMetadata']:
             complianceMetadata_section_new_temp = {}
             for map_section_temp in map_section_list:
                 if map_section_temp['sectionGUIDOriginal'] == complianceMetadata_section_temp['complianceId']:
@@ -319,30 +310,28 @@ else:
             rl_lib_general.rl_exit_error(500, 'Cannot find any compliance section matches in a policy - this should not be possible?')
 
         # Merge the existing and new lists
-        complianceMetadata_section_list_new_temp.extend(complianceMetadata_section_list_new_temp_2)
-
-        # Patch in the new list to the specific policy object
-        policy_specific_temp['complianceMetadata'] = complianceMetadata_section_list_new_temp
+        policy_specific_temp['complianceMetadata'].extend(complianceMetadata_section_list_new_temp_2)
 
         # Add a label (optional) for the new compliance report name
-        if not args.label:
-            print()
-            print("Label switch not specified.  Skipping adding a label for this compliance to all attached policies.")
-        else:
+        if args.label:
             policy_specific_temp['labels'].append(args.destination_compliance_standard_name)
 
         # Post the updated policy to the API
         try:
+            print('Updating ' + policy_specific_temp['name'])
             rl_settings, response_package = rl_lib_api.api_policy_update(rl_settings, policy_specific_temp['policyId'], policy_specific_temp)
         except requests.exceptions.HTTPError as e:
-            if not header_text:
-                print()
-                print()
-                print('An error was encountered when trying to update one or more policies.  Below is a list of the policy name(s) and GUID(s) that cound not be updated.  Please manually attach these policies to your new compliance standard, if desired.')
-                print('Note: The list below will build as the compliance standard is being processed.  Please wait until the "Done." at the end for the completion of processing.')
-                print()
-                header_text = True
-            print(str(policy_specific_temp['name']) + '  ' + str(policy_specific_temp['policyId']))
-    if header_text:
+            policy_update_error = True
+            print('Error updating ' + policy_specific_temp['name'])
+            policy_update_error_list.append(policy_specific_temp['name'])
+
+    if policy_update_error:
         print()
-    print('Done.')
+        print('An error was encountered when trying to update one or more policies.  Below is a list of the policy name(s) that could not be updated.  '
+              'Please manually attach these policies to your new compliance standard, if desired.')
+        print()
+        for policy_update_error_item in policy_update_error_list:
+            print(policy_update_error_item)
+
+    print()
+    print('**Compliance copy and policy update complete**')
