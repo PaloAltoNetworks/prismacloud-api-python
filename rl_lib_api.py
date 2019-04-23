@@ -173,11 +173,18 @@ def api_user_update(rl_settings, user_to_update):
     return rl_call_api(action, url, rl_settings, data=user_to_update)
 
 
-# Get alert list with filters - DOES NOT WORK
+# Get alert list with filters
 def api_alert_list_get(rl_settings, params=None, data=None):
     action = "POST"
     url = "https://" + rl_settings['apiBase'] + "/alert"
-    return rl_call_api(action, url, rl_settings, params=params, data=data, max_retries=0)
+    return rl_call_api(action, url, rl_settings, params=params, data=data)
+
+
+# Get alert list with filters (V2)
+def api_alert_v2_list_get(rl_settings, params=None, data=None):
+    action = "POST"
+    url = "https://" + rl_settings['apiBase'] + "/v2/alert"
+    return rl_call_api(action, url, rl_settings, params=params, data=data)
 
 
 # Get Compliance Reports list
