@@ -138,6 +138,13 @@ def api_policy_status_update(rl_settings, policy_id, status):
     return rl_call_api(action, url, rl_settings)
 
 
+# Update policy status
+def api_search_get(rl_settings, search_id):
+    action = "GET"
+    url = "https://" + rl_settings['apiBase'] + "/search/history/" + search_id
+    return rl_call_api(action, url, rl_settings)
+
+
 # Get User Role list
 def api_user_role_list_get(rl_settings):
     action = "GET"

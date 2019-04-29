@@ -45,6 +45,12 @@ parser.add_argument(
     help='(Optional) - Override user input for verification (auto answer for yes).')
 
 parser.add_argument(
+    '-rql',
+    '--rql',
+    action='store_true',
+    help='(Optional) - Output the related RQL (saved search) object.')
+
+parser.add_argument(
     'policy_name',
     type=str,
     help='*Required* - Policy name to get from the API.')
@@ -105,3 +111,14 @@ print()
 print('Original Policy Object:')
 print(json.dumps(policy_specific))
 print()
+
+# Print the JSON object of the related Saved Search (if desired with the -rql switch)
+if args.rql:
+    # Get the related Saved Search object for the policy
+    rl_settings, response_package = rl_lib_api.api_search_get(rl_settings, policy['rule']['criteria'])
+    policy_search = response_package['data']
+
+    # Print the search object for the policy
+    print()
+    print('Related Saved Search Object:')
+    print(json.dumps(policy_search))
