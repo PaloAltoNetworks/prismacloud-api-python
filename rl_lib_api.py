@@ -229,7 +229,21 @@ def api_compliance_report_download(rl_settings, report_id):
 
 
 # Get Cloud Accounts list
-def api_cloud_accounts_list_get(rl_settings):
+def api_cloud_accounts_list_get(rl_settings, params=None):
     action = "GET"
     url = "https://" + rl_settings['apiBase'] + "/cloud"
-    return rl_call_api(action, url, rl_settings)
+    return rl_call_api(action, url, rl_settings, params=params)
+
+
+# Get Cloud Accounts Names list
+def api_cloud_accounts_list_names_get(rl_settings, params=None):
+    action = "GET"
+    url = "https://" + rl_settings['apiBase'] + "/cloud/name"
+    return rl_call_api(action, url, rl_settings, params=params)
+
+
+# Add Cloud Account
+def api_cloud_accounts_add(rl_settings, cloud_type, cloud_account_to_add):
+    action = "POST"
+    url = "https://" + rl_settings['apiBase'] + "/cloud/" + cloud_type
+    return rl_call_api(action, url, rl_settings, data=cloud_account_to_add)

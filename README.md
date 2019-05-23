@@ -78,3 +78,12 @@ Example:
 ```
 python rl-compliance-import.py "soc2.json" "SOC 2 Copy"
 ```
+
+**rl-cloud-account-import-azure.py (in progress)**
+- This is the framework for importing a CSV (template in the templates folder) with a list of Azure accounts into Redlock.
+- Note: This is still a work in progress.  Basic import framework is running, but validation of CSV and duplicate name checking has not been implemented yet.
+
+Example:
+```
+python rl-cloud-account-import-azure.py redlock_account_import_azure_template.csv
+```
