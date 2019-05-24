@@ -129,7 +129,7 @@ print('Done.')
 ## To Do ##
 
 # Import the account list into Redlock
-print('API - Adding cloud accunts...')
+print('API - Adding cloud accounts...')
 cloud_type = "azure"
 print()
 for new_cloud_account in cloud_accounts_to_import:
