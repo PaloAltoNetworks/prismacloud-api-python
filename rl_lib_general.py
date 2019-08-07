@@ -39,6 +39,10 @@ def rl_find_api_base(ui_base):
         api_base = 'api.redlock.io'
     elif ui_base_lower == 'app2.redlock.io':
         api_base = 'api2.redlock.io'
+    elif ui_base_lower == 'app3.redlock.io':
+        api_base = 'api3.redlock.io'
+    elif ui_base_lower == 'app4.redlock.io':
+        api_base = 'api4.redlock.io'
     elif ui_base_lower == 'app.eu.redlock.io':
         api_base = 'api.eu.redlock.io'
     else:
