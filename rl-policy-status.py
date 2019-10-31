@@ -16,26 +16,21 @@ parser.add_argument(
     '-u',
     '--username',
     type=str,
-    help='*Required if no settings file has been created* - Redlock API UserName that you want to set to access your Redlock account.')
+    help='*Required* - Prisma Cloud API Access Key ID that you want to set to access your Prisma Cloud account.')
 
 parser.add_argument(
     '-p',
     '--password',
     type=str,
-    help='*Required if no settings file has been created* - Redlock API password that you want to set to access your Redlock account.')
-
-parser.add_argument(
-    '-c',
-    '--customername',
-    type=str,
-    help='*Required if no settings file has been created* - Name of the Redlock account to be used.')
+    help='*Required* - Prisma Cloud API Secret Key that you want to set to access your Prisma Cloud account.')
 
 parser.add_argument(
     '-url',
     '--uiurl',
     type=str,
-    help='*Required if no settings file has been created* - Base URL used in the UI for connecting to Redlock.  '
-         'Formatted as app.redlock.io or app2.redlock.io or app.eu.redlock.io, etc.')
+    help='*Required* - Base URL used in the UI for connecting to Prisma Cloud.  '
+         'Formatted as app.prismacloud.io or app2.prismacloud.io or app.eu.prismacloud.io, etc.  '
+         'You can also input the api version of the URL if you know it and it will be passed through.')
 
 parser.add_argument(
     '-y',
@@ -60,13 +55,13 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_settings = rl_lib_general.rl_login_get(args.username, args.password, args.customername, args.uiurl)
+rl_settings = rl_lib_general.rl_login_get(args.username, args.password, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
     print()
-    print('This action will be done against the customer account name of "' + rl_settings['customerName'] + '".')
-    verification_response = str(input('Is this correct (y or yes to continue)?'))
+    print('Ready to excute commands aginst your Prisma Cloud tenant.')
+    verification_response = str(input('Would you like to continue (y or yes to continue)?'))
     continue_response = {'yes', 'y'}
     print()
     if verification_response not in continue_response:

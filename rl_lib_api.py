@@ -4,7 +4,7 @@ import time
 import rl_lib_general
 
 # --Description-- #
-# Redlock API Helper library.  Contains shared API call functions.
+# Prisma Cloud API Helper library.  Contains shared API call functions.
 # --End Description-- #
 
 
