@@ -4,8 +4,8 @@ try:
 except NameError:
     pass
 import argparse
-import rl_lib_api
-import rl_lib_general
+import pc_lib_api
+import pc_lib_general
 
 
 # --Execution Block-- #
@@ -66,7 +66,7 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_settings = rl_lib_general.rl_login_get(args.username, args.password, args.uiurl)
+pc_settings = pc_lib_general.pc_login_get(args.username, args.password, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
@@ -76,22 +76,22 @@ if not args.yes:
     continue_response = {'yes', 'y'}
     print()
     if verification_response not in continue_response:
-        rl_lib_general.rl_exit_error(400, 'Verification failed due to user response.  Exiting...')
+        pc_lib_general.pc_exit_error(400, 'Verification failed due to user response.  Exiting...')
 
 # Sort out API Login
 print('API - Getting authentication token...', end='')
-rl_settings = rl_lib_api.rl_jwt_get(rl_settings)
+pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
 print('Done.')
 
 print('API - Getting user...', end='')
-rl_settings, response_package = rl_lib_api.api_user_get(rl_settings, args.useremail.lower())
+pc_settings, response_package = pc_lib_api.api_user_get(pc_settings, args.useremail.lower())
 user_new = response_package['data']
 print('Done.')
 
 # Figure out what was updated and then post the changes as a complete package
 if args.role is not None:
     print('API - Getting user roles list...', end='')
-    rl_settings, response_package = rl_lib_api.api_user_role_list_get(rl_settings)
+    pc_settings, response_package = pc_lib_api.api_user_role_list_get(pc_settings)
     user_role_list = response_package['data']
     print('Done.')
 
@@ -103,7 +103,7 @@ if args.role is not None:
             update_needed = True
             break
     if update_needed is False:
-        rl_lib_general.rl_exit_error(400, 'No role by that name found.  Please check the role name and try again.')
+        pc_lib_general.pc_exit_error(400, 'No role by that name found.  Please check the role name and try again.')
     print('Done.')
 if args.firstname is not None:
     user_new['firstName'] = args.firstname
@@ -111,5 +111,5 @@ if args.lastname is not None:
     user_new['lastName'] = args.lastname
 
 print('API - Updating user...', end='')
-rl_settings, response_package = rl_lib_api.api_user_update(rl_settings, user_new)
+pc_settings, response_package = pc_lib_api.api_user_update(pc_settings, user_new)
 print('Done.')

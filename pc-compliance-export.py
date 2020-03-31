@@ -4,8 +4,8 @@ try:
 except NameError:
     pass
 import argparse
-import rl_lib_api
-import rl_lib_general
+import pc_lib_api
+import pc_lib_general
 
 
 # --Helper Functions (Local)-- #
@@ -53,7 +53,7 @@ parser.add_argument(
 parser.add_argument(
     'source_compliance_standard_name',
     type=str,
-    help='Name of the compliance standard to copy from.  Please enter it exactly as listed in the Redlock UI')
+    help='Name of the compliance standard to copy from.  Please enter it exactly as listed in the Prisma Cloud UI')
 
 parser.add_argument(
     'export_file_name',
@@ -65,7 +65,7 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_settings = rl_lib_general.rl_login_get(args.username, args.password, args.uiurl)
+pc_settings = pc_lib_general.pc_login_get(args.username, args.password, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
@@ -75,11 +75,11 @@ if not args.yes:
     continue_response = {'yes', 'y'}
     print()
     if verification_response not in continue_response:
-        rl_lib_general.rl_exit_error(400, 'Verification failed due to user response.  Exiting...')
+        pc_lib_general.pc_exit_error(400, 'Verification failed due to user response.  Exiting...')
 
 # Sort out API Login
 print('API - Getting authentication token...', end='')
-rl_settings = rl_lib_api.rl_jwt_get(rl_settings)
+pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
 print(' Done.')
 
 ## Compliance Copy ##
@@ -90,17 +90,17 @@ export_file_data['policy_object_original'] = {}
 
 # Check the compliance standard and get the JSON information
 print('API - Getting the Compliance Standards list...', end='')
-rl_settings, response_package = rl_lib_api.api_compliance_standard_list_get(rl_settings)
+pc_settings, response_package = pc_lib_api.api_compliance_standard_list_get(pc_settings)
 compliance_standard_list_temp = response_package['data']
 compliance_standard_original = search_list_object_lower(compliance_standard_list_temp, 'name', args.source_compliance_standard_name)
 if compliance_standard_original is None:
-    rl_lib_general.rl_exit_error(400, 'Compliance Standard not found.  Please check the Compliance Standard name and try again.')
+    pc_lib_general.pc_exit_error(400, 'Compliance Standard not found.  Please check the Compliance Standard name and try again.')
 export_file_data['compliance_standard_original'] = compliance_standard_original
 print(' Done.')
 
 # Get the list of requirements that need to be exported
 print('API - Getting Compliance Standard Requirements...', end='')
-rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_list_get(rl_settings, compliance_standard_original['id'])
+pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_list_get(pc_settings, compliance_standard_original['id'])
 compliance_requirement_list_original = response_package['data']
 export_file_data['compliance_requirement_list_original'] = compliance_requirement_list_original
 print(' Done.')
@@ -109,14 +109,14 @@ print(' Done.')
 print('API - Get list of sections...', end='')
 for compliance_requirement_original_temp in compliance_requirement_list_original:
     # Get sections for requirement
-    rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_section_list_get(rl_settings, compliance_requirement_original_temp['id'])
+    pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_section_list_get(pc_settings, compliance_requirement_original_temp['id'])
     compliance_section_list_original_temp = response_package['data']
     export_file_data['compliance_section_list_original'][compliance_requirement_original_temp['id']] = compliance_section_list_original_temp
 print(' Done.')
 
 # Get the associated policies
 print('API - Getting the compliance standard policy list...', end='')
-rl_settings, response_package = rl_lib_api.api_compliance_standard_policy_list_get(rl_settings, compliance_standard_original['name'])
+pc_settings, response_package = pc_lib_api.api_compliance_standard_policy_list_get(pc_settings, compliance_standard_original['name'])
 policy_list_original = response_package['data']
 export_file_data['policy_list_original'] = policy_list_original
 print(' Done.')
@@ -125,12 +125,12 @@ print(' Done.')
 print('API - Individual policy retrieval (might take a while)...', end='')
 for policy_original_temp in policy_list_original:
     # Get the individual policy JSON object
-    rl_settings, response_package = rl_lib_api.api_policy_get(rl_settings, policy_original_temp['policyId'])
+    pc_settings, response_package = pc_lib_api.api_policy_get(pc_settings, policy_original_temp['policyId'])
     policy_specific_temp = response_package['data']
     export_file_data['policy_object_original'][policy_original_temp['policyId']] = policy_specific_temp
 print(' Done.')
 
 # Save compliance standard to file
 print('FILE - Saving Compliance Standard to a file...', end='')
-rl_lib_general.rl_file_write_json(args.export_file_name, export_file_data)
+pc_lib_general.pc_file_write_json(args.export_file_name, export_file_data)
 print(' File saved to ' + args.export_file_name)

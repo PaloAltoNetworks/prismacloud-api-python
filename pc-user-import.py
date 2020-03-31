@@ -4,8 +4,8 @@ try:
 except NameError:
     pass
 import argparse
-import rl_lib_api
-import rl_lib_general
+import pc_lib_api
+import pc_lib_general
 
 
 # --Execution Block-- #
@@ -52,7 +52,7 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_settings = rl_lib_general.rl_login_get(args.username, args.password, args.uiurl)
+pc_settings = pc_lib_general.pc_login_get(args.username, args.password, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
@@ -62,24 +62,24 @@ if not args.yes:
     continue_response = {'yes', 'y'}
     print()
     if verification_response not in continue_response:
-        rl_lib_general.rl_exit_error(400, 'Verification failed due to user response.  Exiting...')
+        pc_lib_general.pc_exit_error(400, 'Verification failed due to user response.  Exiting...')
 
 # Sort out API Login
 print('API - Getting authentication token...', end='')
-rl_settings = rl_lib_api.rl_jwt_get(rl_settings)
+pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
 print('Done.')
 
 print('API - Getting current user list...', end='')
-rl_settings, response_package = rl_lib_api.api_user_list_get(rl_settings)
+pc_settings, response_package = pc_lib_api.api_user_list_get(pc_settings)
 user_list_old = response_package['data']
 print('Done.')
 
 print('File - Loading CSV user data...', end='')
-user_list_new = rl_lib_general.rl_file_load_csv(args.importfile)
+user_list_new = pc_lib_general.pc_file_load_csv(args.importfile)
 print('Done.')
 
 print('API - Getting user roles...', end='')
-rl_settings, response_package = rl_lib_api.api_user_role_list_get(rl_settings)
+pc_settings, response_package = pc_lib_api.api_user_role_list_get(pc_settings)
 user_role_list = response_package['data']
 print('Done.')
 
@@ -90,7 +90,7 @@ for user_role in user_role_list:
         user_role_id = user_role['id']
         break
 if user_role_id is None:
-    rl_lib_general.rl_exit_error(400, 'No role by that name found.  Please check the role name and try again.')
+    pc_lib_general.pc_exit_error(400, 'No role by that name found.  Please check the role name and try again.')
 print('Done.')
 
 print('Formatting imported user list and checking for duplicates by e-mail...', end='')
@@ -108,7 +108,7 @@ for user_new in user_list_new:
             user_exists = True
             break
     if not user_exists:
-        # Check for duplicates already in the Redlock Account
+        # Check for duplicates already in the Prisma Cloud Account
         for user_old in user_list_old:
             if user_new['email'].lower() == user_old['email'].lower():
                 users_skipped_count = users_skipped_count + 1
@@ -132,5 +132,5 @@ print('Users removed as duplicates from CSV: ' + str(users_duplicate_count))
 print('API - Adding users...')
 for user_new in users_list_new_formatted:
     print('Adding user email: ' + user_new['email'])
-    rl_settings, response_package = rl_lib_api.api_user_add(rl_settings, user_new)
+    pc_settings, response_package = pc_lib_api.api_user_add(pc_settings, user_new)
 print('Done.')

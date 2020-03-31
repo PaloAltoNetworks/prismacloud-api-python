@@ -4,8 +4,8 @@ try:
 except NameError:
     pass
 import argparse
-import rl_lib_api
-import rl_lib_general
+import pc_lib_api
+import pc_lib_general
 
 
 # --Helper Functions (Local)-- #
@@ -129,7 +129,7 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_settings = rl_lib_general.rl_login_get(args.username, args.password, args.uiurl)
+pc_settings = pc_lib_general.pc_login_get(args.username, args.password, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
@@ -139,41 +139,41 @@ if not args.yes:
     continue_response = {'yes', 'y'}
     print()
     if verification_response not in continue_response:
-        rl_lib_general.rl_exit_error(400, 'Verification failed due to user response.  Exiting...')
+        pc_lib_general.pc_exit_error(400, 'Verification failed due to user response.  Exiting...')
 
 # Sort out API Login
 print('API - Getting authentication token...', end='')
-rl_settings = rl_lib_api.rl_jwt_get(rl_settings)
+pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
 print(' Done.')
 
 ## Compliance Copy ##
 # Read in the JSON import file
-export_file_data = rl_lib_general.rl_file_read_json(args.source_import_file_name)
+export_file_data = pc_lib_general.pc_file_read_json(args.source_import_file_name)
 
 # Do a quick validation to see if we are getting the base keys
 if 'compliance_standard_original' not in export_file_data:
-    rl_lib_general.rl_exit_error(404, 'Data imported from file appears corrupt or incorrect for this operation.  Please check the import file name.')
+    pc_lib_general.pc_exit_error(404, 'Data imported from file appears corrupt or incorrect for this operation.  Please check the import file name.')
 if 'compliance_requirement_list_original' not in export_file_data:
-    rl_lib_general.rl_exit_error(404, 'Data imported from file appears corrupt or incorrect for this operation.  Please check the import file name.')
+    pc_lib_general.pc_exit_error(404, 'Data imported from file appears corrupt or incorrect for this operation.  Please check the import file name.')
 if 'compliance_section_list_original' not in export_file_data:
-    rl_lib_general.rl_exit_error(404, 'Data imported from file appears corrupt or incorrect for this operation.  Please check the import file name.')
+    pc_lib_general.pc_exit_error(404, 'Data imported from file appears corrupt or incorrect for this operation.  Please check the import file name.')
 if 'policy_list_original' not in export_file_data:
-    rl_lib_general.rl_exit_error(404, 'Data imported from file appears corrupt or incorrect for this operation.  Please check the import file name.')
+    pc_lib_general.pc_exit_error(404, 'Data imported from file appears corrupt or incorrect for this operation.  Please check the import file name.')
 if 'policy_object_original' not in export_file_data:
-    rl_lib_general.rl_exit_error(404, 'Data imported from file appears corrupt or incorrect for this operation.  Please check the import file name.')
+    pc_lib_general.pc_exit_error(404, 'Data imported from file appears corrupt or incorrect for this operation.  Please check the import file name.')
 if 'export_file_version' not in export_file_data:
-    rl_lib_general.rl_exit_error(404, 'Data imported from file appears corrupt or incorrect for this operation.  Please check the import file name.')
+    pc_lib_general.pc_exit_error(404, 'Data imported from file appears corrupt or incorrect for this operation.  Please check the import file name.')
 
 # Check the compliance standard and get the JSON information
 print('API - Getting the Compliance Standards list...', end='')
-rl_settings, response_package = rl_lib_api.api_compliance_standard_list_get(rl_settings)
+pc_settings, response_package = pc_lib_api.api_compliance_standard_list_get(pc_settings)
 compliance_standard_list_temp = response_package['data']
 compliance_standard_original = export_file_data['compliance_standard_original']
 if compliance_standard_original is None:
-    rl_lib_general.rl_exit_error(400, 'Compliance Standard not found.  Please check the Compliance Standard name and try again.')
+    pc_lib_general.pc_exit_error(400, 'Compliance Standard not found.  Please check the Compliance Standard name and try again.')
 compliance_standard_new_temp = search_list_object_lower(compliance_standard_list_temp, 'name', args.destination_compliance_standard_name)
 if compliance_standard_new_temp is not None:
-    rl_lib_general.rl_exit_error(400, 'New Compliance Standard appears to already exist.  Please check the new Compliance Standard name and try again.')
+    pc_lib_general.pc_exit_error(400, 'New Compliance Standard appears to already exist.  Please check the new Compliance Standard name and try again.')
 print(' Done.')
 
 # Create the new Standard
@@ -182,15 +182,15 @@ compliance_standard_new_temp = {}
 compliance_standard_new_temp['name'] = args.destination_compliance_standard_name
 if 'description' in compliance_standard_original:
     compliance_standard_new_temp['description'] = compliance_standard_original['description']
-rl_settings, response_package = rl_lib_api.api_compliance_standard_add(rl_settings, compliance_standard_new_temp)
+pc_settings, response_package = pc_lib_api.api_compliance_standard_add(pc_settings, compliance_standard_new_temp)
 compliance_standard_new_response = response_package['data']
 
 # Find the new Standard object
-rl_settings, response_package = rl_lib_api.api_compliance_standard_list_get(rl_settings)
+pc_settings, response_package = pc_lib_api.api_compliance_standard_list_get(pc_settings)
 compliance_standard_list_temp = response_package['data']
 compliance_standard_new = search_list_object(compliance_standard_list_temp, 'name', compliance_standard_new_temp['name'])
 if compliance_standard_new is None:
-    rl_lib_general.rl_exit_error(500, 'New Compliance Standard was not found!  Sync error?.')
+    pc_lib_general.pc_exit_error(500, 'New Compliance Standard was not found!  Sync error?.')
 print(' Done.')
 
 # Get the list of requirements that need to be created
@@ -206,12 +206,12 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
     compliance_requirement_new_temp['requirementId'] = compliance_requirement_original_temp['requirementId']
     if 'description' in compliance_requirement_original_temp:
         compliance_requirement_new_temp['description'] = compliance_requirement_original_temp['description']
-    rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_add(rl_settings, compliance_standard_new['id'], compliance_requirement_new_temp)
+    pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_add(pc_settings, compliance_standard_new['id'], compliance_requirement_new_temp)
 print(' Done.')
 
 # Get new list of requirements
 print('API - Getting the new list of requirements...', end='')
-rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_list_get(rl_settings, compliance_standard_new['id'])
+pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_list_get(pc_settings, compliance_standard_new['id'])
 compliance_requirement_list_new = response_package['data']
 print(' Done.')
 
@@ -233,7 +233,7 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
         compliance_section_new_temp['sectionId'] = compliance_section_original_temp['sectionId']
         if 'description' in compliance_section_original_temp:
             compliance_section_new_temp['description'] = compliance_section_original_temp['description']
-            rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_section_add(rl_settings, compliance_requirement_new_temp['id'], compliance_section_new_temp)
+            pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_section_add(pc_settings, compliance_requirement_new_temp['id'], compliance_section_new_temp)
 
         # Add entry for mapping table for Policy updates later
         compliance_section_new_temp['requirementGUIDOriginal'] = compliance_requirement_original_temp['id']

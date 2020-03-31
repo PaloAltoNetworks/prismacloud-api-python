@@ -4,20 +4,20 @@ import sys
 import csv
 
 # --Description-- #
-# Redlock General Helper library.  Used to contain the general useful shared functions.
+# Prisma Cloud General Helper library.  Used to contain the general useful shared functions.
 # --End Description-- #
 
 
 # --Configuration-- #
 # Settings file name
-DEFAULT_SETTINGS_FILE_NAME = "rl-settings.conf"
-DEFAULT_SETTINGS_FILE_VERSION = 3
+DEFAULT_SETTINGS_FILE_NAME = "pc-settings.conf"
+DEFAULT_SETTINGS_FILE_VERSION = 4
 # --End Configuration-- #
 
 
 # --Helper Methods-- #
 # Exit handler (Error)
-def rl_exit_error(error_code, error_message=None, system_message=None):
+def pc_exit_error(error_code, error_message=None, system_message=None):
     print(error_code)
     if error_message is not None:
         print(error_message)
@@ -27,12 +27,12 @@ def rl_exit_error(error_code, error_message=None, system_message=None):
 
 
 # Exit handler (Success)
-def rl_exit_success():
+def pc_exit_success():
     sys.exit(0)
 
 
 # Find the correct API Base URL
-def rl_find_api_base(ui_base):
+def pc_find_api_base(ui_base):
     api_base = None
     ui_base_lower = ui_base.lower()
     if ui_base_lower in ['app.redlock.io', 'app.prismacloud.io', 'api.redlock.io']:
@@ -55,45 +55,45 @@ def rl_find_api_base(ui_base):
                            'api.eu.prismacloud.io', 'api2.eu.prismacloud.io', 'api.anz.prismacloud.io', 'api.gov.prismacloud.io']:
         api_base = ui_base_lower
     else:
-        rl_exit_error(400, "API URL Base not found.  Please verify the UI base is accurate.  If it is correct, and you are still getting this message, "
+        pc_exit_error(400, "API URL Base not found.  Please verify the UI base is accurate.  If it is correct, and you are still getting this message, "
                            "then a new URL was added to the system that this tool does not understand.  Please check for a new version of this tool.")
     return api_base
 
 
 # Update settings
-def rl_settings_upgrade(old_settings):
+def pc_settings_upgrade(old_settings):
     if old_settings['settings_file_version'] < DEFAULT_SETTINGS_FILE_VERSION:
-        rl_exit_error(400, "Saved settings file is out of date.  Please re-run the rl-settings.py and update your login settings.")
+        pc_exit_error(400, "Saved settings file is out of date.  Please re-run the pc-settings.py and update your login settings.")
     else:
-        rl_exit_error(500, "Something went wrong.  Settings file appears to be outdated, but this tool cannot understand what version it is.  "
+        pc_exit_error(500, "Something went wrong.  Settings file appears to be outdated, but this tool cannot understand what version it is.  "
                            "Please recreate the settings file or download the latest version of this tool.")
     return old_settings
 
 
 # Read in settings
-def rl_settings_read(settings_file_name=DEFAULT_SETTINGS_FILE_NAME, settings_file_version=DEFAULT_SETTINGS_FILE_VERSION):
+def pc_settings_read(settings_file_name=DEFAULT_SETTINGS_FILE_NAME, settings_file_version=DEFAULT_SETTINGS_FILE_VERSION):
     settings_file_name_and_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), settings_file_name)
     if os.path.isfile(settings_file_name_and_path):
-        rl_settings = rl_file_read_json(settings_file_name)
-        if rl_settings is None or rl_settings == {}:
-            rl_exit_error(500, "The settings file appears to exist, but is empty?  Check the settings file or rerun the rl-configure.py utility.")
-        elif rl_settings['settings_file_version'] == settings_file_version:
-            return rl_settings
-        elif rl_settings['settings_file_version'] < settings_file_version:
-            return rl_settings_upgrade(rl_settings)
+        pc_settings = pc_file_read_json(settings_file_name)
+        if pc_settings is None or pc_settings == {}:
+            pc_exit_error(500, "The settings file appears to exist, but is empty?  Check the settings file or rerun the pc-configure.py utility.")
+        elif pc_settings['settings_file_version'] == settings_file_version:
+            return pc_settings
+        elif pc_settings['settings_file_version'] < settings_file_version:
+            return pc_settings_upgrade(pc_settings)
         else:
-            rl_exit_error(500, "The settings file being used is newer than the utility understands.  "
-                            "Please recreate the settings file using the rl-configure.py utility or "
+            pc_exit_error(500, "The settings file being used is newer than the utility understands.  "
+                            "Please recreate the settings file using the pc-configure.py utility or "
                             "update the Prisma Cloud tools in use.")
     else:
-        rl_exit_error(400, "Cannot find the rl-settings file.  Please create one using the rl-configure.py utility.")
+        pc_exit_error(400, "Cannot find the pc-settings file.  Please create one using the pc-configure.py utility.")
 
 
 # Write settings to a file
-def rl_settings_write(username, password, uiBase,
+def pc_settings_write(username, password, uiBase,
                       settings_file_name=DEFAULT_SETTINGS_FILE_NAME, settings_file_version=DEFAULT_SETTINGS_FILE_VERSION):
     # Verify API Base is understood
-    apiBase = rl_find_api_base(uiBase)
+    apiBase = pc_find_api_base(uiBase)
 
     # Write settings file
     new_settings = {}
@@ -101,27 +101,27 @@ def rl_settings_write(username, password, uiBase,
     new_settings['username'] = username
     new_settings['password'] = password
     new_settings['apiBase'] = apiBase
-    rl_file_write_json(settings_file_name, new_settings)
+    pc_file_write_json(settings_file_name, new_settings)
 
 
 # Work out login information
-def rl_login_get(username, password, uibase):
-    rl_settings = {}
+def pc_login_get(username, password, uibase):
+    pc_settings = {}
     if username is None and password is None and uibase is None:
-        rl_settings = rl_settings_read()
+        pc_settings = pc_settings_read()
     elif username is None or password is None or uibase is None:
-        rl_exit_error(400, 'Access Key ID (--username), Secret Key (--password), and UI URL Base (--uiurl) are all required if using overrides.')
+        pc_exit_error(400, 'Access Key ID (--username), Secret Key (--password), and UI URL Base (--uiurl) are all required if using overrides.')
     else:
-        rl_settings['username'] = username
-        rl_settings['password'] = password
-        rl_settings['apiBase'] = rl_find_api_base(uibase)
+        pc_settings['username'] = username
+        pc_settings['password'] = password
+        pc_settings['apiBase'] = pc_find_api_base(uibase)
     # Add a placeholder for jwt
-    rl_settings['jwt'] = None
-    return rl_settings
+    pc_settings['jwt'] = None
+    return pc_settings
 
 
 # Load the CSV file into Dict
-def rl_file_load_csv(file_name):
+def pc_file_load_csv(file_name):
     csv_list = []
     with open(file_name, 'rb') as csv_file:
         file_reader = csv.DictReader(csv_file)
@@ -131,23 +131,23 @@ def rl_file_load_csv(file_name):
 
 
 # Write JSON file
-def rl_file_write_json(file_name, data_to_write):
+def pc_file_write_json(file_name, data_to_write):
     file_name_and_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), file_name)
     try:
         with open(file_name_and_path, 'w') as f:
             json.dump(data_to_write, f)
     except Exception as ex:
-        rl_exit_error(500, "Failed to write JSON file.", ex)
+        pc_exit_error(500, "Failed to write JSON file.", ex)
 
 
 # Read JSON file into Dict
-def rl_file_read_json(file_name):
+def pc_file_read_json(file_name):
     json_data = None
     file_name_and_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), file_name)
     try:
         with open(file_name_and_path, 'r') as f:
             json_data = json.load(f)
     except Exception as ex:
-        rl_exit_error(500, "Failed to read JSON file.  Check the file name?", ex)
+        pc_exit_error(500, "Failed to read JSON file.  Check the file name?", ex)
     return json_data
 

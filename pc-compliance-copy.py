@@ -4,8 +4,8 @@ try:
 except NameError:
     pass
 import argparse
-import rl_lib_api
-import rl_lib_general
+import pc_lib_api
+import pc_lib_general
 import requests
 import time
 
@@ -119,7 +119,7 @@ parser.add_argument(
 parser.add_argument(
     'source_compliance_standard_name',
     type=str,
-    help='Name of the compliance standard to copy from.  Please enter it exactly as listed in the Redlock UI')
+    help='Name of the compliance standard to copy from.  Please enter it exactly as listed in the Prisma Cloud UI')
 
 parser.add_argument(
     'destination_compliance_standard_name',
@@ -131,7 +131,7 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_settings = rl_lib_general.rl_login_get(args.username, args.password, args.uiurl)
+pc_settings = pc_lib_general.pc_login_get(args.username, args.password, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
@@ -141,26 +141,26 @@ if not args.yes:
     continue_response = {'yes', 'y'}
     print()
     if verification_response not in continue_response:
-        rl_lib_general.rl_exit_error(400, 'Verification failed due to user response.  Exiting...')
+        pc_lib_general.pc_exit_error(400, 'Verification failed due to user response.  Exiting...')
 
 # Sort out API Login
 print('API - Getting authentication token...', end='')
-rl_settings = rl_lib_api.rl_jwt_get(rl_settings)
+pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
 print('Done.')
 
 ## Compliance Copy ##
 wait_timer = 5
 # Check the compliance standard and get the JSON information
 print('API - Getting the Compliance Standards list...', end='')
-rl_settings, response_package = rl_lib_api.api_compliance_standard_list_get(rl_settings)
+pc_settings, response_package = pc_lib_api.api_compliance_standard_list_get(pc_settings)
 compliance_standard_list_temp = response_package['data']
 compliance_standard_original = search_list_object_lower(compliance_standard_list_temp, 'name', args.source_compliance_standard_name)
 if compliance_standard_original is None:
-    rl_lib_general.rl_exit_error(400, 'Compliance Standard not found.  Please check the Compliance Standard name and try again.')
+    pc_lib_general.pc_exit_error(400, 'Compliance Standard not found.  Please check the Compliance Standard name and try again.')
 
 compliance_standard_new_temp = search_list_object_lower(compliance_standard_list_temp, 'name', args.destination_compliance_standard_name)
 if compliance_standard_new_temp is not None:
-    rl_lib_general.rl_exit_error(400, 'New Compliance Standard appears to already exist.  Please check the new Compliance Standard name and try again.')
+    pc_lib_general.pc_exit_error(400, 'New Compliance Standard appears to already exist.  Please check the new Compliance Standard name and try again.')
 
 print('Done.')
 
@@ -172,22 +172,22 @@ if 'description' in compliance_standard_original:
     compliance_standard_new_temp['description'] = compliance_standard_original['description']
 
 print('Adding ' + compliance_standard_new_temp['name'])
-rl_settings, response_package = rl_lib_api.api_compliance_standard_add(rl_settings, compliance_standard_new_temp)
+pc_settings, response_package = pc_lib_api.api_compliance_standard_add(pc_settings, compliance_standard_new_temp)
 compliance_standard_new_response = response_package['data']
 
 # Find the new Standard object with wait state
 time.sleep(wait_timer)
-rl_settings, response_package = rl_lib_api.api_compliance_standard_list_get(rl_settings)
+pc_settings, response_package = pc_lib_api.api_compliance_standard_list_get(pc_settings)
 compliance_standard_list_temp = response_package['data']
 compliance_standard_new = search_list_object(compliance_standard_list_temp, 'name', compliance_standard_new_temp['name'])
 if compliance_standard_new is None:
-    rl_lib_general.rl_exit_error(500, 'New Compliance Standard was not found!  Try it again or increase the wait timer.')
+    pc_lib_general.pc_exit_error(500, 'New Compliance Standard was not found!  Try it again or increase the wait timer.')
 
 print()
 
 # Get the list of requirements that need to be created
 print('API - Getting Compliance Standard Requirements...', end='')
-rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_list_get(rl_settings, compliance_standard_original['id'])
+pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_list_get(pc_settings, compliance_standard_original['id'])
 compliance_requirement_list_original = response_package['data']
 print('Done.')
 
@@ -201,13 +201,13 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
         compliance_requirement_new_temp['description'] = compliance_requirement_original_temp['description']
 
     print('Adding ' + compliance_requirement_new_temp['name'])
-    rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_add(rl_settings, compliance_standard_new['id'], compliance_requirement_new_temp)
+    pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_add(pc_settings, compliance_standard_new['id'], compliance_requirement_new_temp)
 print()
 
 # Get new list of requirements with wait timer
 print('API - Getting the new list of requirements...', end='')
 time.sleep(wait_timer)
-rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_list_get(rl_settings, compliance_standard_new['id'])
+pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_list_get(pc_settings, compliance_standard_new['id'])
 compliance_requirement_list_new = response_package['data']
 print('Done.')
 
@@ -218,7 +218,7 @@ map_section_list = []
 for compliance_requirement_original_temp in compliance_requirement_list_original:
 
     # Get sections for requirement
-    rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_section_list_get(rl_settings, compliance_requirement_original_temp['id'])
+    pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_section_list_get(pc_settings, compliance_requirement_original_temp['id'])
     compliance_section_list_original_temp = response_package['data']
 
     # Find new ID for requirement
@@ -232,7 +232,7 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
             compliance_section_new_temp['description'] = compliance_section_original_temp['description']
 
         print('Adding ' + compliance_section_new_temp['sectionId'])
-        rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_section_add(rl_settings, compliance_requirement_new_temp['id'], compliance_section_new_temp)
+        pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_section_add(pc_settings, compliance_requirement_new_temp['id'], compliance_section_new_temp)
 
         # Add entry for mapping table for Policy updates later
         compliance_section_new_temp['requirementGUIDOriginal'] = compliance_requirement_original_temp['id']
@@ -260,7 +260,7 @@ else:
     for compliance_requirement_new_temp in compliance_requirement_list_new:
 
         # Get new sections for requirement
-        rl_settings, response_package = rl_lib_api.api_compliance_standard_requirement_section_list_get(rl_settings, compliance_requirement_new_temp['id'])
+        pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_section_list_get(pc_settings, compliance_requirement_new_temp['id'])
         compliance_section_list_new_temp = response_package['data']
 
         # Get new GUID and update mapping table
@@ -272,12 +272,12 @@ else:
                     success_test = True
                     break
             if not success_test:
-                rl_lib_general.rl_exit_error(500, 'New Section cannot find related map for Policy updates!  Sync error?.')
+                pc_lib_general.pc_exit_error(500, 'New Section cannot find related map for Policy updates!  Sync error?.')
     print('Done.')
 
     # Get the policy list that will need to be updated (filtered to the original standard)
     print('API - Getting the compliance standard policy list to update...', end='')
-    rl_settings, response_package = rl_lib_api.api_compliance_standard_policy_list_get(rl_settings, compliance_standard_original['name'])
+    pc_settings, response_package = pc_lib_api.api_compliance_standard_policy_list_get(pc_settings, compliance_standard_original['name'])
     policy_list_original = response_package['data']
     print('Done.')
 
@@ -287,7 +287,7 @@ else:
     policy_update_error_list = []
     for policy_original_temp in policy_list_original:
         # Get the individual policy JSON object
-        rl_settings, response_package = rl_lib_api.api_policy_get(rl_settings, policy_original_temp['policyId'])
+        pc_settings, response_package = pc_lib_api.api_policy_get(pc_settings, policy_original_temp['policyId'])
         policy_specific_temp = response_package['data']
 
         # Add new compliance section(s)
@@ -302,7 +302,7 @@ else:
                     complianceMetadata_section_list_new_temp_2.append(complianceMetadata_section_new_temp)
                     break
         if len(complianceMetadata_section_list_new_temp_2) == 0:
-            rl_lib_general.rl_exit_error(500, 'Cannot find any compliance section matches in a policy - this should not be possible?')
+            pc_lib_general.pc_exit_error(500, 'Cannot find any compliance section matches in a policy - this should not be possible?')
 
         # Merge the existing and new lists
         policy_specific_temp['complianceMetadata'].extend(complianceMetadata_section_list_new_temp_2)
@@ -314,7 +314,7 @@ else:
         # Post the updated policy to the API
         try:
             print('Updating ' + policy_specific_temp['name'])
-            rl_settings, response_package = rl_lib_api.api_policy_update(rl_settings, policy_specific_temp['policyId'], policy_specific_temp)
+            pc_settings, response_package = pc_lib_api.api_policy_update(pc_settings, policy_specific_temp['policyId'], policy_specific_temp)
         except requests.exceptions.HTTPError as e:
             policy_update_error = True
             print('Error updating ' + policy_specific_temp['name'])

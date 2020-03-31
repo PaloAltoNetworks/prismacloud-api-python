@@ -4,8 +4,8 @@ try:
 except NameError:
     pass
 import argparse
-import rl_lib_api
-import rl_lib_general
+import pc_lib_api
+import pc_lib_general
 
 
 # --Execution Block-- #
@@ -49,7 +49,7 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_settings = rl_lib_general.rl_login_get(args.username, args.password, args.uiurl)
+pc_settings = pc_lib_general.pc_login_get(args.username, args.password, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
@@ -59,16 +59,16 @@ if not args.yes:
     continue_response = {'yes', 'y'}
     print()
     if verification_response not in continue_response:
-        rl_lib_general.rl_exit_error(400, 'Verification failed due to user response.  Exiting...')
+        pc_lib_general.pc_exit_error(400, 'Verification failed due to user response.  Exiting...')
 
 # Sort out API Login
 print('API - Getting authentication token...', end='')
-rl_settings = rl_lib_api.rl_jwt_get(rl_settings)
+pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
 print('Done.')
 
 # Ingest CSV list of accounts to add
 print('File - Importing CSV from disk...', end='')
-import_list_from_csv = rl_lib_general.rl_file_load_csv(args.source_csv_cloud_accounts_list)
+import_list_from_csv = pc_lib_general.pc_file_load_csv(args.source_csv_cloud_accounts_list)
 print('Done.')
 
 # Convert groupId to an array for import
@@ -80,14 +80,14 @@ for cloud_account in import_list_from_csv:
     elif cloud_account['monitorFlowLogs'].lower() == "false":
         cloud_account['monitorFlowLogs'] = False
     else:
-        rl_lib_general.rl_exit_error(400, 'monitorFlowLogs value did not appear to be true or false.  Only true or false is recognized as an input value in the CSV.')
+        pc_lib_general.pc_exit_error(400, 'monitorFlowLogs value did not appear to be true or false.  Only true or false is recognized as an input value in the CSV.')
 
     if cloud_account['enabled'].lower() == "true":
         cloud_account['enabled'] = True
     elif cloud_account['enabled'].lower() == "false":
         cloud_account['enabled'] = False
     else:
-        rl_lib_general.rl_exit_error(400, 'enabled value did not appear to be true or false.  Only true or false is recognized as an input value in the CSV.')
+        pc_lib_general.pc_exit_error(400, 'enabled value did not appear to be true or false.  Only true or false is recognized as an input value in the CSV.')
 
     temp_cloud_account = {}
     temp_cloud_account['cloudAccount'] = {}
@@ -113,23 +113,23 @@ print('Done.')
 
 # Get existing cloud account list
 print('API - Getting existing cloud account list...', end='')
-rl_settings, response_package = rl_lib_api.api_cloud_accounts_list_get(rl_settings)
+pc_settings, response_package = pc_lib_api.api_cloud_accounts_list_get(pc_settings)
 cloud_accounts_list = response_package['data']
 print('Done.')
 
-# Figure out which accounts are already in Redlock and remove them from the import list
+# Figure out which accounts are already in Prisma Cloud and remove them from the import list
 ## To Do ##
 
 # Check the remaining list for any duplicate names
 ## To Do ##
 
-# Import the account list into Redlock
+# Import the account list into Prisma Cloud
 print('API - Adding cloud accounts...')
 cloud_type = "azure"
 print()
 for new_cloud_account in cloud_accounts_to_import:
     print('Adding cloud account: ' + new_cloud_account['cloudAccount']['name'])
-    rl_settings, response_package = rl_lib_api.api_cloud_accounts_add(rl_settings, cloud_type, new_cloud_account)
+    pc_settings, response_package = pc_lib_api.api_cloud_accounts_add(pc_settings, cloud_type, new_cloud_account)
 
 print()
 print('Import Complete.')

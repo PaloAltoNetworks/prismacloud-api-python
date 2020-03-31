@@ -4,8 +4,8 @@ try:
 except NameError:
     pass
 import argparse
-import rl_lib_general
-import rl_lib_api
+import pc_lib_general
+import pc_lib_api
 
 
 # --Execution Block-- #
@@ -55,7 +55,7 @@ args = parser.parse_args()
 
 # --Main-- #
 # Get login details worked out
-rl_settings = rl_lib_general.rl_login_get(args.username, args.password, args.uiurl)
+pc_settings = pc_lib_general.pc_login_get(args.username, args.password, args.uiurl)
 
 # Verification (override with -y)
 if not args.yes:
@@ -65,15 +65,15 @@ if not args.yes:
     continue_response = {'yes', 'y'}
     print()
     if verification_response not in continue_response:
-        rl_lib_general.rl_exit_error(400, 'Verification failed due to user response.  Exiting...')
+        pc_lib_general.pc_exit_error(400, 'Verification failed due to user response.  Exiting...')
 
 # Sort out API Login
 print('API - Getting authentication token...', end='')
-rl_settings = rl_lib_api.rl_jwt_get(rl_settings)
+pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
 print('Done.')
 
 print('API - Getting list of Policies...', end='')
-rl_settings, response_package = rl_lib_api.api_policy_list_get(rl_settings)
+pc_settings, response_package = pc_lib_api.api_policy_list_get(pc_settings)
 policy_list_old = response_package['data']
 print('Done.')
 
@@ -99,5 +99,5 @@ print('Done.')
 print('API - Updating policy statuses...')
 for policy_update in policy_list_filtered:
     print('Updating policy: ' + policy_update['name'])
-    rl_settings, response_package = rl_lib_api.api_policy_status_update(rl_settings, policy_update['policyId'], policy_enabled_str)
+    pc_settings, response_package = pc_lib_api.api_policy_status_update(pc_settings, policy_update['policyId'], policy_enabled_str)
 print('Done.')
