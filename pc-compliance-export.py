@@ -8,6 +8,11 @@ import pc_lib_api
 import pc_lib_general
 
 
+# --Configuration-- #
+# Import file version expected
+DEFAULT_COMPLIANCE_EXPORT_FILE_VERSION = 2
+
+
 # --Helper Functions (Local)-- #
 def search_list_object_lower(list_to_search, field_to_search, search_value):
     object_to_return = None
@@ -78,18 +83,19 @@ if not args.yes:
         pc_lib_general.pc_exit_error(400, 'Verification failed due to user response.  Exiting...')
 
 # Sort out API Login
-print('API - Getting authentication token...', end='')
+print('API - Getting authentication token...')
 pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
 print(' Done.')
+print()
 
 ## Compliance Copy ##
 export_file_data = {}
-export_file_data['export_file_version'] = 1
+export_file_data['export_file_version'] = DEFAULT_COMPLIANCE_EXPORT_FILE_VERSION
 export_file_data['compliance_section_list_original'] = {}
 export_file_data['policy_object_original'] = {}
 
 # Check the compliance standard and get the JSON information
-print('API - Getting the Compliance Standards list...', end='')
+print('API - Getting the Compliance Standards list...')
 pc_settings, response_package = pc_lib_api.api_compliance_standard_list_get(pc_settings)
 compliance_standard_list_temp = response_package['data']
 compliance_standard_original = search_list_object_lower(compliance_standard_list_temp, 'name', args.source_compliance_standard_name)
@@ -97,40 +103,45 @@ if compliance_standard_original is None:
     pc_lib_general.pc_exit_error(400, 'Compliance Standard not found.  Please check the Compliance Standard name and try again.')
 export_file_data['compliance_standard_original'] = compliance_standard_original
 print(' Done.')
+print()
 
 # Get the list of requirements that need to be exported
-print('API - Getting Compliance Standard Requirements...', end='')
+print('API - Getting Compliance Standard Requirements...')
 pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_list_get(pc_settings, compliance_standard_original['id'])
 compliance_requirement_list_original = response_package['data']
 export_file_data['compliance_requirement_list_original'] = compliance_requirement_list_original
 print(' Done.')
+print()
 
 # Get list of sections and export for each requirement section
-print('API - Get list of sections...', end='')
+print('API - Get list of sections...')
 for compliance_requirement_original_temp in compliance_requirement_list_original:
     # Get sections for requirement
     pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_section_list_get(pc_settings, compliance_requirement_original_temp['id'])
     compliance_section_list_original_temp = response_package['data']
     export_file_data['compliance_section_list_original'][compliance_requirement_original_temp['id']] = compliance_section_list_original_temp
 print(' Done.')
+print()
 
 # Get the associated policies
-print('API - Getting the compliance standard policy list...', end='')
-pc_settings, response_package = pc_lib_api.api_compliance_standard_policy_list_get(pc_settings, compliance_standard_original['name'])
+print('API - Getting the compliance standard policy list...')
+pc_settings, response_package = pc_lib_api.api_compliance_standard_policy_v2_list_get(pc_settings, compliance_standard_original['name'])
 policy_list_original = response_package['data']
 export_file_data['policy_list_original'] = policy_list_original
 print(' Done.')
+print()
 
 # Get the individual policy objects in case something needs to be added for import
-print('API - Individual policy retrieval (might take a while)...', end='')
+print('API - Individual policy retrieval (might take a while)...')
 for policy_original_temp in policy_list_original:
     # Get the individual policy JSON object
     pc_settings, response_package = pc_lib_api.api_policy_get(pc_settings, policy_original_temp['policyId'])
     policy_specific_temp = response_package['data']
     export_file_data['policy_object_original'][policy_original_temp['policyId']] = policy_specific_temp
 print(' Done.')
+print()
 
 # Save compliance standard to file
-print('FILE - Saving Compliance Standard to a file...', end='')
+print('FILE - Saving Compliance Standard to a file...')
 pc_lib_general.pc_file_write_json(args.export_file_name, export_file_data)
 print(' File saved to ' + args.export_file_name)

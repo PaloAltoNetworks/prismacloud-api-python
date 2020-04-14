@@ -110,10 +110,25 @@ def api_compliance_standard_policy_list_get(pc_settings, source_compliance_stand
     return pc_call_api(action, url, pc_settings, params=filters)
 
 
+# Get Compliance Standards Policy list (v2)
+def api_compliance_standard_policy_v2_list_get(pc_settings, source_compliance_standard_name):
+    action = "GET"
+    url = "https://" + pc_settings['apiBase'] + "/v2/policy"
+    filters = [('policy.complianceStandard', source_compliance_standard_name)]
+    return pc_call_api(action, url, pc_settings, params=filters)
+
+
 # Get policy list
 def api_policy_list_get(pc_settings):
     action = "GET"
     url = "https://" + pc_settings['apiBase'] + "/policy"
+    return pc_call_api(action, url, pc_settings)
+
+
+# Get policy list (v2)
+def api_policy_v2_list_get(pc_settings):
+    action = "GET"
+    url = "https://" + pc_settings['apiBase'] + "/v2/policy"
     return pc_call_api(action, url, pc_settings)
 
 
@@ -138,7 +153,7 @@ def api_policy_status_update(pc_settings, policy_id, status):
     return pc_call_api(action, url, pc_settings)
 
 
-# Update policy status
+# Get Search History
 def api_search_get(pc_settings, search_id):
     action = "GET"
     url = "https://" + pc_settings['apiBase'] + "/search/history/" + search_id

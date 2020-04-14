@@ -6,6 +6,13 @@ except NameError:
 import argparse
 import pc_lib_api
 import pc_lib_general
+import time
+import requests
+
+# --Configuration-- #
+# Import file version expected
+DEFAULT_COMPLIANCE_IMPORT_FILE_VERSION = 2
+WAIT_TIMER = 5
 
 
 # --Helper Functions (Local)-- #
@@ -142,9 +149,10 @@ if not args.yes:
         pc_lib_general.pc_exit_error(400, 'Verification failed due to user response.  Exiting...')
 
 # Sort out API Login
-print('API - Getting authentication token...', end='')
+print('API - Getting authentication token...')
 pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
 print(' Done.')
+print()
 
 ## Compliance Copy ##
 # Read in the JSON import file
@@ -164,8 +172,15 @@ if 'policy_object_original' not in export_file_data:
 if 'export_file_version' not in export_file_data:
     pc_lib_general.pc_exit_error(404, 'Data imported from file appears corrupt or incorrect for this operation.  Please check the import file name.')
 
+# The following will check the export version for the correct level.
+# If you have an older version that you want to try to import, you can comment out this line,
+# but please be aware it will be untested on older versions of an export file.
+# At this moment, it *should* still work...
+if  export_file_data['export_file_version'] != DEFAULT_COMPLIANCE_IMPORT_FILE_VERSION:
+    pc_lib_general.pc_exit_error(404, 'Import file appears to be an unexpected export version.  Please check the import file name.')
+
 # Check the compliance standard and get the JSON information
-print('API - Getting the Compliance Standards list...', end='')
+print('API - Getting the Compliance Standards list...')
 pc_settings, response_package = pc_lib_api.api_compliance_standard_list_get(pc_settings)
 compliance_standard_list_temp = response_package['data']
 compliance_standard_original = export_file_data['compliance_standard_original']
@@ -175,9 +190,10 @@ compliance_standard_new_temp = search_list_object_lower(compliance_standard_list
 if compliance_standard_new_temp is not None:
     pc_lib_general.pc_exit_error(400, 'New Compliance Standard appears to already exist.  Please check the new Compliance Standard name and try again.')
 print(' Done.')
+print()
 
 # Create the new Standard
-print('API - Creating the new Compliance Standard...', end='')
+print('API - Creating the new Compliance Standard...')
 compliance_standard_new_temp = {}
 compliance_standard_new_temp['name'] = args.destination_compliance_standard_name
 if 'description' in compliance_standard_original:
@@ -192,14 +208,16 @@ compliance_standard_new = search_list_object(compliance_standard_list_temp, 'nam
 if compliance_standard_new is None:
     pc_lib_general.pc_exit_error(500, 'New Compliance Standard was not found!  Sync error?.')
 print(' Done.')
+print()
 
 # Get the list of requirements that need to be created
-print('FILE - Getting Compliance Standard Requirements...', end='')
+print('FILE - Getting Compliance Standard Requirements...')
 compliance_requirement_list_original = export_file_data['compliance_requirement_list_original']
 print(' Done.')
+print()
 
 # Create the new requirements
-print('API - Creating the Requirements and adding them to the new Standard...', end='')
+print('API - Creating the Requirements and adding them to the new Standard...')
 for compliance_requirement_original_temp in compliance_requirement_list_original:
     compliance_requirement_new_temp = {}
     compliance_requirement_new_temp['name'] = compliance_requirement_original_temp['name']
@@ -208,15 +226,17 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
         compliance_requirement_new_temp['description'] = compliance_requirement_original_temp['description']
     pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_add(pc_settings, compliance_standard_new['id'], compliance_requirement_new_temp)
 print(' Done.')
+print()
 
 # Get new list of requirements
-print('API - Getting the new list of requirements...', end='')
+print('API - Getting the new list of requirements...')
 pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_list_get(pc_settings, compliance_standard_new['id'])
 compliance_requirement_list_new = response_package['data']
 print(' Done.')
+print()
 
 # Get list of sections and create for each requirement section
-print('API - Get list of sections, create them, and associate them to the new requirements (might take a while)...', end='')
+print('API - Get list of sections, create them, and associate them to the new requirements (might take a while)...')
 # Create mapping list source for policy updates later
 map_section_list = []
 for compliance_requirement_original_temp in compliance_requirement_list_original:
@@ -242,3 +262,114 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
         compliance_section_new_temp['sectionGUIDNew'] = None
         map_section_list.append(compliance_section_new_temp)
 print(' Done.')
+print()
+
+########################
+## Policy Updates ##
+
+# Check to see if the user wants to try to update the policies
+if not args.policy:
+    print('Policy switch not specified.  Skipping policy update/attach.  Compliance framework import complete.')
+else:
+    print('Compliance framework import complete.  Policy switch detected.  Starting policy mapping for new compliance framework.')
+    print()
+    # Need to add the new GUID from the new sections to the mapping tables
+    print('API - Getting the new section IDs for the policy mapping and creating a map table...')
+    # Timer to make sure everything is posted
+    time.sleep(WAIT_TIMER)
+    for compliance_requirement_new_temp in compliance_requirement_list_new:
+
+        # Get new sections for requirement
+        pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_section_list_get(pc_settings, compliance_requirement_new_temp['id'])
+        compliance_section_list_new_temp = response_package['data']
+
+        # Get new GUID and update mapping table
+        for compliance_section_new_temp in compliance_section_list_new_temp:
+            success_test = False
+            for map_section_temp in map_section_list:
+                if map_section_temp['requirementGUIDNew'] == compliance_requirement_new_temp['id'] and map_section_temp['sectionId'] == compliance_section_new_temp['sectionId']:
+                    map_section_temp['sectionGUIDNew'] = compliance_section_new_temp['id']
+                    success_test = True
+                    break
+            if not success_test:
+                pc_lib_general.pc_exit_error(500, 'New Section cannot find related map for Policy updates!  Sync error?.')
+    print('Done.')
+    print()
+
+    # Get the policy list that will need to be updated from the import file
+    print('FILE - Getting the compliance standard policy list to update from file data...')
+    policy_list_original_file = export_file_data['policy_list_original']
+    print('Done.')
+    print()
+
+    # Cross reference this list with the new tenant policy list and rebuild the list with the new tenant info
+    print('API - Pulling policy list from new tenant and syncing with the import file data...')
+    pc_settings, response_package = pc_lib_api.api_policy_v2_list_get(pc_settings)
+    policy_list_full = response_package['data']
+    policy_list_original = []
+    for policy_list_original_file_temp in policy_list_original_file:
+        success_test = False
+        for policy_temp in policy_list_full:
+            if policy_list_original_file_temp['policyId'] == policy_temp['policyId']:
+                policy_list_original.append(policy_temp)
+                success_test = True
+                break
+        if not success_test:
+            pc_lib_general.pc_exit_error(500, 'Policy list in new tenant appears to be missing a policy for mapping.  Check for custom policies in import (custom compliance is not yet supported).')
+    if len(policy_list_original_file) != len(policy_list_original):
+        pc_lib_general.pc_exit_error(500, 'Mapped policy list appears to be missing a mapped policy.  This should not be possibile?')
+    print('Done.')
+    print()
+
+    # Work though the list of policies to build the update package
+    print('API - Individual policy retrieval and update (might take a while)...')
+    policy_update_error = False
+    policy_update_error_list = []
+    for policy_original_temp in policy_list_original:
+        # Get the individual policy JSON object
+        pc_settings, response_package = pc_lib_api.api_policy_get(pc_settings, policy_original_temp['policyId'])
+        policy_specific_temp = response_package['data']
+
+        # Need to also get the origional policy object to map in the compliance correctly with the new policy list
+        policy_specific_temp_file = export_file_data['policy_object_original'][policy_original_temp['policyId']]
+
+        # Add new compliance section(s)
+        complianceMetadata_section_list_new_temp_2 = []
+        for complianceMetadata_section_temp in policy_specific_temp_file['complianceMetadata']:
+            complianceMetadata_section_new_temp = {}
+            for map_section_temp in map_section_list:
+                if map_section_temp['sectionGUIDOriginal'] == complianceMetadata_section_temp['complianceId']:
+                    complianceMetadata_section_new_temp['customAssigned'] = True
+                    complianceMetadata_section_new_temp['systemDefault'] = False
+                    complianceMetadata_section_new_temp['complianceId'] = map_section_temp['sectionGUIDNew']
+                    complianceMetadata_section_list_new_temp_2.append(complianceMetadata_section_new_temp)
+                    break
+        if len(complianceMetadata_section_list_new_temp_2) == 0:
+            pc_lib_general.pc_exit_error(500, 'Cannot find any compliance section matches in a policy - this should not be possible?')
+
+        # Merge the existing and new lists
+        policy_specific_temp['complianceMetadata'].extend(complianceMetadata_section_list_new_temp_2)
+
+        # Add a label (optional) for the new compliance report name
+        if args.label:
+            policy_specific_temp['labels'].append(args.destination_compliance_standard_name)
+
+        # Post the updated policy to the API
+        try:
+            print('Updating ' + policy_specific_temp['name'])
+            pc_settings, response_package = pc_lib_api.api_policy_update(pc_settings, policy_specific_temp['policyId'], policy_specific_temp)
+        except requests.exceptions.HTTPError as e:
+            policy_update_error = True
+            print('Error updating ' + policy_specific_temp['name'])
+            policy_update_error_list.append(policy_specific_temp['name'])
+
+    if policy_update_error:
+        print()
+        print('An error was encountered when trying to update one or more policies.  Below is a list of the policy name(s) that could not be updated.  '
+              'Please manually attach these policies to your new compliance standard, if desired.')
+        print()
+        for policy_update_error_item in policy_update_error_list:
+            print(policy_update_error_item)
+
+    print()
+    print('**Compliance copy and policy update complete**')

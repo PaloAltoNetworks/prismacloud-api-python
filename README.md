@@ -50,6 +50,7 @@ python pc-user-import.py "some user list.csv" "Prisma Cloud user role name for m
 ```
 
 **pc-compliance-copy.py**
+- NOTE: This has been replaced by built in functioanlity.  Use the built in clone function for this purpose.
 - Use this to copy an existing Compliance Standard (and related requirements and sections) into a new Compliance Standard.
 - It will copy the entire specified standard into the new standard name specified.  Please use the -policy switch to also attempt to add the newly copied standard to all of the existing standards attached policies.
 - If you would like to also add a label to a policy object with the new compliance name, use the -label switch.  This will add a label to any policy attached (must be used witht he -policy switch, otherwise it will be ignored).
@@ -71,11 +72,11 @@ python pc-compliance-export.py "SOC 2" "soc2.json"
 **pc-compliance-import.py**
 - Use this to import a saved Compliance Standard (and related requirements and sections) into a new Compliance Standard in Prisma Cloud.
 - It will copy the entire specified standard into the new standard name specified.
-- Note: This will import the Standard, Requirements, and Sections.  It will NOT attach policies (yet - working on this).
+- If you also wish to have the same policy mappings, please use the -policy switch.  THIS ONLY WORKS WITH DEFAULT BUILT IN POLICIES.  Custom policies are not yet supported.
 
 Example:
 ```
-python pc-compliance-import.py "soc2.json" "SOC 2 Copy"
+python pc-compliance-import.py "soc2.json" "SOC 2 Copy" -policy
 ```
 
 **pc-cloud-account-import-azure.py (in progress)**
