@@ -132,11 +132,26 @@ def api_policy_v2_list_get(pc_settings):
     return pc_call_api(action, url, pc_settings)
 
 
+# Get Custom Policy list (v2)
+def api_policy_custom_v2_list_get(pc_settings):
+    action = "GET"
+    url = "https://" + pc_settings['apiBase'] + "/v2/policy"
+    filters = [('policy.policyMode', 'custom')]
+    return pc_call_api(action, url, pc_settings, params=filters)
+
+
 # Get a policy
 def api_policy_get(pc_settings, policy_id):
     action = "GET"
     url = "https://" + pc_settings['apiBase'] + "/policy/" + policy_id
     return pc_call_api(action, url, pc_settings)
+
+
+# Add a policy
+def api_policy_add(pc_settings, policy_to_add):
+    action = "POST"
+    url = "https://" + pc_settings['apiBase'] + "/policy"
+    return pc_call_api(action, url, pc_settings, data=policy_to_add)
 
 
 # Update a policy

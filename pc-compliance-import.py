@@ -113,13 +113,13 @@ parser.add_argument(
     '-policy',
     '--policy',
     action='store_true',
-    help='*NOT IMPLEMENTED YET*(Optional) - If you want to try update the policies with your new compliance standard, add this switch to the command.  Any policies not able to be updated will be listed out during the process.')
+    help='(Optional) - If you want to try update the policies with your new compliance standard, add this switch to the command.')
 
 parser.add_argument(
     '-label',
     '--label',
     action='store_true',
-    help='*NOT IMPLEMENTED YET*(Optional) - Add a label to any policy updated with the new compliance standard.  This only works if you have also specified the -policy switch.')
+    help='(Optional) - Add a label to any policy updated with the new compliance standard.  This only works if you have also specified the -policy switch.')
 
 parser.add_argument(
     'source_import_file_name',
