@@ -15,7 +15,7 @@ pip install requests --upgrade
 
 ------------------------------------------------------------------
 
-On to the tools themselves (Everything requires the rl_api_lib.py and rl_lib_general.py library files - keep them in the same directory as the other tools):
+On to the tools themselves (Everything requires the pc_api_lib.py and pc_lib_general.py library files - keep them in the same directory as the other tools):
 
 **pc-configure.py**
 - Use this to set up your Prisma Cloud username, password, and URL for use in the remaining tools.
