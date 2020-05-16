@@ -168,11 +168,18 @@ def api_policy_status_update(pc_settings, policy_id, status):
     return pc_call_api(action, url, pc_settings)
 
 
-# Get Search History
+# Get a Saved Search
 def api_search_get(pc_settings, search_id):
     action = "GET"
     url = "https://" + pc_settings['apiBase'] + "/search/history/" + search_id
     return pc_call_api(action, url, pc_settings)
+
+
+# Add a Saved Search
+def api_search_add(pc_settings, type_of_search, search_to_add):
+    action = "POST"
+    url = "https://" + pc_settings['apiBase'] + "/search/" + type_of_search
+    return pc_call_api(action, url, pc_settings, data=search_to_add)
 
 
 # Get User Role list

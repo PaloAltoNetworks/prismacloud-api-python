@@ -11,7 +11,7 @@ import requests
 
 # --Configuration-- #
 # Import file version expected
-DEFAULT_COMPLIANCE_IMPORT_FILE_VERSION = 2
+DEFAULT_COMPLIANCE_IMPORT_FILE_VERSION = 3
 WAIT_TIMER = 5
 
 
@@ -176,6 +176,8 @@ if 'export_file_version' not in export_file_data:
 # If you have an older version that you want to try to import, you can comment out this line,
 # but please be aware it will be untested on older versions of an export file.
 # At this moment, it *should* still work...
+if 'search_object_original' not in export_file_data:
+    pc_lib_general.pc_exit_error(404, 'Data imported from file appears corrupt or incorrect for this operation.  Please check the import file name.  Export file may also be an old version.  Please re-export and try again.')
 if  export_file_data['export_file_version'] != DEFAULT_COMPLIANCE_IMPORT_FILE_VERSION:
     pc_lib_general.pc_exit_error(404, 'Import file appears to be an unexpected export version.  Please check the import file name.')
 
@@ -299,6 +301,15 @@ else:
     # Get the policy list that will need to be updated from the import file
     print('FILE - Getting the compliance standard policy list to update from file data...')
     policy_list_original_file = export_file_data['policy_list_original']
+    ## Filter out any custom compliance policies that were in the export (This tool cannot import custom compliance policy yet)
+    policy_list_original_file_new = []
+    for policy_list_original_file_temp in policy_list_original_file:
+        if policy_list_original_file_temp['policyMode'] == "custom":
+            print("Found custom Policy: " + policy_list_original_file_temp['name'] + " ... Dropping it from import.")
+        else:
+            policy_list_original_file_new.append(policy_list_original_file_temp)
+    policy_list_original_file = policy_list_original_file_new
+    ## Filter Done
     print('Done.')
     print()
 

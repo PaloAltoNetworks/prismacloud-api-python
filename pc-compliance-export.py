@@ -10,7 +10,7 @@ import pc_lib_general
 
 # --Configuration-- #
 # Import file version expected
-DEFAULT_COMPLIANCE_EXPORT_FILE_VERSION = 2
+DEFAULT_COMPLIANCE_EXPORT_FILE_VERSION = 3
 
 
 # --Helper Functions (Local)-- #
@@ -89,10 +89,13 @@ print(' Done.')
 print()
 
 ## Compliance Copy ##
+# Set up the data structure
 export_file_data = {}
 export_file_data['export_file_version'] = DEFAULT_COMPLIANCE_EXPORT_FILE_VERSION
 export_file_data['compliance_section_list_original'] = {}
 export_file_data['policy_object_original'] = {}
+export_file_data['search_object_original'] = {}
+export_file_data['policy_list_original'] = []
 
 # Check the compliance standard and get the JSON information
 print('API - Getting the Compliance Standards list...')
@@ -138,6 +141,12 @@ for policy_original_temp in policy_list_original:
     pc_settings, response_package = pc_lib_api.api_policy_get(pc_settings, policy_original_temp['policyId'])
     policy_specific_temp = response_package['data']
     export_file_data['policy_object_original'][policy_original_temp['policyId']] = policy_specific_temp
+    # Get the related saved search object (if needed)
+    if policy_original_temp['rule']['parameters']['savedSearch'] == "true":
+        if policy_original_temp['rule']['criteria'] not in export_file_data['search_object_original']:
+            pc_settings, response_package = pc_lib_api.api_search_get(pc_settings, policy_original_temp['rule']['criteria'])
+            search_specific_temp = response_package['data']
+            export_file_data['search_object_original'][policy_original_temp['rule']['criteria']] = search_specific_temp
 print(' Done.')
 print()
 
