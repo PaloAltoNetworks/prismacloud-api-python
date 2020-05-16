@@ -72,7 +72,7 @@ python pc-compliance-export.py "SOC 2" "soc2.json"
 **pc-compliance-import.py**
 - Use this to import a saved Compliance Standard (and related requirements and sections) into a new Compliance Standard in Prisma Cloud.
 - It will copy the entire specified standard into the new standard name specified.
-- If you also wish to have the same policy mappings, please use the -policy switch.  THIS ONLY WORKS WITH DEFAULT BUILT IN POLICIES.  Custom policies are not yet supported.
+- If you also wish to have the same policy mappings, please use the -policy switch.  THIS ONLY WORKS WITH DEFAULT BUILT IN POLICIES.  Custom policies are not yet supported (they get dropped from the import).
 
 Example:
 ```
