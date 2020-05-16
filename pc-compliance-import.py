@@ -224,6 +224,7 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
     compliance_requirement_new_temp = {}
     compliance_requirement_new_temp['name'] = compliance_requirement_original_temp['name']
     compliance_requirement_new_temp['requirementId'] = compliance_requirement_original_temp['requirementId']
+    compliance_requirement_new_temp['viewOrder'] = compliance_requirement_original_temp['viewOrder']
     if 'description' in compliance_requirement_original_temp:
         compliance_requirement_new_temp['description'] = compliance_requirement_original_temp['description']
     pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_add(pc_settings, compliance_standard_new['id'], compliance_requirement_new_temp)
@@ -253,9 +254,11 @@ for compliance_requirement_original_temp in compliance_requirement_list_original
     for compliance_section_original_temp in compliance_section_list_original_temp:
         compliance_section_new_temp = {}
         compliance_section_new_temp['sectionId'] = compliance_section_original_temp['sectionId']
+        compliance_section_new_temp['viewOrder'] = compliance_section_original_temp['viewOrder']
         if 'description' in compliance_section_original_temp:
             compliance_section_new_temp['description'] = compliance_section_original_temp['description']
-            pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_section_add(pc_settings, compliance_requirement_new_temp['id'], compliance_section_new_temp)
+        
+        pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_section_add(pc_settings, compliance_requirement_new_temp['id'], compliance_section_new_temp)
 
         # Add entry for mapping table for Policy updates later
         compliance_section_new_temp['requirementGUIDOriginal'] = compliance_requirement_original_temp['id']
