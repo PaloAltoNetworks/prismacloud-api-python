@@ -39,6 +39,9 @@ PRISMA_CLOUD_ACCOUNT_GROUP_IDS = ['prisma-account-group-id-from-api-or-url-in-ui
 PRISMA_CLOUD_ACCOUNT_FRENDLY_NAME = "some friendly account name to show in Prisma Cloud"
 CLOUD_ACCOUNT_ROLE_ARN_FROM_AWS = "the arn from the prisma cloud role created in aws"
 
+PRISMA_CLOUD_MONITOR_MODE = "MONITOR_AND_PROTECT"
+# Valid values are either "MONITOR" or "MONITOR_AND_PROTECT"
+
 ################################
 
 ## Example of the login API call
@@ -84,6 +87,7 @@ data['externalId'] = CLOUD_ACCUNT_EXTERNAL_ID_FROM_AWS_ROLE
 data['groupIds'] = PRISMA_CLOUD_ACCOUNT_GROUP_IDS
 data['name'] = PRISMA_CLOUD_ACCOUNT_FRENDLY_NAME
 data['roleArn'] = CLOUD_ACCOUNT_ROLE_ARN_FROM_AWS
+data['protectionMode'] = PRISMA_CLOUD_MONITOR_MODE
 
 # Convert the body data above into JSON format for the requests module
 data_json = json.dumps(data)
