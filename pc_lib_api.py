@@ -176,9 +176,19 @@ def api_search_get(pc_settings, search_id):
 
 
 # Add a Saved Search
-def api_search_add(pc_settings, type_of_search, search_to_add):
+def api_saved_search_add(pc_settings, type_of_search, search_to_add):
+    
     action = "POST"
+    url = "https://" + pc_settings['apiBase'] + "/search/history/" + type_of_search
+    return pc_call_api(action, url, pc_settings, data=search_to_add)
+
+def api_search_add(pc_settings, type_of_search, search_to_add):
+   
+    action = "POST"
+    
     url = "https://" + pc_settings['apiBase'] + "/search/" + type_of_search
+    if type_of_search=='network':
+        url="https://" + pc_settings['apiBase'] + "/search"
     return pc_call_api(action, url, pc_settings, data=search_to_add)
 
 

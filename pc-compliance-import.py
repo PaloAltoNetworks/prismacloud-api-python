@@ -8,6 +8,7 @@ import pc_lib_api
 import pc_lib_general
 import time
 import requests
+import json
 
 # --Configuration-- #
 # Import file version expected
@@ -276,6 +277,7 @@ print()
 if not args.policy:
     print('Policy switch not specified.  Skipping policy update/attach.  Compliance framework import complete.')
 else:
+    policy_id_map=json.load(open('PolicyIdMap.json','r'))
     print('Compliance framework import complete.  Policy switch detected.  Starting policy mapping for new compliance framework.')
     print()
     # Need to add the new GUID from the new sections to the mapping tables
@@ -308,10 +310,29 @@ else:
     policy_list_original_file_new = []
     for policy_list_original_file_temp in policy_list_original_file:
         if policy_list_original_file_temp['policyMode'] == "custom":
-            print("Found custom Policy: " + policy_list_original_file_temp['name'] + " ... Dropping it from import.")
+             if policy_list_original_file_temp['policyId'] in policy_id_map:
+                 old_policy_id=policy_list_original_file_temp['policyId']
+                 new_policy_id=policy_id_map[old_policy_id]
+                 
+                 #Replace old policy id with new in policy object
+                 policy_obj_temp=export_file_data['policy_object_original'][old_policy_id]
+                 policy_obj_temp['policyId']=new_policy_id
+                 for standard in policy_obj_temp['complianceMetadata']:
+                     standard['policyId']=new_policy_id
+                 export_file_data['policy_object_original'][new_policy_id]=policy_obj_temp
+                 del export_file_data['policy_object_original'][old_policy_id]
+                 
+                 #Replace old policy id with new in policy list
+                 policy_list_original_file_temp['policyId']=new_policy_id
+                 policy_list_original_file_new.append(policy_list_original_file_temp)
+                 print("Found custom policy, updating ID for current tenant.")
+             else:
+                 print("Custom policy not yet added to this tenant, dropping from import.")
+            #print("Found custom Policy: " + policy_list_original_file_temp['name'] + " ... Dropping it from import.")
         else:
             policy_list_original_file_new.append(policy_list_original_file_temp)
     policy_list_original_file = policy_list_original_file_new
+   
     ## Filter Done
     print('Done.')
     print()
@@ -343,7 +364,7 @@ else:
         # Get the individual policy JSON object
         pc_settings, response_package = pc_lib_api.api_policy_get(pc_settings, policy_original_temp['policyId'])
         policy_specific_temp = response_package['data']
-
+        print()
         # Need to also get the origional policy object to map in the compliance correctly with the new policy list
         policy_specific_temp_file = export_file_data['policy_object_original'][policy_original_temp['policyId']]
 
