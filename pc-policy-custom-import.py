@@ -224,32 +224,24 @@ for policy_id_temp,policy_object_original_file_temp in policy_object_original_fi
                             search=search_object_original_file_temp
                             query=search['query']
                             search_type=search['searchType']
-                            if search_type!='config':
-                                print('Search type is not config, skipping this policy.')
-                                config_search=False
-                                break
-                            body_data={"query":query}
-                            
+                            body_data={'query':query,'saved':False,'timeRange':{"type":"relative","value":{"unit":"hour","amount":24}}}
+                                
                             resp=pc_lib_api.api_search_add(pc_settings, search_type, body_data)
                             
                             new_search_id=resp[1]['data']['id']
                             # Clean up the saved search object for import
-                            search.pop('id', None)
-                            #del search_object_original_file_temp['timeRange']["relativeTimeType"]
-                            #del search_object_original_file_temp['searchType']
+                            search.pop('id', None)            
                             search['name']='customSearch'+str(int(time.time()))+''.join([random.choice(alph) for _ in range(5)])
                             search['description'] = 'test Description'
+                            search['saved']=True
                              
-                            
-                            #print(json.dumps(search_object_original_file_temp))
-                           
+                                                       
                             pc_lib_api.api_saved_search_add(pc_settings,new_search_id,search)
                             policy_object_original_file_temp['rule']['criteria']=new_search_id
                             print("Finished recreating saved search.")
                            
                             
-        if not config_search:
-            continue
+        
 ###########################################################
         new_policy_id=None
         # Check to see if the new policies should come in disabled or maintain their exported status
@@ -266,8 +258,6 @@ for policy_id_temp,policy_object_original_file_temp in policy_object_original_fi
             # Import with a status of disabled
             policy_object_original_file_temp['enabled'] = False
             try:
-                #print('Importing policies as disabled')
-                
                 print('Importing ' + policy_object_original_file_temp['name'])
                 pc_settings, response_package = pc_lib_api.api_policy_add(pc_settings, policy_object_original_file_temp)
                 new_policy_id=response_package['data']['policyId']
