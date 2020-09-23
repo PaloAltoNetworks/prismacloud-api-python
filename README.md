@@ -32,12 +32,23 @@ python pc-configure.py -u "accesskeyidhere" -p "secretkeyhere" -url "app3.prisma
 ```
 
 **pc-policy-status.py**
-- Use this to enable/disable policies globally for an account (filtered on policy type).
-- It will enable or disable all policies of a given type (or all) for a customer account (global).  This is used primarity for setting up a new environment that wants to begin with everything enabled out of the gate or to update after a large number of new policies have been released.
+- Use this to enable/disable policies globally for an account (filtered on policy type or compliance standard).
+- It will enable or disable all policies of a given type (or all) for a customer account (global).
+
+This is used primarily for setting up a new environment that wants to begin with everything enabled out of the gate or to update after a large number of new policies have been released.
 
 Example:
 ```
-python pc-policy-status.py config enable
+python pc-policy-status.py --policy_type config enable
+```
+
+This can also be used to only enable policies that are associated with a specific standard (or standards).
+
+Example:
+```
+python pc-policy-status.py --policy_type all disable
+python pc-policy-status.py --compliance_standard "GDPR" enable
+python pc-policy-status.py --compliance_standard "SOC 2" enable
 ```
 
 **pc-user-import.py**
