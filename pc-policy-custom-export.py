@@ -97,11 +97,12 @@ for policy_original_temp in policy_list_original:
     policy_specific_temp = response_package['data']
     export_file_data['policy_object_original'][policy_original_temp['policyId']] = policy_specific_temp
     # Get the related saved search object (if needed)
-    if policy_original_temp['rule']['parameters']['savedSearch'] == "true":
-        if policy_original_temp['rule']['criteria'] not in export_file_data['search_object_original']:
-            pc_settings, response_package = pc_lib_api.api_search_get(pc_settings, policy_original_temp['rule']['criteria'])
-            search_specific_temp = response_package['data']
-            export_file_data['search_object_original'][policy_original_temp['rule']['criteria']] = search_specific_temp
+    if 'savedSearch' in policy_original_temp['rule']['parameters']:
+        if policy_original_temp['rule']['parameters']['savedSearch'] == "true":
+            if policy_original_temp['rule']['criteria'] not in export_file_data['search_object_original']:
+                pc_settings, response_package = pc_lib_api.api_search_get(pc_settings, policy_original_temp['rule']['criteria'])
+                search_specific_temp = response_package['data']
+                export_file_data['search_object_original'][policy_original_temp['rule']['criteria']] = search_specific_temp
 print(' Done.')
 print()
 

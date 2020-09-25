@@ -31,6 +31,7 @@ args = parser.parse_args()
 # --End parse command line arguments-- #
 
 # --Main-- #
+print(args.uiurl)
 if args.username is not None and args.password is not None and args.uiurl is not None:
     pc_lib_general.pc_settings_write(args.username, args.password, args.uiurl)
     print('Settings successfully saved to disk.')
