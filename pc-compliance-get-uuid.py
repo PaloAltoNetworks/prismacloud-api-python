@@ -21,14 +21,14 @@ parser.add_argument(
     '-rid',
     '--requirementId',
     type=str,
-    help='*Optional* - Only required to find the UUID of a Requirement or a Section. This will be the "REQUIREMENT" from the UI. '
+    help='(Optional) - Only required to find the UUID of a Requirement or a Section. This will be the "REQUIREMENT" from the UI. '
          'Note: This requirement must exist in the specified Standard. If it is in another standard, the lookup will fail.')
 
 parser.add_argument(
     '-sid',
     '--sectionId',
     type=str,
-    help='*Optional* - Only required to find the UUID of a Section. This will be the "SECTION" from the UI. '
+    help='(Optional) - Only required to find the UUID of a Section. This will be the "SECTION" from the UI. '
          'Note: This section must exist in the specified Standard and the specified Requirement. '
          'If it is in another standard, or another Requirement, the lookup will fail.')
 
@@ -59,7 +59,7 @@ if not args.yes:
 
 # API Login
 
-print('API - Getting authentication token... ', end='')
+print('API - Getting authentication token ... ', end='')
 pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
 print('done.')
 
