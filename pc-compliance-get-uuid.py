@@ -10,7 +10,7 @@ import pc_lib_general
 
 # --Parse command line arguments-- #
 
-parser = pc_lib_general.pc_arg_parser()
+parser = pc_lib_general.pc_arg_parser_defaults()
 
 parser.add_argument(
     'compliance_standard_name',

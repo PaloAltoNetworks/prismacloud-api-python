@@ -18,21 +18,21 @@ DEFAULT_SETTINGS_FILE_VERSION = 4
 
 # --Helper Methods-- #
 # --Parse command line arguments-- #
-def pc_arg_parser():
-    pc_arg_parser = argparse.ArgumentParser(prog='rltoolbox')
-    pc_arg_parser.add_argument(
+def pc_arg_parser_defaults():
+    pc_arg_parser_defaults = argparse.ArgumentParser(prog='pctoolbox')
+    pc_arg_parser_defaults.add_argument(
         '-u',
         '--username',
         type=str,
         help='*Required* - Prisma Cloud API Access Key ID that you want to set to access your Prisma Cloud account.')
 
-    pc_arg_parser.add_argument(
+    pc_arg_parser_defaults.add_argument(
         '-p',
         '--password',
         type=str,
         help='*Required* - Prisma Cloud API Secret Key that you want to set to access your Prisma Cloud account.')
 
-    pc_arg_parser.add_argument(
+    pc_arg_parser_defaults.add_argument(
         '-url',
         '--uiurl',
         type=str,
@@ -40,13 +40,13 @@ def pc_arg_parser():
              'Formatted as app.prismacloud.io or app2.prismacloud.io or app.eu.prismacloud.io, etc. '
              'You can also input the api version of the URL if you know it and it will be passed through. ')
 
-    pc_arg_parser.add_argument(
+    pc_arg_parser_defaults.add_argument(
        '-y',
        '--yes',
         action='store_true',
         help='*Optional* - Override user input for verification (auto answer for yes).')
 
-    return pc_arg_parser
+    return pc_arg_parser_defaults
 
 
 # Exit handler (Error)
