@@ -151,3 +151,72 @@ def pc_file_read_json(file_name):
         pc_exit_error(500, "Failed to read JSON file.  Check the file name?", ex)
     return json_data
 
+
+# Search list for a field with a certain value and return another field value from that object
+def search_list_value(list_to_search, field_to_search, field_to_return, search_value):
+    item_to_return = None
+    for source_item in list_to_search:
+        if field_to_search in source_item:
+            if source_item[field_to_search] == search_value:
+                item_to_return = source_item[field_to_return]
+                break
+    return item_to_return
+
+
+# Search list for a field with a certain value and return another field value from that object (case insensitive)
+def search_list_value_lower(list_to_search, field_to_search, field_to_return, search_value):
+    item_to_return = None
+    search_value = search_value.lower()
+    for source_item in list_to_search:
+        if field_to_search in source_item:
+            if source_item[field_to_search].lower() == search_value:
+                item_to_return = source_item[field_to_return]
+                break
+    return item_to_return
+
+
+# Search list for a field with a certain value and return the entire object
+def search_list_object(list_to_search, field_to_search, search_value):
+    object_to_return = None
+    for source_item in list_to_search:
+        if field_to_search in source_item:
+            if source_item[field_to_search] == search_value:
+                object_to_return = source_item
+                break
+    return object_to_return
+
+
+# Search list for a field with a certain value and return the entire object (case insensitive)
+def search_list_object_lower(list_to_search, field_to_search, search_value):
+    object_to_return = None
+    search_value = search_value.lower()
+    for source_item in list_to_search:
+        if field_to_search in source_item:
+            if source_item[field_to_search].lower() == search_value:
+                object_to_return = source_item
+                break
+    return object_to_return
+
+
+# Search list for a field with a certain value and return a list of all objects that match
+def search_list_list(list_to_search, field_to_search, search_value):
+    object_list_to_return = []
+    for source_item in list_to_search:
+        if field_to_search in source_item:
+            if source_item[field_to_search] == search_value:
+                object_list_to_return.append(source_item)
+                break
+    return object_list_to_return
+
+
+# Search list for a field with a certain value and return a list of all objects that match (case insensitive)
+def search_list_list_lower(list_to_search, field_to_search, search_value):
+    object_list_to_return = []
+    search_value = search_value.lower()
+    for source_item in list_to_search:
+        if field_to_search in source_item:
+            if source_item[field_to_search].lower() == search_value:
+                object_list_to_return.append(source_item)
+                break
+    return object_list_to_return
+    
