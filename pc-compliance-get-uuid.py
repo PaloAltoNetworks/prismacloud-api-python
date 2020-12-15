@@ -6,72 +6,6 @@ except NameError:
 import pc_lib_api
 import pc_lib_general
 
-
-# --Helper Functions (Local)-- #
-
-def search_list_value(list_to_search, field_to_search, field_to_return, search_value):
-    item_to_return = None
-    for source_item in list_to_search:
-        if field_to_search in source_item:
-            if source_item[field_to_search] == search_value:
-                item_to_return = source_item[field_to_return]
-                break
-    return item_to_return
-
-
-def search_list_value_lower(list_to_search, field_to_search, field_to_return, search_value):
-    item_to_return = None
-    search_value = search_value.lower()
-    for source_item in list_to_search:
-        if field_to_search in source_item:
-            if source_item[field_to_search].lower() == search_value:
-                item_to_return = source_item[field_to_return]
-                break
-    return item_to_return
-
-
-def search_list_object(list_to_search, field_to_search, search_value):
-    object_to_return = None
-    for source_item in list_to_search:
-        if field_to_search in source_item:
-            if source_item[field_to_search] == search_value:
-                object_to_return = source_item
-                break
-    return object_to_return
-
-
-def search_list_object_lower(list_to_search, field_to_search, search_value):
-    object_to_return = None
-    search_value = search_value.lower()
-    for source_item in list_to_search:
-        if field_to_search in source_item:
-            if source_item[field_to_search].lower() == search_value:
-                object_to_return = source_item
-                break
-    return object_to_return
-
-
-def search_list_list(list_to_search, field_to_search, search_value):
-    object_list_to_return = []
-    for source_item in list_to_search:
-        if field_to_search in source_item:
-            if source_item[field_to_search] == search_value:
-                object_list_to_return.append(source_item)
-                break
-    return object_list_to_return
-
-
-def search_list_list_lower(list_to_search, field_to_search, search_value):
-    object_list_to_return = []
-    search_value = search_value.lower()
-    for source_item in list_to_search:
-        if field_to_search in source_item:
-            if source_item[field_to_search].lower() == search_value:
-                object_list_to_return.append(source_item)
-                break
-    return object_list_to_return
-
-
 # --Execution Block-- #
 
 # --Parse command line arguments-- #
@@ -134,7 +68,7 @@ print('done.')
 print('API - Getting the Compliance Standards list ... ', end='')
 pc_settings, response_package = pc_lib_api.api_compliance_standard_list_get(pc_settings)
 compliance_standard_list = response_package['data']
-compliance_standard = search_list_object_lower(compliance_standard_list, 'name', args.compliance_standard_name)
+compliance_standard = pc_lib_general.search_list_object_lower(compliance_standard_list, 'name', args.compliance_standard_name)
 print('done.')
 
 if compliance_standard is None:
@@ -150,7 +84,7 @@ if args.requirementId is not None:
     compliance_requirement_list = response_package['data']
     print('done.')
 
-    compliance_requirement = search_list_object_lower(compliance_requirement_list, 'requirementId', args.requirementId)
+    compliance_requirement = pc_lib_general.search_list_object_lower(compliance_requirement_list, 'requirementId', args.requirementId)
     if compliance_requirement is None:
         pc_lib_general.pc_exit_error(400, 'Requirement not found in the specified Compliance Standard. '
         'Please check the Compliance Standard and Requirement names and try again.')
@@ -165,7 +99,7 @@ if args.requirementId is not None:
         compliance_section_list = response_package['data']
         print('done.')
 
-        compliance_section = search_list_object_lower(compliance_section_list, 'sectionId', args.sectionId)
+        compliance_section = pc_lib_general.search_list_object_lower(compliance_section_list, 'sectionId', args.sectionId)
         if compliance_section is None:
             pc_lib_general.pc_exit_error(400, 'Section not found in the specified Requirement.  '
             'Please check the Compliance Standard, Requirement, and Section names and try again.')
