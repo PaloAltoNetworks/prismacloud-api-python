@@ -3,6 +3,7 @@ import requests
 import time
 import pc_lib_general
 
+
 # --Description-- #
 # Prisma Cloud API Helper library.  Contains shared API call functions.
 # --End Description-- #
@@ -102,6 +103,13 @@ def api_compliance_standard_requirement_section_add(pc_settings, compliance_requ
     return pc_call_api(action, url, pc_settings, data=compliance_section_new)
 
 
+# Delete a Compliance Standard
+def api_compliance_standard_delete(pc_settings, compliance_id):
+    action = "DELETE"
+    url = "https://" + pc_settings['apiBase'] + "/compliance/" + compliance_id
+    return pc_call_api(action, url, pc_settings)
+
+
 # Get Compliance Standards Policy list
 def api_compliance_standard_policy_list_get(pc_settings, source_compliance_standard_name):
     action = "GET"
@@ -118,14 +126,14 @@ def api_compliance_standard_policy_v2_list_get(pc_settings, source_compliance_st
     return pc_call_api(action, url, pc_settings, params=filters)
 
 
-# Get policy list
+# Get Policy list
 def api_policy_list_get(pc_settings):
     action = "GET"
     url = "https://" + pc_settings['apiBase'] + "/policy"
     return pc_call_api(action, url, pc_settings)
 
 
-# Get policy list (v2)
+# Get Policy list (v2)
 def api_policy_v2_list_get(pc_settings):
     action = "GET"
     url = "https://" + pc_settings['apiBase'] + "/v2/policy"
@@ -140,31 +148,45 @@ def api_policy_custom_v2_list_get(pc_settings):
     return pc_call_api(action, url, pc_settings, params=filters)
 
 
-# Get a policy
+# Get a Policy
 def api_policy_get(pc_settings, policy_id):
     action = "GET"
     url = "https://" + pc_settings['apiBase'] + "/policy/" + policy_id
     return pc_call_api(action, url, pc_settings)
 
 
-# Add a policy
+# Add a Policy
 def api_policy_add(pc_settings, policy_to_add):
     action = "POST"
     url = "https://" + pc_settings['apiBase'] + "/policy"
     return pc_call_api(action, url, pc_settings, data=policy_to_add)
 
 
-# Update a policy
+# Update a Policy
 def api_policy_update(pc_settings, policy_id, policy_update):
     action = "PUT"
     url = "https://" + pc_settings['apiBase'] + "/policy/" + policy_id
     return pc_call_api(action, url, pc_settings, data=policy_update)
 
 
-# Update policy status
+# Update Policy status
 def api_policy_status_update(pc_settings, policy_id, status):
     action = "PATCH"
     url = "https://" + pc_settings['apiBase'] + "/policy/" + policy_id + "/status/" + status
+    return pc_call_api(action, url, pc_settings)
+
+
+# Delete a Policy
+def api_policy_delete(pc_settings, policy_id):
+    action = "DELETE"
+    url = "https://" + pc_settings['apiBase'] + "/policy/" + policy_id
+    return pc_call_api(action, url, pc_settings)
+
+
+# Get Saved Search list
+def api_saved_search_list_get(pc_settings):
+    action = "GET"
+    url = "https://" + pc_settings['apiBase'] + "/search/history?filter=saved"
     return pc_call_api(action, url, pc_settings)
 
 
@@ -177,19 +199,24 @@ def api_search_get(pc_settings, search_id):
 
 # Add a Saved Search
 def api_saved_search_add(pc_settings, type_of_search, search_to_add):
-    
     action = "POST"
     url = "https://" + pc_settings['apiBase'] + "/search/history/" + type_of_search
     return pc_call_api(action, url, pc_settings, data=search_to_add)
 
+
 def api_search_add(pc_settings, type_of_search, search_to_add):
-   
     action = "POST"
-    
     url = "https://" + pc_settings['apiBase'] + "/search/" + type_of_search
     if type_of_search=='network':
         url="https://" + pc_settings['apiBase'] + "/search"
     return pc_call_api(action, url, pc_settings, data=search_to_add)
+
+
+# Delete a Saved Search
+def api_saved_search_delete(pc_settings, search_id):
+    action = "DELETE"
+    url = "https://" + pc_settings['apiBase'] + "/search/history/" + search_id
+    return pc_call_api(action, url, pc_settings)
 
 
 # Get User Role list
@@ -227,14 +254,14 @@ def api_user_update(pc_settings, user_to_update):
     return pc_call_api(action, url, pc_settings, data=user_to_update)
 
 
-# Get alert list with filters
+# Get Alerts list with filters
 def api_alert_list_get(pc_settings, params=None, data=None):
     action = "POST"
     url = "https://" + pc_settings['apiBase'] + "/alert"
     return pc_call_api(action, url, pc_settings, params=params, data=data)
 
 
-# Get alert list with filters (V2)
+# Get Alerts list with filters (V2)
 def api_alert_v2_list_get(pc_settings, params=None, data=None):
     action = "POST"
     url = "https://" + pc_settings['apiBase'] + "/v2/alert"
@@ -255,7 +282,7 @@ def api_compliance_report_add(pc_settings, report_to_add):
     return pc_call_api(action, url, pc_settings, data=report_to_add)
 
 
-# Delete Compliance Reports
+# Delete Compliance Report
 def api_compliance_report_delete(pc_settings, report_id):
     action = "DELETE"
     url = "https://" + pc_settings['apiBase'] + "/report/" + report_id
@@ -294,3 +321,45 @@ def api_cloud_accounts_add(pc_settings, cloud_type, cloud_account_to_add):
     action = "POST"
     url = "https://" + pc_settings['apiBase'] + "/cloud/" + cloud_type
     return pc_call_api(action, url, pc_settings, data=cloud_account_to_add)
+
+
+# Get Cloud Account Group list
+def api_cloud_account_group_list_get(pc_settings):
+    action = "GET"
+    url = "https://" + pc_settings['apiBase'] + "/cloud/group"
+    return pc_call_api(action, url, pc_settings)
+
+
+# Delete Account Group
+def api_cloud_account_group_delete(pc_settings, group_id):
+    action = "DELETE"
+    url = "https://" + pc_settings['apiBase'] + "/cloud/group/" + group_id
+    return pc_call_api(action, url, pc_settings)
+
+
+# Get Alert Rule list (V2)
+def api_alert_rule_list_get(pc_settings):
+    action = "GET"
+    url = "https://" + pc_settings['apiBase'] + "/v2/alert/rule"
+    return pc_call_api(action, url, pc_settings)
+
+
+# Delete Alert Rule
+def api_alert_rule_delete(pc_settings, rule_id):
+    action = "DELETE"
+    url = "https://" + pc_settings['apiBase'] + "/alert/rule/" + rule_id
+    return pc_call_api(action, url, pc_settings)
+
+
+# Get Integration list (V2)
+def api_integration_list_get(pc_settings):
+    action = "GET"
+    url = "https://" + pc_settings['apiBase'] + "/integration"
+    return pc_call_api(action, url, pc_settings)
+
+
+# Delete Integration
+def api_integration_delete(pc_settings, integration_id):
+    action = "DELETE"
+    url = "https://" + pc_settings['apiBase'] + "/integration/" + integration_id
+    return pc_call_api(action, url, pc_settings)
