@@ -1,8 +1,9 @@
 import argparse
+import csv
 import json
 import os.path
 import sys
-import csv
+
 
 # --Description-- #
 # Prisma Cloud General Helper library.  Used to contain the general useful shared functions.
