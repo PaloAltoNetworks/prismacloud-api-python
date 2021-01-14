@@ -226,6 +226,13 @@ def api_user_role_list_get(pc_settings):
     return pc_call_api(action, url, pc_settings)
 
 
+# Delete User Role
+def api_user_role_delete(pc_settings, account_id):
+    action = "DELETE"
+    url = "https://" + pc_settings['apiBase'] + "/user/role/" + id
+    return pc_call_api(action, url, pc_settings)
+
+
 # Get User list
 def api_user_list_get(pc_settings):
     action = "GET"
@@ -323,6 +330,13 @@ def api_cloud_accounts_add(pc_settings, cloud_type, cloud_account_to_add):
     return pc_call_api(action, url, pc_settings, data=cloud_account_to_add)
 
 
+# Delete Cloud Account
+def api_cloud_account_delete(pc_settings, account_id):
+    action = "DELETE"
+    url = "https://" + pc_settings['apiBase'] + "/cloud/" + account_id
+    return pc_call_api(action, url, pc_settings)
+
+
 # Get Cloud Account Group list
 def api_cloud_account_group_list_get(pc_settings):
     action = "GET"
@@ -362,4 +376,17 @@ def api_integration_list_get(pc_settings):
 def api_integration_delete(pc_settings, integration_id):
     action = "DELETE"
     url = "https://" + pc_settings['apiBase'] + "/integration/" + integration_id
+    return pc_call_api(action, url, pc_settings)
+
+# Get Resource List list (V1)
+def api_resource_list_list_get(pc_settings):
+    action = "GET"
+    url = "https://" + pc_settings['apiBase'] + "/v1/resource_list"
+    return pc_call_api(action, url, pc_settings)
+
+
+# Delete Resource List (V1)
+def api_resource_list_delete(pc_settings, resource_list_id):
+    action = "DELETE"
+    url = "https://" + pc_settings['apiBase'] + "/v1/resource_list/" + resource_list_id
     return pc_call_api(action, url, pc_settings)
