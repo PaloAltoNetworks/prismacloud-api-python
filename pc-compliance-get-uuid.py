@@ -45,13 +45,13 @@ if args.sectionId is not None:
         pc_lib_general.pc_exit_error(400, 'A Requirement is required if you want to get the UUID of a Section. '
             'Please enter the correct Requirement for the desired Section. Exiting ...')
 
-pc_settings = pc_lib_general.pc_login_get(args.username, args.password, args.uiurl)
+pc_settings = pc_lib_general.pc_login_get(args.username, args.password, args.uiurl, args.config_file)
 
 # Verification (override with -y)
 
 if not args.yes:
     print()
-    print('Ready to excute commands aginst your Prisma Cloud tenant.')
+    print('Ready to execute commands against your Prisma Cloud tenant.')
     verification_response = str(input('Would you like to continue (y or yes to continue)?'))
     continue_response = {'yes', 'y'}
     print()

@@ -37,9 +37,15 @@ def pc_arg_parser_defaults():
         '-url',
         '--uiurl',
         type=str,
-        help='*Required* - Base URL used in the UI for connecting to Prisma Cloud. '
-             'Formatted as app.prismacloud.io or app2.prismacloud.io or app.eu.prismacloud.io, etc. '
-             'You can also input the api version of the URL if you know it and it will be passed through. ')
+        help='*Required* - Prisma Cloud UI Base URL that you want to set to access your Prisma Cloud account. '
+             'Formatted as app.prismacloud.io or app2.prismacloud.io, etc. '
+             'You can also input the API version of the URL if you know it, and it will be passed through. ')
+
+    pc_arg_parser_defaults.add_argument(
+        '-conf_file',
+        '--config_file',
+        type=str,
+        help='*Optional* - File containing your configuration settings (by default: %s).' % DEFAULT_SETTINGS_FILE_NAME)
 
     pc_arg_parser_defaults.add_argument(
        '-y',
@@ -89,67 +95,94 @@ def pc_find_api_base(ui_base):
                            'api.eu.prismacloud.io', 'api2.eu.prismacloud.io', 'api.anz.prismacloud.io', 'api.gov.prismacloud.io']:
         api_base = ui_base_lower
     else:
-        pc_exit_error(400, "API URL Base not found.  Please verify the UI base is accurate.  If it is correct, and you are still getting this message, "
-                           "then a new URL was added to the system that this tool does not understand.  Please check for a new version of this tool.")
+        pc_exit_error(400, "Prisma Cloud API/UI Base URL not found. Please verify. "
+                           "If it is correct, and you still receive this error, then a new Base URL was added to Prisma Cloud. "
+                           "Please download the latest version of these scripts.")
     return api_base
 
 
 # Update settings
 def pc_settings_upgrade(old_settings):
     if old_settings['settings_file_version'] < DEFAULT_SETTINGS_FILE_VERSION:
-        pc_exit_error(400, "Saved settings file is out of date.  Please re-run the pc-settings.py and update your login settings.")
+        pc_exit_error(400, "The settings file is out-of-date. Please rerun the configuration script.")
     else:
-        pc_exit_error(500, "Something went wrong.  Settings file appears to be outdated, but this tool cannot understand what version it is.  "
-                           "Please recreate the settings file or download the latest version of this tool.")
+        pc_exit_error(500, "The settings file appears to be out-of-date, but this script cannot determine the version. "
+                           "Please rerun the configuration script or download the latest version of these scripts.")
     return old_settings
 
 
-# Read in settings
-def pc_settings_read(settings_file_name=DEFAULT_SETTINGS_FILE_NAME, settings_file_version=DEFAULT_SETTINGS_FILE_VERSION):
-    settings_file_name_and_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), settings_file_name)
-    if os.path.isfile(settings_file_name_and_path):
+# Use user-specified settings file, or the default.
+def user_or_default_settings_file(settings_file_name=None):
+    if settings_file_name is None:
+        settings_file_name = DEFAULT_SETTINGS_FILE_NAME
+    if settings_file_name == DEFAULT_SETTINGS_FILE_NAME:
+        # Using the default file name, in the same directory as the script.
+        settings_file_name_and_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), settings_file_name)
+        # TBD:
+        # If the default file name does not exist in the same directory as the script, use the default file name in the home directory.
+        # if not os.path.isfile(settings_file_name_and_path):
+        #    settings_file_name_and_path = os.path.join(os.path.expanduser("~"), settings_file_name)
+    else:
+        # Using the specified file name.
+        if '/' in settings_file_name:
+            # Use the specified file name verbatim, if it is a file path.
+            settings_file_name_and_path = settings_file_name
+        else:
+            # Use the specified file name in the same directory as the script.
+            settings_file_name_and_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), settings_file_name)
+    return settings_file_name_and_path
+
+
+# Read settings
+def pc_settings_read(settings_file_name=None, settings_file_version=None):
+    settings_file_name = user_or_default_settings_file(settings_file_name)
+    if settings_file_version is None:
+        settings_file_version = DEFAULT_SETTINGS_FILE_VERSION
+
+    if os.path.isfile(settings_file_name):
         pc_settings = pc_file_read_json(settings_file_name)
         if pc_settings is None or pc_settings == {}:
-            pc_exit_error(500, "The settings file appears to exist, but is empty?  Check the settings file or rerun the pc-configure.py utility.")
+            pc_exit_error(500, "The settings file exists, but cannot be read. Check the settings file, or rerun the configuration script.")
         elif pc_settings['settings_file_version'] == settings_file_version:
             return pc_settings
         elif pc_settings['settings_file_version'] < settings_file_version:
             return pc_settings_upgrade(pc_settings)
         else:
-            pc_exit_error(500, "The settings file being used is newer than the utility understands.  "
-                            "Please recreate the settings file using the pc-configure.py utility or "
-                            "update the Prisma Cloud tools in use.")
+            pc_exit_error(500, "The settings file version is newer than this script. "
+                            "Please recreate the settings file using the configuration script, or update the Prisma Cloud tools in use.")
     else:
-        pc_exit_error(400, "Cannot find the pc-settings file.  Please create one using the pc-configure.py utility.")
+        pc_exit_error(400, "Cannot find the settings file. Please create one using the configuration script.")
 
 
-# Write settings to a file
-def pc_settings_write(username, password, uiBase,
-                      settings_file_name=DEFAULT_SETTINGS_FILE_NAME, settings_file_version=DEFAULT_SETTINGS_FILE_VERSION):
-    # Verify API Base is understood
+# Write settings
+def pc_settings_write(username, password, uiBase, settings_file_name=None, settings_file_version=None):
+    settings_file_name = user_or_default_settings_file(settings_file_name)
+    if settings_file_version is None:
+        settings_file_version = DEFAULT_SETTINGS_FILE_VERSION
+
+    # Verifies API Base is translated
     apiBase = pc_find_api_base(uiBase)
 
-    # Write settings file
     new_settings = {}
     new_settings['settings_file_version'] = settings_file_version
     new_settings['username'] = username
     new_settings['password'] = password
-    new_settings['apiBase'] = apiBase
+    new_settings['apiBase']  = apiBase
     pc_file_write_json(settings_file_name, new_settings)
 
 
 # Work out login information
-def pc_login_get(username, password, uibase):
+def pc_login_get(username, password, uibase, settings_file_name=None):
     pc_settings = {}
     if username is None and password is None and uibase is None:
-        pc_settings = pc_settings_read()
+        pc_settings = pc_settings_read(settings_file_name)
     elif username is None or password is None or uibase is None:
         pc_exit_error(400, 'Access Key ID (--username), Secret Key (--password), and UI URL Base (--uiurl) are all required if using overrides.')
     else:
         pc_settings['username'] = username
         pc_settings['password'] = password
         pc_settings['apiBase'] = pc_find_api_base(uibase)
-    # Add a placeholder for jwt
+    # Add a placeholder for JWT
     pc_settings['jwt'] = None
     return pc_settings
 
@@ -182,7 +215,7 @@ def pc_file_read_json(file_name):
         with open(file_name_and_path, 'r') as f:
             json_data = json.load(f)
     except Exception as ex:
-        pc_exit_error(500, "Failed to read JSON file.  Check the file name?", ex)
+        pc_exit_error(500, "Failed to read JSON file. Check the file name?", ex)
     return json_data
 
 
