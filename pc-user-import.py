@@ -44,7 +44,7 @@ pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
 print('Done.')
 
 print('API - Getting current user list...', end='')
-pc_settings, response_package = pc_lib_api.api_user_list_get(pc_settings)
+pc_settings, response_package = pc_lib_api.api_user_list_get_v2(pc_settings)
 user_list_old = response_package['data']
 print('Done.')
 

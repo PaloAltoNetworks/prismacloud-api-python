@@ -240,6 +240,14 @@ def api_user_list_get(pc_settings):
     return pc_call_api(action, url, pc_settings)
 
 
+# Get User list (v2)
+def api_user_list_get_v2(pc_settings):
+    action = "GET"
+    url = "https://" + pc_settings['apiBase'] + "/v2/user"
+    return pc_call_api(action, url, pc_settings)
+
+
+
 # Get a User
 def api_user_get(pc_settings, useremail):
     action = "GET"
