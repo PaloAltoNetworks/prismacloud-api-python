@@ -163,6 +163,16 @@ def pc_file_load_csv(file_name):
     return csv_list
 
 
+# Load the CSV file into Dict (text)
+def pc_file_load_csv_text(file_name):
+    csv_list = []
+    with open(file_name, 'r') as csv_file:
+        file_reader = csv.DictReader(csv_file)
+        for row in file_reader:
+            csv_list.append(row)
+    return csv_list
+
+
 # Write JSON file
 def pc_file_write_json(file_name, data_to_write):
     file_name_and_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), file_name)

@@ -49,7 +49,7 @@ user_list_old = response_package['data']
 print('Done.')
 
 print('File - Loading CSV user data...', end='')
-user_list_new = pc_lib_general.pc_file_load_csv(args.importfile)
+user_list_new = pc_lib_general.pc_file_load_csv_text(args.importfile)
 print('Done.')
 
 print('API - Getting user roles...', end='')
