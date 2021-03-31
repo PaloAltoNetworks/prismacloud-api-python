@@ -114,6 +114,9 @@ for policy_original_temp in policy_list_original:
     pc_settings, response_package = pc_lib_api.api_policy_get(pc_settings, policy_original_temp['policyId'])
     policy_specific_temp = response_package['data']
     export_file_data['policy_object_original'][policy_original_temp['policyId']] = policy_specific_temp
+    # Anomaly policies (policy_original_temp['rule']['type'] == 'Anomaly') do not have 'parameters' 
+    if not 'parameters' in policy_original_temp['rule']:
+        continue
     # Get the related saved search object (if needed)
     if policy_original_temp['rule']['parameters']['savedSearch'] == "true":
         if policy_original_temp['rule']['criteria'] not in export_file_data['search_object_original']:
