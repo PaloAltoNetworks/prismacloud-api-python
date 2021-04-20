@@ -124,7 +124,7 @@ def user_or_default_settings_file(settings_file_name=None):
         #    settings_file_name_and_path = os.path.join(os.path.expanduser("~"), settings_file_name)
     else:
         # Using the specified file name.
-        if '/' in settings_file_name:
+        if os.path.sep in settings_file_name:
             # Use the specified file name verbatim, if it is a file path.
             settings_file_name_and_path = settings_file_name
         else:
