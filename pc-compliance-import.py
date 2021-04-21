@@ -9,6 +9,7 @@ import json
 import requests
 import time
 
+# TODO: Do not update policy.rule.name when policy.systemDefault == True
 
 # --Configuration-- #
 
@@ -138,37 +139,37 @@ import_file_data = pc_lib_general.pc_file_read_json(args.source_import_file_name
 
 # Validation
 if 'compliance_standard_original' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'compliance_standard_original section not found. Please check the import file and name.')
+    pc_lib_general.pc_exit_error(404, 'compliance_standard_original section not found. Please verify the import file and name.')
 if 'compliance_requirement_list_original' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'compliance_requirement_list_original section not found. Please check the import file and name.')
+    pc_lib_general.pc_exit_error(404, 'compliance_requirement_list_original section not found. Please verify the import file and name.')
 if 'compliance_section_list_original' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'compliance_section_list_original section not found. Please check the import file and name.')
+    pc_lib_general.pc_exit_error(404, 'compliance_section_list_original section not found. Please verify the import file and name.')
 if 'policy_list_original' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'policy_list_original section not found. Please check the import file and name.')
+    pc_lib_general.pc_exit_error(404, 'policy_list_original section not found. Please verify the import file and name.')
 if 'policy_object_original' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'policy_object_original section not found. Please check the import file and name.')
+    pc_lib_general.pc_exit_error(404, 'policy_object_original section not found. Please verify the import file and name.')
 if 'export_file_version' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'export_file_version section not found. Please check the import file and name.')
+    pc_lib_general.pc_exit_error(404, 'export_file_version section not found. Please verify the import file and name.')
 if import_file_data['export_file_version'] != DEFAULT_COMPLIANCE_IMPORT_FILE_VERSION:
-    pc_lib_general.pc_exit_error(404, 'The import file appears to be an unexpected export version. Please check the import file and name.')
+    pc_lib_general.pc_exit_error(404, 'The import file appears to be an unexpected export version. Please verify the import file and name.')
 
 # The following will check the export version for the correct level.
 # If you have an older version that you want to try to import, you can comment out this line,
 # but please be aware it will be untested on older versions of an export file.
 # At this moment, it *should* still work...
 if 'search_object_original' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'search_object_original not found. Please check the import file and name. The import file may also be an old version: please re-export and try again.')
+    pc_lib_general.pc_exit_error(404, 'search_object_original not found. Please verify the import file and name. The import file may also be an old version: please re-export.')
 
 compliance_standard_original = import_file_data['compliance_standard_original']
 if compliance_standard_original is None:
-    pc_lib_general.pc_exit_error(400, 'Compliance Standard not found in the import file. Please check the Compliance Standard name and try again.')
+    pc_lib_general.pc_exit_error(400, 'Compliance Standard not found in the import file. Please verify the Compliance Standard name.')
 
 print('API - Getting the current list of Compliance Standards ...')
 pc_settings, response_package = pc_lib_api.api_compliance_standard_list_get(pc_settings)
 compliance_standard_list_current = response_package['data']
 compliance_standard = search_list_object_lower(compliance_standard_list_current, 'name', args.destination_compliance_standard_name)
 if compliance_standard is not None:
-    pc_lib_general.pc_exit_error(400, 'Compliance Standard already exists. Please check the new Compliance Standard name and try again.')
+    pc_lib_general.pc_exit_error(400, 'Compliance Standard already exists. Please verify the new Compliance Standard name, or delete the existing Compliance Standard.')
 print(' Done.')
 print()
 
@@ -243,30 +244,30 @@ print()
 
 if args.policy:
     if args.map_custom_policies:
-        print('Mapping Policies to the new Compliance Standard.')
-        print()
         policy_id_map = json.load(open('PolicyIdMap.json', 'r'))
-        print('API - Validating the newly created Compliance Standard Requirement Sections ...')
-        time.sleep(WAIT_TIMER)
-        # TODO: Replace double loop.
-        for compliance_requirement_new in compliance_requirement_list_new:
-            # Get the new Sections for the new Requirement.
-            pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_section_list_get(pc_settings, compliance_requirement_new['id'])
-            compliance_section_list_new = response_package['data']
-            # Get the new IDs for the new Sections and update the section_to_map (or sections_to_map_to_policies ?).
-            for compliance_section_new in compliance_section_list_new:
-                mapped = False
-                for section_to_map in sections_to_map_to_policies:
-                    if section_to_map['new_compliance_requirement_id'] == compliance_requirement_new['id'] and section_to_map['sectionId'] == compliance_section_new['sectionId']:
-                        section_to_map['new_compliance_section_id'] = compliance_section_new['id']
-                        mapped = True
-                        break
-                if not mapped:
-                    pc_lib_general.pc_exit_error(500, 'Failed to validate the new Section: %s ' % (section_to_map))
-        print(' Done.')
-        print()
     else:
         policy_id_map = []
+    print('Mapping Policies to the new Compliance Standard.')
+    print()
+    print('API - Validating the newly created Compliance Standard Requirement Sections ...')
+    time.sleep(WAIT_TIMER)
+    # TODO: Replace double loop.
+    for compliance_requirement_new in compliance_requirement_list_new:
+        # Get the new Sections for the new Requirement.
+        pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_section_list_get(pc_settings, compliance_requirement_new['id'])
+        compliance_section_list_new = response_package['data']
+        # Get the new IDs for the new Sections and update the section_to_map (or sections_to_map_to_policies ?).
+        for compliance_section_new in compliance_section_list_new:
+            mapped = False
+            for section_to_map in sections_to_map_to_policies:
+                if section_to_map['new_compliance_requirement_id'] == compliance_requirement_new['id'] and section_to_map['sectionId'] == compliance_section_new['sectionId']:
+                    section_to_map['new_compliance_section_id'] = compliance_section_new['id']
+                    mapped = True
+                    break
+            if not mapped:
+                pc_lib_general.pc_exit_error(500, 'Failed to validate the new Section: %s ' % (section_to_map))
+    print(' Done.')
+    print()
 
     policy_list_original = import_file_data['policy_list_original']
     policy_list_updated = []
@@ -325,9 +326,13 @@ if args.policy:
             compliance_metadata_updated = {}
             for section_to_map in sections_to_map_to_policies:
                 if section_to_map['original_compliance_section_id'] == compliance_metadata_original['complianceId']:
-                    compliance_metadata_updated['systemDefault']  = False
-                    compliance_metadata_updated['customAssigned'] = True
-                    compliance_metadata_updated['complianceId']   = section_to_map['new_compliance_section_id']
+                    # compliance_metadata_updated['standardName']    = 
+                    # compliance_metadata_updated['requirementName'] = 
+                    compliance_metadata_updated['complianceId']    = section_to_map['new_compliance_section_id']
+                    # compliance_metadata_updated['requirementId']   = 
+                    # compliance_metadata_updated['sectionId']       = 
+                    compliance_metadata_updated['customAssigned']  = True
+                    compliance_metadata_updated['systemDefault']   = False
                     compliance_metadata_to_merge.append(compliance_metadata_updated)
                     break
         if len(compliance_metadata_to_merge) == 0:
@@ -346,7 +351,7 @@ if args.policy:
             pc_settings, response_package = pc_lib_api.api_policy_update(pc_settings, policy_current['policyId'], policy_current)
         except requests.exceptions.HTTPError as e:
             policy_update_error = True
-            print('Error updating %s' % policy_current['name'])
+            print('Error updating %s \n%s' % (policy_current['name'], e))
             policy_update_error_list.append(policy_current['name'])
 
     if policy_update_error:
