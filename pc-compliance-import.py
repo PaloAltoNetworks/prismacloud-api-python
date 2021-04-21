@@ -13,6 +13,7 @@ import time
 
 # --Configuration-- #
 
+CUSTOM_POLICY_ID_MAP_FILE = 'PolicyIdMap.json'
 DEFAULT_COMPLIANCE_IMPORT_FILE_VERSION = 3
 WAIT_TIMER = 5
 
@@ -43,8 +44,8 @@ args = parser.parse_args()
 
 if args.policy:
     if args.map_custom_policies:
-        if not os.path.isfile('PolicyIdMap.json'):
-            pc_lib_general.pc_exit_error(500, 'PolicyIdMap.json file does not exist. Please run pc-policy-custom-export.py and then pc-policy-custom-import.py to generate the file.')
+        if not os.path.isfile(CUSTOM_POLICY_ID_MAP_FILE):
+            pc_lib_general.pc_exit_error(500, 'Custom policy map file does not exist. Please run pc-policy-custom-export.py and then pc-policy-custom-import.py to generate the file.')
 
 pc_lib_general.prompt_for_verification_to_continue(args.yes)
 
@@ -54,7 +55,7 @@ pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
 print(' done.')
 print()
 
-## Compliance Import ##
+# Compliance Import
 
 import_file_data = pc_lib_general.pc_file_read_json(args.import_file_name)
 
@@ -160,7 +161,7 @@ print()
 
 if args.policy:
     if args.map_custom_policies:
-        custom_policy_id_map = json.load(open('PolicyIdMap.json', 'r'))
+        custom_policy_id_map = json.load(open(CUSTOM_POLICY_ID_MAP_FILE, 'r'))
     else:
         custom_policy_id_map = []
     print('Mapping Policies to the new Compliance Standard.')
@@ -281,3 +282,5 @@ if args.policy:
         print()
     print('Done.')
     print()
+
+print('Import Complete.')

@@ -31,7 +31,7 @@ pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
 print(' done.')
 print()
 
-## Compliance Export ##
+# Compliance Export
 
 export_file_data = {}
 export_file_data['export_file_version'] = DEFAULT_COMPLIANCE_EXPORT_FILE_VERSION
@@ -90,4 +90,3 @@ print()
 
 pc_lib_general.pc_file_write_json(args.export_file_name, export_file_data)
 print('Compliance Standard exported to: %s' % args.export_file_name)
-print()

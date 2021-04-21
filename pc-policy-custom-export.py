@@ -27,7 +27,7 @@ pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
 print(' done.')
 print()
 
-## Policy Export ##
+# Custom Policy Export
 
 export_file_data = {}
 export_file_data['export_file_version'] = DEFAULT_POLICY_EXPORT_FILE_VERSION
@@ -37,26 +37,25 @@ export_file_data['search_object_original'] = {}
 
 print('API - Getting the current list of Custom Policies ...', end='')
 pc_settings, response_package = pc_lib_api.api_policy_custom_v2_list_get(pc_settings)
-policy_list_original = response_package['data']
-export_file_data['policy_list_original'] = policy_list_original
+policy_list_current = response_package['data']
+export_file_data['policy_list_original'] = policy_list_current
 print(' done.')
 print()
 
 print('API - Getting the Custom Policies (please wait) ...')
-for policy_original in policy_list_original:
-    print('Exporting: %s' % policy_original['name'])
-    pc_settings, response_package = pc_lib_api.api_policy_get(pc_settings, policy_original['policyId'])
+for policy_current in policy_list_current:
+    print('Exporting: %s' % policy_current['name'])
+    pc_settings, response_package = pc_lib_api.api_policy_get(pc_settings, policy_current['policyId'])
     policy = response_package['data']
-    export_file_data['policy_object_original'][policy_original['policyId']] = policy
-    if 'savedSearch' in policy_original['rule']['parameters']:
-        if policy_original['rule']['parameters']['savedSearch'] == 'true':
-            if policy_original['rule']['criteria'] not in export_file_data['search_object_original']:
-                pc_settings, response_package = pc_lib_api.api_search_get(pc_settings, policy_original['rule']['criteria'])
+    export_file_data['policy_object_original'][policy_current['policyId']] = policy
+    if 'savedSearch' in policy_current['rule']['parameters']:
+        if policy_current['rule']['parameters']['savedSearch'] == 'true':
+            if policy_current['rule']['criteria'] not in export_file_data['search_object_original']:
+                pc_settings, response_package = pc_lib_api.api_search_get(pc_settings, policy_current['rule']['criteria'])
                 search_object_original = response_package['data']
-                export_file_data['search_object_original'][policy_original['rule']['criteria']] = search_object_original
+                export_file_data['search_object_original'][policy_current['rule']['criteria']] = search_object_original
 print('Done.')
 print()
 
 pc_lib_general.pc_file_write_json(args.export_file_name, export_file_data)
 print('Custom Policies exported to: %s' % args.export_file_name)
-print()
