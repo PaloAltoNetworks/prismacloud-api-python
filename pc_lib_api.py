@@ -61,6 +61,38 @@ def pc_jwt_get(pc_settings):
     return pc_settings
 
 
+# --Action Methods-- #
+# Main API Actions
+
+
+"""
+  Note: Eventually, all objects covered should have full CRUD capability, ie, to create, read, update, and delete (and list)
+
+  Template:
+
+[ ] LIST
+[ ] CREATE/ADD
+[ ] READ/GET
+[ ] UPDATE/REPLACE
+[ ] DELETE/REMOVE
+Additional:
+[ ] As above with restrictions/filtering
+"""
+
+
+"""
+  ComplianceStandards
+
+[x] LIST
+[x] CREATE/ADD
+[ ] READ/GET
+[ ] UPDATE/REPLACE
+[x] DELETE/REMOVE
+Additional:
+[ ] As above with restrictions/filtering
+"""
+
+
 # Get Compliance Standards list
 def api_compliance_standard_list_get(pc_settings):
     action = "GET"
@@ -73,6 +105,26 @@ def api_compliance_standard_add(pc_settings, compliance_standard_new):
     action = "POST"
     url = "https://" + pc_settings['apiBase'] + "/compliance"
     return pc_call_api(action, url, pc_settings, data=compliance_standard_new)
+
+
+# Delete a Compliance Standard
+def api_compliance_standard_delete(pc_settings, compliance_id):
+    action = "DELETE"
+    url = "https://" + pc_settings['apiBase'] + "/compliance/" + compliance_id
+    return pc_call_api(action, url, pc_settings)
+
+
+"""
+  ComplianceStandards Requirements
+
+[x] LIST
+[x] CREATE/ADD
+[ ] READ/GET
+[ ] UPDATE/REPLACE
+[ ] DELETE/REMOVE
+Additional:
+[ ] As above with restrictions/filtering
+"""
 
 
 # Get Compliance Standards Requirements list
@@ -89,6 +141,19 @@ def api_compliance_standard_requirement_add(pc_settings, compliance_standard_id,
     return pc_call_api(action, url, pc_settings, data=compliance_requirement_new)
 
 
+"""
+  ComplianceStandards Requirements Sections
+
+[x] LIST
+[x] CREATE/ADD
+[ ] READ/GET
+[ ] UPDATE/REPLACE
+[ ] DELETE/REMOVE
+Additional:
+[ ] As above with restrictions/filtering
+"""
+
+
 # Get Compliance Standards Requirements Sections list
 def api_compliance_standard_requirement_section_list_get(pc_settings, compliance_requirement_id):
     action = "GET"
@@ -103,11 +168,18 @@ def api_compliance_standard_requirement_section_add(pc_settings, compliance_requ
     return pc_call_api(action, url, pc_settings, data=compliance_section_new)
 
 
-# Delete a Compliance Standard
-def api_compliance_standard_delete(pc_settings, compliance_id):
-    action = "DELETE"
-    url = "https://" + pc_settings['apiBase'] + "/compliance/" + compliance_id
-    return pc_call_api(action, url, pc_settings)
+"""
+  ComplianceStandards Requirements Policies
+
+[x] LIST
+[x] CREATE/ADD
+[ ] READ/GET
+[ ] UPDATE/REPLACE
+[ ] DELETE/REMOVE
+Additional:
+[x] LIST (v2)
+
+"""
 
 
 # Get Compliance Standards Policy list
@@ -124,6 +196,20 @@ def api_compliance_standard_policy_v2_list_get(pc_settings, source_compliance_st
     url = "https://" + pc_settings['apiBase'] + "/v2/policy"
     filters = [('policy.complianceStandard', source_compliance_standard_name)]
     return pc_call_api(action, url, pc_settings, params=filters)
+
+"""
+  Policies
+
+[x] LIST
+[x] CREATE/ADD
+[x] READ/GET
+[x] UPDATE/REPLACE
+[x] DELETE/REMOVE 
+Additional:
+[x] LIST v2
+[x] LIST v2 where custom
+[x] UPDATE status
+"""
 
 
 # Get Policy list
@@ -148,18 +234,18 @@ def api_policy_custom_v2_list_get(pc_settings):
     return pc_call_api(action, url, pc_settings, params=filters)
 
 
-# Get a Policy
-def api_policy_get(pc_settings, policy_id):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/policy/" + policy_id
-    return pc_call_api(action, url, pc_settings)
-
-
 # Add a Policy
 def api_policy_add(pc_settings, policy_to_add):
     action = "POST"
     url = "https://" + pc_settings['apiBase'] + "/policy"
     return pc_call_api(action, url, pc_settings, data=policy_to_add)
+
+
+# Get a Policy
+def api_policy_get(pc_settings, policy_id):
+    action = "GET"
+    url = "https://" + pc_settings['apiBase'] + "/policy/" + policy_id
+    return pc_call_api(action, url, pc_settings)
 
 
 # Update a Policy
@@ -183,11 +269,33 @@ def api_policy_delete(pc_settings, policy_id):
     return pc_call_api(action, url, pc_settings)
 
 
+"""
+  Search
+
+[x] LIST
+[x] CREATE/ADD
+[x] READ/GET
+[ ] UPDATE/REPLACE
+[x] DELETE/REMOVE
+Additional:
+[ ] As above with restrictions/filtering
+"""
+
+
 # Get Saved Search list
 def api_saved_search_list_get(pc_settings):
     action = "GET"
     url = "https://" + pc_settings['apiBase'] + "/search/history?filter=saved"
     return pc_call_api(action, url, pc_settings)
+
+
+# Add a Saved Search
+def api_search_add(pc_settings, type_of_search, search_to_add):
+    action = "POST"
+    url = "https://" + pc_settings['apiBase'] + "/search/" + type_of_search
+    if type_of_search=='network':
+        url="https://" + pc_settings['apiBase'] + "/search"
+    return pc_call_api(action, url, pc_settings, data=search_to_add)
 
 
 # Get a Saved Search
@@ -197,26 +305,24 @@ def api_search_get(pc_settings, search_id):
     return pc_call_api(action, url, pc_settings)
 
 
-# Add a Saved Search
-def api_saved_search_add(pc_settings, type_of_search, search_to_add):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/search/history/" + type_of_search
-    return pc_call_api(action, url, pc_settings, data=search_to_add)
-
-
-def api_search_add(pc_settings, type_of_search, search_to_add):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/search/" + type_of_search
-    if type_of_search=='network':
-        url="https://" + pc_settings['apiBase'] + "/search"
-    return pc_call_api(action, url, pc_settings, data=search_to_add)
-
-
 # Delete a Saved Search
 def api_saved_search_delete(pc_settings, search_id):
     action = "DELETE"
     url = "https://" + pc_settings['apiBase'] + "/search/history/" + search_id
     return pc_call_api(action, url, pc_settings)
+
+
+"""
+  User Roles
+
+[x] LIST
+[ ] CREATE/ADD
+[ ] READ/GET
+[ ] UPDATE/REPLACE
+[x] DELETE/REMOVE
+Additional:
+[ ] As above with restrictions/filtering
+"""
 
 
 # Get User Role list
@@ -226,11 +332,45 @@ def api_user_role_list_get(pc_settings):
     return pc_call_api(action, url, pc_settings)
 
 
+# Add User Role
+def api_user_role_add(pc_settings, user_role_to_add):
+    action = "POST"
+    url = "https://" + pc_settings['apiBase'] + "/user/role"
+    return pc_call_api(action, url, pc_settings, data=user_role_to_add)
+
+
+# Update User Role
+def api_user_role_update(pc_settings, user_role_to_update, user_role_update):
+    action = "PUT"
+    url = "https://" + pc_settings['apiBase'] + "/user/role/" + user_role_to_update
+    return pc_call_api(action, url, pc_settings, data=user_role_update)
+
+
+# Get User Role
+def api_user_role_get(pc_settings, user_role_to_get):
+    action = "GET"
+    url = "https://" + pc_settings['apiBase'] + "/user/role/" + user_role_to_get
+    return pc_call_api(action, url, pc_settings)
+
+
 # Delete User Role
 def api_user_role_delete(pc_settings, account_id):
     action = "DELETE"
     url = "https://" + pc_settings['apiBase'] + "/user/role/" + id
     return pc_call_api(action, url, pc_settings)
+
+
+"""
+  Users
+
+[x] LIST
+[x] CREATE/ADD
+[x] READ/GET
+[x] UPDATE/REPLACE
+[ ] DELETE/REMOVE
+Additional:
+[x] LIST v2
+"""
 
 
 # Get User list
@@ -247,6 +387,12 @@ def api_user_list_get_v2(pc_settings):
     return pc_call_api(action, url, pc_settings)
 
 
+# Add new User
+def api_user_add(pc_settings, user_to_add):
+    action = "POST"
+    url = "https://" + pc_settings['apiBase'] + "/user"
+    return pc_call_api(action, url, pc_settings, data=user_to_add)
+
 
 # Get a User
 def api_user_get(pc_settings, useremail):
@@ -255,18 +401,24 @@ def api_user_get(pc_settings, useremail):
     return pc_call_api(action, url, pc_settings)
 
 
-# Add new User
-def api_user_add(pc_settings, user_to_add):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/user"
-    return pc_call_api(action, url, pc_settings, data=user_to_add)
-
-
 # Update a User
 def api_user_update(pc_settings, user_to_update):
     action = "PUT"
     url = "https://" + pc_settings['apiBase'] + "/user/" + user_to_update['email']
     return pc_call_api(action, url, pc_settings, data=user_to_update)
+
+
+"""
+  Alerts
+
+[x] LIST
+[ ] CREATE/ADD
+[ ] READ/GET
+[ ] UPDATE/REPLACE
+[x] DELETE/REMOVE
+Additional:
+[x] LIST v2
+"""
 
 
 # Get Alerts list with filters
@@ -281,6 +433,19 @@ def api_alert_v2_list_get(pc_settings, params=None, data=None):
     action = "POST"
     url = "https://" + pc_settings['apiBase'] + "/v2/alert"
     return pc_call_api(action, url, pc_settings, params=params, data=data)
+
+
+"""
+  Compliance Reports
+
+[x] LIST
+[x] CREATE/ADD
+[ ] READ/GET
+[ ] UPDATE/REPLACE
+[x] DELETE/REMOVE
+Additional:
+[x] DOWNLOAD
+"""
 
 
 # Get Compliance Reports list
@@ -317,6 +482,19 @@ def api_compliance_report_download(pc_settings, report_id):
         pass
 
 
+"""
+  Cloud Accounts
+
+[x] LIST
+[x] CREATE/ADD
+[ ] READ/GET
+[x] UPDATE/REPLACE
+[x] DELETE/REMOVE
+Additional:
+[x] LIST names
+"""
+
+
 # Get Cloud Accounts list
 def api_cloud_accounts_list_get(pc_settings, params=None):
     action = "GET"
@@ -338,11 +516,30 @@ def api_cloud_accounts_add(pc_settings, cloud_type, cloud_account_to_add):
     return pc_call_api(action, url, pc_settings, data=cloud_account_to_add)
 
 
+# Update Cloud Account
+def api_cloud_account_update(pc_settings, cloud_type, cloud_account_to_update, cloud_account_update):
+    action = "PUT"
+    url = "https://" + pc_settings['apiBase'] + "/cloud/" + cloud_type + "/" + cloud_account_to_update
+    return pc_call_api(action, url, pc_settings, data=cloud_account_update)
+
 # Delete Cloud Account
 def api_cloud_account_delete(pc_settings, account_id):
     action = "DELETE"
     url = "https://" + pc_settings['apiBase'] + "/cloud/" + account_id
     return pc_call_api(action, url, pc_settings)
+
+
+"""
+  Cloud Account Groups
+
+[x] LIST
+[x] CREATE/ADD
+[x] READ/GET
+[x] UPDATE/REPLACE
+[x] DELETE/REMOVE
+Additional:
+[ ] As above with restrictions/filtering
+"""
 
 
 # Get Cloud Account Group list
@@ -352,11 +549,45 @@ def api_cloud_account_group_list_get(pc_settings):
     return pc_call_api(action, url, pc_settings)
 
 
+# Add Account Group
+def api_account_group_add(pc_settings, account_group_to_add):
+    action = "POST"
+    url = "https://" + pc_settings['apiBase'] + "/cloud/group"
+    return pc_call_api(action, url, pc_settings, data=account_group_to_add)
+
+
+# Get Account Group
+def api_account_group_get(pc_settings, account_group_to_get):
+    action = "GET"
+    url = "https://" + pc_settings['apiBase'] + "/cloud/group/" + account_group_to_get
+    return pc_call_api(action, url, pc_settings)
+
+
+# Update Account Group
+def api_account_group_update(pc_settings, account_group_to_update, account_group_update):
+    action = "PUT"
+    url = "https://" + pc_settings['apiBase'] + "/cloud/group/" + account_group_to_update
+    return pc_call_api(action, url, pc_settings, data=account_group_update)
+
+
 # Delete Account Group
 def api_cloud_account_group_delete(pc_settings, group_id):
     action = "DELETE"
     url = "https://" + pc_settings['apiBase'] + "/cloud/group/" + group_id
     return pc_call_api(action, url, pc_settings)
+
+
+"""
+  Alert Rules
+
+[ ] LIST
+[ ] CREATE/ADD
+[ ] READ/GET
+[ ] UPDATE/REPLACE
+[x] DELETE/REMOVE
+Additional:
+[x] LIST v2
+"""
 
 
 # Get Alert Rule list (V2)
@@ -373,6 +604,19 @@ def api_alert_rule_delete(pc_settings, rule_id):
     return pc_call_api(action, url, pc_settings)
 
 
+"""
+  Integration Lists
+
+[ ] LIST
+[ ] CREATE/ADD
+[ ] READ/GET
+[ ] UPDATE/REPLACE
+[x] DELETE/REMOVE
+Additional:
+[x] LIST v2
+"""
+
+
 # Get Integration list (V2)
 def api_integration_list_get(pc_settings):
     action = "GET"
@@ -386,6 +630,19 @@ def api_integration_delete(pc_settings, integration_id):
     url = "https://" + pc_settings['apiBase'] + "/integration/" + integration_id
     return pc_call_api(action, url, pc_settings)
 
+"""
+  Resource Lists
+
+[x] LIST
+[ ] CREATE/ADD
+[ ] READ/GET
+[ ] UPDATE/REPLACE
+[x] DELETE/REMOVE
+Additional:
+[ ] As above with restrictions/filtering
+"""
+
+
 # Get Resource List list (V1)
 def api_resource_list_list_get(pc_settings):
     action = "GET"
@@ -398,3 +655,58 @@ def api_resource_list_delete(pc_settings, resource_list_id):
     action = "DELETE"
     url = "https://" + pc_settings['apiBase'] + "/v1/resource_list/" + resource_list_id
     return pc_call_api(action, url, pc_settings)
+
+
+"""
+  Access Keys
+
+[x] LIST
+[x] CREATE/ADD
+[x] READ/GET
+[x] UPDATE/REPLACE
+[x] DELETE/REMOVE
+Additional:
+[x] UPDATE status
+"""
+
+
+# Get Access Keys list
+def api_access_keys_list_get(pc_settings):
+    action = "GET"
+    url = "https://" + pc_settings['apiBase'] + "/access_keys"
+    return pc_call_api(action, url, pc_settings)
+
+
+# Add Access Key
+def api_access_key_add(pc_settings, access_key_to_add):
+    action = "POST"
+    url = "https://" + pc_settings['apiBase'] + "/access_keys"
+    return pc_call_api(action, url, pc_settings, data=access_key_to_add)
+
+
+# Get Access Key by ID
+def api_access_key_by_id_get(pc_settings, access_key_id):
+    action = "GET"
+    url = "https://" + pc_settings['apiBase'] + "/access_keys/" + access_key_id
+    return pc_call_api(action, url, pc_settings)
+
+
+# Update an Access Key
+def api_access_key_update(pc_settings, access_key_to_update, access_key_values):
+    action = "PUT"
+    url = "https://" + pc_settings['apiBase'] + "/access_keys/" + access_key_to_update
+    return pc_call_api(action, url, pc_settings, data=access_key_values)
+
+
+# Update an Access Key Status (note Expired keys cannot be enabled)
+def api_access_key_status_update(pc_settings, access_key_to_update, access_key_status):
+    action = "PATCH"
+    url = "https://" + pc_settings['apiBase'] + "/access_keys/" + access_key_to_update + "/status/status"
+    return pc_call_api(action, url, pc_settings, data=access_key_status)
+
+# Delete an Access Key
+def api_access_key_delete(pc_settings, access_key_to_delete):
+    action = "DELETE"
+    url = "https://" + pc_settings['apiBase'] + "/access_keys/" + access_key_to_delete
+    return pc_call_api(action, url, pc_settings)
+
