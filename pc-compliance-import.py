@@ -114,6 +114,11 @@ if compliance_standard_new is None:
 print(' done.')
 print()
 
+
+
+
+
+
 print('API - Creating the Requirements and adding them to the new Compliance Standard ...', end='')
 compliance_requirement_list_original = import_file_data['compliance_requirement_list_original']
 for compliance_requirement_original in compliance_requirement_list_original:
@@ -156,6 +161,7 @@ print(' done.')
 print()
 
 # TODO: Save state here, to allow restarting from here.
+# TODO: Add Object counts as a progress bar.
 
 ## Policy Mapping ##
 
@@ -223,8 +229,12 @@ if args.policy:
                 found = True
                 break
         if not found:
-            pc_lib_general.pc_exit_error(500, 'Current Policy list appears to be missing a Policy for mapping.')
+            # TODO: do not exit but report
+            print('Current Policy list appears to be missing a Policy for mapping.\n %s' % (policy_updated['policyId']))
+            pc_lib_general.pc_exit_error(500, 'Current Policy list appears to be missing a Policy for mapping.\n %s' % (policy_updated['policyId']))
+    # TODO: do not exit but report
     if len(policy_list_updated) != len(policy_list_updated_validated):
+        print('Mapped Policy list appears to be missing a mapped Policy.')
         pc_lib_general.pc_exit_error(500, 'Mapped Policy list appears to be missing a mapped Policy.')
     print(' done.')
     print()
