@@ -65,7 +65,7 @@ for compliance_requirement_original in compliance_requirement_list_original:
 print(' done.')
 print()
 
-print('API - Getting the Compliance Standard Policies ...', end='')
+print('API - Getting the Compliance Standard Policies (please wait) ...', end='')
 pc_settings, response_package = pc_lib_api.api_compliance_standard_policy_v2_list_get(pc_settings, compliance_standard_original['name'])
 policy_list_original = response_package['data']
 export_file_data['policy_list_original'] = policy_list_original

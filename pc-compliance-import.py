@@ -19,6 +19,10 @@ WAIT_TIMER = 5
 
 parser = pc_lib_general.pc_arg_parser_defaults()
 parser.add_argument(
+    '--delete_existing',
+    action='store_true',
+    help='(Optional) - Delete the Compliance Standard, if it exists, before importing.')
+parser.add_argument(
     '--policy',
     action='store_true',
     help='(Optional) - Update Policies with the imported Compliance Standard.')
@@ -29,7 +33,7 @@ parser.add_argument(
 parser.add_argument(
     '--label',
     action='store_true',
-    help='(Optional) - Add a Label to any Policy updated with the imported Compliance Standard (requires --policy).')
+    help='(Optional) - Add a Label (the name of the Compliance Standard) to updated Policies (requires --policy).')
 parser.add_argument(
     'import_file_name',
     type=str,
@@ -90,10 +94,17 @@ print('API - Getting the current list of Compliance Standards ...', end='')
 pc_settings, response_package = pc_lib_api.api_compliance_standard_list_get(pc_settings)
 compliance_standard_list_current = response_package['data']
 compliance_standard = pc_lib_general.search_list_object_lower(compliance_standard_list_current, 'name', args.import_compliance_standard_name)
-if compliance_standard is not None:
-    pc_lib_general.pc_exit_error(400, 'Compliance Standard already exists. Please verify the new Compliance Standard name, or delete the existing Compliance Standard.')
 print(' done.')
 print()
+
+if compliance_standard:
+    if args.delete_existing:
+        print('API - Deleting the existing Compliance Standard ...', end='')
+        pc_settings, response_package = pc_lib_api.api_compliance_standard_delete(pc_settings, compliance_standard['id'])
+        print(' done.')
+        print()
+    else:
+        pc_lib_general.pc_exit_error(400, 'Compliance Standard already exists. Please verify the new Compliance Standard name, or delete the existing Compliance Standard.')
 
 print('API - Creating the new Compliance Standard ...', end='')
 compliance_standard_temp = {}
@@ -113,11 +124,6 @@ if compliance_standard_new is None:
     pc_lib_general.pc_exit_error(500, 'New Compliance Standard not found.')
 print(' done.')
 print()
-
-
-
-
-
 
 print('API - Creating the Requirements and adding them to the new Compliance Standard ...', end='')
 compliance_requirement_list_original = import_file_data['compliance_requirement_list_original']
@@ -174,21 +180,21 @@ if args.policy:
     print()
     print('API - Validating the newly created Compliance Standard Requirement Sections ...', end='')
     time.sleep(WAIT_TIMER)
-    # TODO: Replace double loop.
+    # TODO: Replace inner and outer looping.
     for compliance_requirement_new in compliance_requirement_list_new:
         # Get the new Sections for the new Requirement.
         pc_settings, response_package = pc_lib_api.api_compliance_standard_requirement_section_list_get(pc_settings, compliance_requirement_new['id'])
         compliance_section_list_new = response_package['data']
-        # Get the new IDs for the new Sections and update the section_to_map (or sections_to_map_to_policies ?).
+        # Get the new IDs for the new Sections.
         for compliance_section_new in compliance_section_list_new:
-            mapped = False
+            found = False
             for section_to_map in sections_to_map_to_policies:
                 if section_to_map['new_compliance_requirement_id'] == compliance_requirement_new['id'] and section_to_map['sectionId'] == compliance_section_new['sectionId']:
                     section_to_map['new_compliance_section_id'] = compliance_section_new['id']
-                    mapped = True
+                    found = True
                     break
-            if not mapped:
-                pc_lib_general.pc_exit_error(500, 'Failed to validate the new Section: %s ' % (section_to_map))
+            if not found:
+                pc_lib_general.pc_exit_error(500, 'Failed to validate the new Section: %s for Requirement: %s' % (section_to_map, compliance_requirement_new['id']))
     print(' done.')
     print()
 
@@ -206,21 +212,22 @@ if args.policy:
                     standard['policyId'] = new_policy_id
                 import_file_data['policy_object_original'][new_policy_id] = policy_object_original
                 del import_file_data['policy_object_original'][old_policy_id]
-                # Replace old Policy ID with new Policy ID in updated Policy list.
+                # Replace old Policy ID with new Policy ID in the updated Policy list.
                 policy['policyId'] = new_policy_id
-                policy_list_updated.append(policy)
-                # print('Found custom policy, updating ID for current tenant.)
+                policy_list_updated.append(policy)                
+                # print('Found Custom Policy in destination ............ updating ID from: %s to %s for %s' % (old_policy_id, new_policy_id, policy['name']))
             else:
                 pass
-                # print('Custom policy not yet added to this tenant, dropping from import.')
         else:
             policy_list_updated.append(policy)
 
-    # Cross-reference policy_list_updated with policy_list_current, and build policy_list_updated_validated.
+    # Compare updated (policyId) Policies with current Policies, and build a list of validated Policies.
     print('API - Getting the current list of Policies ...', end='')
     pc_settings, response_package = pc_lib_api.api_policy_v2_list_get(pc_settings)
     policy_list_current = response_package['data']
+    policy_validate_error_list = []
     policy_list_updated_validated = []
+    # TODO: Replace inner and outer looping.
     for policy_updated in policy_list_updated:
         found = False
         for policy_current in policy_list_current:
@@ -229,19 +236,25 @@ if args.policy:
                 found = True
                 break
         if not found:
-            # TODO: do not exit but report
-            print('Current Policy list appears to be missing a Policy for mapping.\n %s' % (policy_updated['policyId']))
-            pc_lib_general.pc_exit_error(500, 'Current Policy list appears to be missing a Policy for mapping.\n %s' % (policy_updated['policyId']))
-    # TODO: do not exit but report
-    if len(policy_list_updated) != len(policy_list_updated_validated):
-        print('Mapped Policy list appears to be missing a mapped Policy.')
-        pc_lib_general.pc_exit_error(500, 'Mapped Policy list appears to be missing a mapped Policy.')
+            if 'cloudType' in policy_updated:
+                item = '%s %s' % (policy_updated['policyId'], policy_updated['cloudType'], policy_updated['name'])
+            else:
+                item = '%s %s' % (policy_updated['policyId'], policy_updated['name'])            
+            policy_validate_error_list.append(item)
     print(' done.')
     print()
 
-    # Work though the list of policies to build an update.
+    if policy_validate_error_list:
+        print()
+        print('The following is a list of the Policies that could not be found in the destination.')
+        print('Possibly, these Policies are not supported in the destination (esp: api.prismacloud.cn).')
+        print()
+        for policy_validate_error in policy_validate_error_list:
+            print(policy_validate_error)
+        print()
+
+    # Work though the list of Policies to update.
     print('API - Getting and updating the Policy list (please wait) ...')
-    policy_update_error = False
     policy_update_error_list = []
     for policy_updated_validated in policy_list_updated_validated:
         pc_settings, response_package = pc_lib_api.api_policy_get(pc_settings, policy_updated_validated['policyId'])
@@ -264,27 +277,18 @@ if args.policy:
                     break
         if len(compliance_metadata_to_merge) == 0:
             pc_lib_general.pc_exit_error(500, 'Cannot find any Compliance metadata for Policy object %s' % compliance_metadata_original)
-
-        # Merge the existing and new lists
         policy_current['complianceMetadata'].extend(compliance_metadata_to_merge)
-
-        # Add a label (optional) for the new compliance report name
         if args.label:
             policy_current['labels'].append(args.import_compliance_standard_name)
-
-        # Post the updated policy to the API
         try:
-            print('Updating %s' % policy_current['name'])
+            print('Updating Policy: %s' % policy_current['name'])
             pc_settings, response_package = pc_lib_api.api_policy_update(pc_settings, policy_current['policyId'], policy_current)
-        except requests.exceptions.HTTPError as e:
-            policy_update_error = True
-            print('Error updating %s \n%s' % (policy_current['name'], e))
+        except requests.exceptions.HTTPError as ex:
             policy_update_error_list.append(policy_current['name'])
-
-    if policy_update_error:
+            print('Error updating Policy: %s\n\t%s' % (policy_current['name'], ex))
+    if policy_update_error_list:
         print()
-        print('An error was encountered when trying to update one or more Policies.')
-        print('Below is a list of the Policies that could not be updated.')
+        print('The following is a list of the Policies that could not be updated.')
         print('Please map those Policies to the new Compliance Standard in the Console.')
         print()
         for policy_update_error in policy_update_error_list:

@@ -22,10 +22,9 @@ parser.add_argument(
     type=str,
     help='Import file name for Custom Policies.')
 parser.add_argument(
-    '-status',
     '--status',
     action='store_true',
-    help='(Optional) - Maintain the status of imported Custom Policies. By default they will be disabled.')
+    help='(Optional) - Maintain the status of imported Custom Policies. By default, they will be disabled.')
 args = parser.parse_args()
 
 # --Main-- #
