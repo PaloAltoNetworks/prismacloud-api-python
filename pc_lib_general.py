@@ -6,7 +6,7 @@ import sys
 
 # --Description-- #
 
-# Prisma Cloud General Helper library.  Used to contain the general useful shared functions.
+# Prisma Cloud General Helper library.
 
 # --Configuration-- #
 
@@ -49,7 +49,7 @@ def pc_arg_parser_defaults():
 # Exit handler (Error).
 
 def pc_exit_error(error_code, error_message=None, system_message=None):
-    print(error_code)
+    print('Status Code: %s' % error_code)
     if error_message is not None:
         print(error_message)
     if system_message is not None:
@@ -64,29 +64,10 @@ def pc_exit_success():
 # Find the correct API Base URL.
 
 def pc_find_api_base(ui_base):
-    api_base = None
-    ui_base_lower = ui_base.lower()
-    if ui_base_lower in ['app.redlock.io', 'app.prismacloud.io', 'api.redlock.io']:
-        api_base = 'api.prismacloud.io'
-    elif ui_base_lower in ['app2.redlock.io', 'app2.prismacloud.io', 'api2.redlock.io']:
-        api_base = 'api2.prismacloud.io'
-    elif ui_base_lower in ['app3.redlock.io', 'app3.prismacloud.io', 'api3.redlock.io']:
-        api_base = 'api3.prismacloud.io'
-    elif ui_base_lower in ['app4.redlock.io', 'app4.prismacloud.io', 'api4.redlock.io']:
-        api_base = 'api4.prismacloud.io'
-    elif ui_base_lower in ['app.eu.redlock.io', 'app.eu.prismacloud.io', 'api.eu.redlock.io']:
-        api_base = 'api.eu.prismacloud.io'
-    elif ui_base_lower in ['app2.eu.redlock.io', 'app2.eu.prismacloud.io', 'api2.eu.redlock.io']:
-        api_base = 'api2.eu.prismacloud.io'
-    elif ui_base_lower in ['app.anz.redlock.io', 'app.anz.prismacloud.io', 'api.anz.redlock.io']:
-        api_base = 'api.anz.prismacloud.io'
-    elif ui_base_lower in ['app.gov.redlock.io', 'app.gov.prismacloud.io', 'api.gov.redlock.io']:
-        api_base = 'api.gov.prismacloud.io'
-    elif ui_base_lower in ['api.prismacloud.io', 'api2.prismacloud.io', 'api3.prismacloud.io', 'api4.prismacloud.io', 'api.eu.prismacloud.io', 'api2.eu.prismacloud.io', 'api.anz.prismacloud.io', 'api.gov.prismacloud.io']:
-        api_base = ui_base_lower
-    else:
-        pc_exit_error(400, 'Prisma Cloud API/UI Base URL not found. Please verify. If you still receive this error, please download the latest version of these scripts.')
-    return api_base
+    u2l = ui_base.lower()
+    r2p = u2l.replace('redlock', 'prismacloud')
+    a2a = r2p.replace('app', 'api')
+    return a2a
 
 # Use user-specified settings file, or the default settings file.
 

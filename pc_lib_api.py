@@ -74,7 +74,7 @@ Additional:
 
 [x] LIST
 [x] CREATE/ADD
-[ ] READ/GET
+[x] READ/GET
 [ ] UPDATE/REPLACE
 [x] DELETE/REMOVE
 Additional:
@@ -92,6 +92,10 @@ def api_compliance_standard_add(pc_settings, compliance_standard_new):
     url = "https://" + pc_settings['apiBase'] + "/compliance"
     return pc_call_api(action, url, pc_settings, data=compliance_standard_new)
 
+def api_compliance_standard_get(pc_settings, compliance_id):
+    action = "GET"
+    url = "https://" + pc_settings['apiBase'] + "/compliance/" + compliance_id
+    return pc_call_api(action, url, pc_settings)
 
 def api_compliance_standard_delete(pc_settings, compliance_id):
     action = "DELETE"
