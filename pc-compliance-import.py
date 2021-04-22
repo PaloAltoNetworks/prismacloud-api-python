@@ -214,8 +214,8 @@ if args.policy:
                 del import_file_data['policy_object_original'][old_policy_id]
                 # Replace old Policy ID with new Policy ID in the updated Policy list.
                 policy['policyId'] = new_policy_id
-                policy_list_updated.append(policy)                
-                # print('Found Custom Policy in destination ............ updating ID from: %s to %s for %s' % (old_policy_id, new_policy_id, policy['name']))
+                policy_list_updated.append(policy)
+                # print('Found Custom Policy in destination, updating ID from: %s to %s for %s' % (old_policy_id, new_policy_id, policy['name']))
             else:
                 pass
         else:
@@ -239,7 +239,7 @@ if args.policy:
             if 'cloudType' in policy_updated:
                 item = '%s %s' % (policy_updated['policyId'], policy_updated['cloudType'], policy_updated['name'])
             else:
-                item = '%s %s' % (policy_updated['policyId'], policy_updated['name'])            
+                item = '%s %s' % (policy_updated['policyId'], policy_updated['name'])
             policy_validate_error_list.append(item)
     print(' done.')
     print()
@@ -247,7 +247,7 @@ if args.policy:
     if policy_validate_error_list:
         print()
         print('The following is a list of the Policies that could not be found in the destination.')
-        print('Possibly, these Policies are not supported in the destination (esp: api.prismacloud.cn).')
+        print('Possibly, the cloud provider for these Policies are not supported in the destination (esp: api.prismacloud.cn).')
         print()
         for policy_validate_error in policy_validate_error_list:
             print(policy_validate_error)
@@ -266,11 +266,11 @@ if args.policy:
             compliance_metadata_updated = {}
             for section_to_map in sections_to_map_to_policies:
                 if section_to_map['original_compliance_section_id'] == compliance_metadata_original['complianceId']:
-                    # compliance_metadata_updated['standardName']    = 
-                    # compliance_metadata_updated['requirementName'] = 
+                    # compliance_metadata_updated['standardName']    =
+                    # compliance_metadata_updated['requirementName'] =
                     compliance_metadata_updated['complianceId']    = section_to_map['new_compliance_section_id']
-                    # compliance_metadata_updated['requirementId']   = 
-                    # compliance_metadata_updated['sectionId']       = 
+                    # compliance_metadata_updated['requirementId']   =
+                    # compliance_metadata_updated['sectionId']       =
                     compliance_metadata_updated['customAssigned']  = True
                     compliance_metadata_updated['systemDefault']   = False
                     compliance_metadata_to_merge.append(compliance_metadata_updated)

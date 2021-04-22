@@ -186,7 +186,7 @@ def pc_file_read_json(file_name):
         pc_exit_error(500, 'Failed to read JSON file.', ex)
     return json_data
 
-# 
+# Double-check action.
 
 def prompt_for_verification_to_continue(yes):
     if not yes:

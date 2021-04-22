@@ -183,7 +183,7 @@ def api_compliance_standard_policy_v2_list_get(pc_settings, source_compliance_st
 [x] CREATE/ADD
 [x] READ/GET
 [x] UPDATE/REPLACE
-[x] DELETE/REMOVE 
+[x] DELETE/REMOVE
 Additional:
 [x] LIST v2
 [x] LIST v2 where custom

@@ -107,13 +107,13 @@ for policy_id, policy_object in policy_object_original.items():
                             new_search = response_package['data']
                             policy_object['rule']['criteria'] = new_search['id']
                             search_object.pop('id', None)
-                            # TODO: Validate need for timestamp and random string: 
+                            # TODO: Validate need for timestamp and random string:
                             # alph = [i for i in 'abcdefghijklmnopqrstuvwxyz0123456789']
                             # ''.join([random.choice(alph) for _ in range(4)])
                             search_object['name'] = '%s _Imported_%s' % (policy_object['name'], int(time.time()))
                             if not search_object['description']:
                                 search_object['description'] = 'Imported'
-                            search_object['saved'] = True                   
+                            search_object['saved'] = True
                             pc_settings, response_package = pc_lib_api.api_saved_search_add(pc_settings, new_search['id'], search_object)
         new_policy_id = None
         if not args.status:
@@ -123,7 +123,8 @@ for policy_id, policy_object in policy_object_original.items():
             pc_settings, response_package = pc_lib_api.api_policy_add(pc_settings, policy_object)
             new_policy_id = response_package['data']['policyId']
         except requests.exceptions.HTTPError as e:
-            print('Error importing: %s' + policy_object['name'])        
+            print('Error importing: %s' + policy_object['name'])
+            print('Possibly, the cloud provider for this Policy is not supported in the destination (esp: api.prismacloud.cn).')
         if new_policy_id is not None:
             custom_policy_id_map[policy_id] = new_policy_id
     print('')
