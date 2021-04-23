@@ -12,7 +12,7 @@ DEFAULT_COMPLIANCE_EXPORT_FILE_VERSION = 3
 
 parser = pc_lib_general.pc_arg_parser_defaults()
 parser.add_argument(
-    'source_compliance_standard_name',
+    'compliance_standard_name',
     type=str,
     help='Name of the Compliance Standard to export.')
 parser.add_argument(
@@ -43,7 +43,7 @@ export_file_data['search_object_original'] = {}
 print('API - Getting the current list of Compliance Standards ...', end='')
 pc_settings, response_package = pc_lib_api.api_compliance_standard_list_get(pc_settings)
 compliance_standard_list_current = response_package['data']
-compliance_standard_original = pc_lib_general.search_list_object_lower(compliance_standard_list_current, 'name', args.source_compliance_standard_name)
+compliance_standard_original = pc_lib_general.search_list_object_lower(compliance_standard_list_current, 'name', args.compliance_standard_name)
 if compliance_standard_original is None:
     pc_lib_general.pc_exit_error(400, 'Compliance Standard to export not found. Please verify the Compliance Standard name.')
 export_file_data['compliance_standard_original'] = compliance_standard_original
@@ -67,25 +67,26 @@ print()
 
 print('API - Getting the Compliance Standard Policies (please wait) ...', end='')
 pc_settings, response_package = pc_lib_api.api_compliance_standard_policy_v2_list_get(pc_settings, compliance_standard_original['name'])
-policy_list_original = response_package['data']
-export_file_data['policy_list_original'] = policy_list_original
+policy_list_current = response_package['data']
+export_file_data['policy_list_original'] = policy_list_current
 print(' done.')
 print()
 
-print('API - Getting the Policies (please wait) ...', end='')
-for policy_original in policy_list_original:
-    pc_settings, response_package = pc_lib_api.api_policy_get(pc_settings, policy_original['policyId'])
+print('API - Getting the Policies (please wait) ...')
+for policy_current in policy_list_current:
+    print('Exporting: %s' % policy_current['name'])
+    pc_settings, response_package = pc_lib_api.api_policy_get(pc_settings, policy_current['policyId'])
     policy = response_package['data']
-    export_file_data['policy_object_original'][policy_original['policyId']] = policy
-    # Anomaly Policies (policy_original['rule']['type'] == 'Anomaly') do not have 'parameters'.
-    if not 'parameters' in policy_original['rule']:
+    export_file_data['policy_object_original'][policy_current['policyId']] = policy
+    # Anomaly Policies (policy_current['rule']['type'] == 'Anomaly') do not have 'parameters'.
+    if not 'parameters' in policy_current['rule']:
         continue
-    if policy_original['rule']['parameters']['savedSearch'] == 'true':
-        if policy_original['rule']['criteria'] not in export_file_data['search_object_original']:
-            pc_settings, response_package = pc_lib_api.api_search_get(pc_settings, policy_original['rule']['criteria'])
+    if policy_current['rule']['parameters']['savedSearch'] == 'true':
+        if policy_current['rule']['criteria'] not in export_file_data['search_object_original']:
+            pc_settings, response_package = pc_lib_api.api_search_get(pc_settings, policy_current['rule']['criteria'])
             search_object_original = response_package['data']
-            export_file_data['search_object_original'][policy_original['rule']['criteria']] = search_object_original
-print(' done.')
+            export_file_data['search_object_original'][policy_current['rule']['criteria']] = search_object_original
+print('Done.')
 print()
 
 pc_lib_general.pc_file_write_json(args.export_file_name, export_file_data)

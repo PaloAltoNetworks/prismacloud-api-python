@@ -85,7 +85,7 @@ for policy_id, policy_object in policy_object_original.items():
     else:
         if not args.status:
             policy_object['enabled'] = False
-        # Strip out denormalized data and data not required to import.
+        # Strip out denormalized data not required to import.
         if 'complianceMetadata' in policy_object:
             policy_object['complianceMetadata'] = []
         policy_object.pop('createdBy', None)

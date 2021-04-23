@@ -27,7 +27,7 @@ pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
 print(' done.')
 print()
 
-# Custom Policy Export
+# Policy Custom Export
 
 export_file_data = {}
 export_file_data['export_file_version'] = DEFAULT_POLICY_EXPORT_FILE_VERSION

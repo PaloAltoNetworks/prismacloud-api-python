@@ -6,105 +6,84 @@ except NameError:
 import pc_lib_api
 import pc_lib_general
 
+# --Configuration-- #
 
-# --Execution Block-- #
-# --Parse command line arguments-- #
 parser = pc_lib_general.pc_arg_parser_defaults()
-
 parser.add_argument(
-    'importfile',
+    'import_file_name',
     type=str,
-    help='File to Import from.')
-
+    help='Import (CSV) file name for the Users.')
 parser.add_argument(
-    'userrolename',
+    'role_name',
     type=str,
-    help='Name of the role to assign the users for import.')
-
+    help='Role to assign to the imported Users.')
 args = parser.parse_args()
-# --End parse command line arguments-- #
 
 # --Main-- #
-# Get login details worked out
+
+pc_lib_general.prompt_for_verification_to_continue(args.yes)
+
+print('API - Getting login ...', end='')
 pc_settings = pc_lib_general.pc_login_get(args.username, args.password, args.uiurl, args.config_file)
-
-# Verification (override with -y)
-if not args.yes:
-    print()
-    print('Ready to execute commands against your Prisma Cloud tenant.')
-    verification_response = str(input('Would you like to continue (y or yes to continue)?'))
-    continue_response = {'yes', 'y'}
-    print()
-    if verification_response not in continue_response:
-        pc_lib_general.pc_exit_error(400, 'Verification failed due to user response.  Exiting...')
-
-# Sort out API Login
-print('API - Getting authentication token...', end='')
 pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
-print('Done.')
+print(' done.')
+print()
 
-print('API - Getting current user list...', end='')
+print('API - Getting the current list of Users ...', end='')
 pc_settings, response_package = pc_lib_api.api_user_list_get_v2(pc_settings)
-user_list_old = response_package['data']
-print('Done.')
+user_list_current = response_package['data']
+print(' done.')
+print()
 
-print('File - Loading CSV user data...', end='')
-user_list_new = pc_lib_general.pc_file_load_csv_text(args.importfile)
-print('Done.')
+user_list_to_import = pc_lib_general.pc_file_load_csv_text(args.import_file_name)
 
-print('API - Getting user roles...', end='')
+print('API - Getting the Roles list ...', end='')
 pc_settings, response_package = pc_lib_api.api_user_role_list_get(pc_settings)
 user_role_list = response_package['data']
-print('Done.')
+print(' done.')
 
-print('Searching for role name to get role ID...', end='')
 user_role_id = None
 for user_role in user_role_list:
-    if user_role['name'].lower() == args.userrolename.lower():
+    if user_role['name'].lower() == args.role_name.lower():
         user_role_id = user_role['id']
         break
 if user_role_id is None:
-    pc_lib_general.pc_exit_error(400, 'No role by that name found.  Please check the role name and try again.')
-print('Done.')
+    pc_lib_general.pc_exit_error(400, 'Role not found. Please verify the Role name.')
 
-print('Formatting imported user list and checking for duplicates by e-mail...', end='')
-users_added_count = 0
-users_skipped_count = 0
-users_duplicate_count = 0
-users_list_new_formatted = []
+users_duplicate_current_count = 0
+users_duplicate_file_count = 0
+user_list_to_import_validated = []
 
-for user_new in user_list_new:
-    #Check for duplicates in the imported CSV
+for user_new in user_list_to_import:
     user_exists = False
-    for user_duplicate_check in users_list_new_formatted:
-        if user_duplicate_check['email'].lower() == user_new['email'].lower():
-            users_duplicate_count = users_duplicate_count + 1
+    # Remove duplicates from the import file list.
+    for user_to_import in user_list_to_import_validated:
+        if user_to_import['email'].lower() == user_new['email'].lower():
+            users_duplicate_file_count = users_duplicate_file_count + 1
             user_exists = True
             break
     if not user_exists:
-        # Check for duplicates already in the Prisma Cloud Account
-        for user_old in user_list_old:
-            if user_new['email'].lower() == user_old['email'].lower():
-                users_skipped_count = users_skipped_count + 1
+        # Remove duplicates based upon the current user list.
+        for user_current in user_list_current:
+            if user_new['email'].lower() == user_current['email'].lower():
+                users_duplicate_current_count = users_duplicate_current_count + 1
                 user_exists = True
                 break
         if not user_exists:
-            user_new_temp = {}
-            user_new_temp['email'] = user_new['email']
-            user_new_temp['firstName'] = user_new['firstName']
-            user_new_temp['lastName'] = user_new['lastName']
-            user_new_temp['timeZone'] = 'America/Los_Angeles'
-            user_new_temp['roleId'] = user_role_id
-            users_list_new_formatted.append(user_new_temp)
-            users_added_count = users_added_count + 1
-print('Done.')
+            user_validated = {}
+            user_validated['email']     = user_new['email']
+            user_validated['firstName'] = user_new['firstName']
+            user_validated['lastName']  = user_new['lastName']
+            user_validated['timeZone']  = 'America/Los_Angeles'
+            user_validated['roleId']    = user_role_id
+            user_list_to_import_validated.append(user_validated)
 
-print('Users to add: ' + str(users_added_count))
-print('Users skipped (Duplicates): ' + str(users_skipped_count))
-print('Users removed as duplicates from CSV: ' + str(users_duplicate_count))
+print('Users to add: %s' % len(user_list_to_import_validated))
+print('Users skipped (duplicates in Prisma Cloud): %s' % users_duplicate_current_count)
+print('Users skipped (duplicates in Import File): %s' % users_duplicate_file_count)
 
-print('API - Adding users...')
-for user_new in users_list_new_formatted:
-    print('Adding user email: ' + user_new['email'])
-    pc_settings, response_package = pc_lib_api.api_user_add(pc_settings, user_new)
+print('API - Creating Users ...')
+for new_user in user_list_to_import_validated:
+    print('Adding User: %s' % new_user['email'])
+    pc_settings, response_package = pc_lib_api.api_user_add(pc_settings, new_user)
 print('Done.')

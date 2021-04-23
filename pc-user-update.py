@@ -6,83 +6,71 @@ except NameError:
 import pc_lib_api
 import pc_lib_general
 
+# --Configuration-- #
 
-# --Execution Block-- #
-# --Parse command line arguments-- #
 parser = pc_lib_general.pc_arg_parser_defaults()
-
 parser.add_argument(
-    'useremail',
+    'user_email',
     type=str,
-    help='E-mail address for the user to update.')
-
+    help='Email address of the User to update.')
 parser.add_argument(
     '-fn',
     '--firstname',
     type=str,
-    help='(Optional) - New First Name for the specified user.')
-
+    help='(Optional) - New First Name for the specified User.')
 parser.add_argument(
     '-ln',
     '--lastname',
     type=str,
-    help='(Optional) - New Last Name for the specified user.')
-
+    help='(Optional) - New Last Name for the specified User.')
 parser.add_argument(
     '-r',
     '--role',
     type=str,
-    help='(Optional) - New Role for the specified user.')
-
+    help='(Optional) - New Role for the specified User.')
 args = parser.parse_args()
-# --End parse command line arguments-- #
 
 # --Main-- #
-# Get login details worked out
+
+pc_lib_general.prompt_for_verification_to_continue(args.yes)
+
+print('API - Getting login ...', end='')
 pc_settings = pc_lib_general.pc_login_get(args.username, args.password, args.uiurl, args.config_file)
-
-# Verification (override with -y)
-if not args.yes:
-    print()
-    print('Ready to execute commands against your Prisma Cloud tenant.')
-    verification_response = str(input('Would you like to continue (y or yes to continue)?'))
-    continue_response = {'yes', 'y'}
-    print()
-    if verification_response not in continue_response:
-        pc_lib_general.pc_exit_error(400, 'Verification failed due to user response.  Exiting...')
-
-# Sort out API Login
-print('API - Getting authentication token...', end='')
 pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
-print('Done.')
+print(' done.')
+print()
 
-print('API - Getting user...', end='')
-pc_settings, response_package = pc_lib_api.api_user_get(pc_settings, args.useremail.lower())
-user_new = response_package['data']
-print('Done.')
+print('API - Getting the User ...', end='')
+pc_settings, response_package = pc_lib_api.api_user_get(pc_settings, args.user_email.lower())
+user = response_package['data']
+print(' done.')
+print()
 
-# Figure out what was updated and then post the changes as a complete package
 if args.role is not None:
-    print('API - Getting user roles list...', end='')
+    print('API - Getting the Roles list ...', end='')
     pc_settings, response_package = pc_lib_api.api_user_role_list_get(pc_settings)
-    user_role_list = response_package['data']
-    print('Done.')
-
-    print('Searching for role name to get role ID...', end='')
+    role_list = response_package['data']
+    print(' done.')
+    print()
     update_needed = False
-    for user_role in user_role_list:
-        if user_role['name'].lower() == args.role.lower():
-            user_new['roleId'] = user_role['id']
+    for role in role_list:
+        if role['name'].lower() == args.role.lower():
+            user['roleId'] = role['id']
             update_needed = True
             break
-    if update_needed is False:
-        pc_lib_general.pc_exit_error(400, 'No role by that name found.  Please check the role name and try again.')
-    print('Done.')
-if args.firstname is not None:
-    user_new['firstName'] = args.firstname
-if args.lastname is not None:
-    user_new['lastName'] = args.lastname
 
-print('API - Updating user...', end='')
-pc_settings, response_package = pc_lib_api.api_user_update(pc_settings, user_new)
-print('Done.')
+if args.firstname is not None:
+    update_needed = True
+    user['firstName'] = args.firstname
+
+if args.lastname is not None:
+    update_needed = True
+    user['lastName'] = args.lastname
+
+if update_needed:
+    print('API - Updating the User ...', end='')
+    pc_settings, response_package = pc_lib_api.api_user_update(pc_settings, user)
+    print(' done.')
+    print()
+else:
+    print('No update required: current User attributes match new attributes.')
