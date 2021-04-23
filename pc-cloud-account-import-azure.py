@@ -6,103 +6,67 @@ except NameError:
 import pc_lib_api
 import pc_lib_general
 
+# --Configuration-- #
 
-# --Execution Block-- #
-# --Parse command line arguments-- #
 parser = pc_lib_general.pc_arg_parser_defaults()
-
 parser.add_argument(
-    'source_csv_cloud_accounts_list',
+    'import_file_name',
     type=str,
-    help='Filename of the file with the list of cloud accounts to import (CSV).')
-
-
+    help='Import (CSV) file name for the Cloud Accounts.')
 args = parser.parse_args()
-# --End parse command line arguments-- #
 
 # --Main-- #
-# Get login details worked out
+
+pc_lib_general.prompt_for_verification_to_continue(args.yes)
+
+print('API - Getting login ...', end='')
 pc_settings = pc_lib_general.pc_login_get(args.username, args.password, args.uiurl, args.config_file)
-
-# Verification (override with -y)
-if not args.yes:
-    print()
-    print('Ready to execute commands against your Prisma Cloud tenant.')
-    verification_response = str(input('Would you like to continue (y or yes to continue)?'))
-    continue_response = {'yes', 'y'}
-    print()
-    if verification_response not in continue_response:
-        pc_lib_general.pc_exit_error(400, 'Verification failed due to user response.  Exiting...')
-
-# Sort out API Login
-print('API - Getting authentication token...', end='')
 pc_settings = pc_lib_api.pc_jwt_get(pc_settings)
-print('Done.')
+print(' done.')
+print()
 
-# Ingest CSV list of accounts to add
-print('File - Importing CSV from disk...', end='')
-import_list_from_csv = pc_lib_general.pc_file_load_csv(args.source_csv_cloud_accounts_list)
-print('Done.')
+# Import.
 
-# Convert groupId to an array for import
-print('Data - Converting CSV data format for import...', end='')
+import_file_data = pc_lib_general.pc_file_load_csv(args.import_file_name)
+
 cloud_accounts_to_import = []
-for cloud_account in import_list_from_csv:
-    if cloud_account['monitorFlowLogs'].lower() == "true":
+for cloud_account in import_file_data:
+    if cloud_account['monitorFlowLogs'].lower() == 'true':
         cloud_account['monitorFlowLogs'] = True
-    elif cloud_account['monitorFlowLogs'].lower() == "false":
+    else:
         cloud_account['monitorFlowLogs'] = False
-    else:
-        pc_lib_general.pc_exit_error(400, 'monitorFlowLogs value did not appear to be true or false.  Only true or false is recognized as an input value in the CSV.')
-
-    if cloud_account['enabled'].lower() == "true":
+    if cloud_account['enabled'].lower() == 'true':
         cloud_account['enabled'] = True
-    elif cloud_account['enabled'].lower() == "false":
-        cloud_account['enabled'] = False
     else:
-        pc_lib_general.pc_exit_error(400, 'enabled value did not appear to be true or false.  Only true or false is recognized as an input value in the CSV.')
+        cloud_account['enabled'] = False
+    cloud_account_new = {}
+    cloud_account_new['cloudAccount'] = {}
+    cloud_account_new['clientId']                  = cloud_account['clientId']
+    cloud_account_new['cloudAccount']['accountId'] = cloud_account['accountId']
+    cloud_account_new['cloudAccount']['enabled']   = cloud_account['enabled']
+    cloud_account_new['cloudAccount']['groupIds']  = []
+    cloud_account_new['cloudAccount']['groupIds'].append(cloud_account['groupIds'])
+    cloud_account_new['cloudAccount']['name']      = cloud_account['name']
+    cloud_account_new['key']                       = cloud_account['key']
+    cloud_account_new['monitorFlowLogs']           = cloud_account['monitorFlowLogs']
+    cloud_account_new['servicePrincipalId']        = cloud_account['servicePrincipalId']
+    cloud_account_new['tenantId']                  = cloud_account['tenantId']
+    cloud_accounts_to_import.append(cloud_account_new)
 
-    temp_cloud_account = {}
-    temp_cloud_account['cloudAccount'] = {}
-    temp_cloud_account['cloudAccount']['accountId'] = cloud_account['accountId']
-    temp_cloud_account['cloudAccount']['enabled'] = cloud_account['enabled']
-    temp_cloud_account['cloudAccount']['groupIds'] = []
-    temp_cloud_account['cloudAccount']['groupIds'].append(cloud_account['groupIds'])
-    temp_cloud_account['cloudAccount']['name'] = cloud_account['name']
-    temp_cloud_account['clientId'] = cloud_account['clientId']
-    temp_cloud_account['key'] = cloud_account['key']
-    temp_cloud_account['monitorFlowLogs'] = cloud_account['monitorFlowLogs']
-    temp_cloud_account['tenantId'] = cloud_account['tenantId']
-    temp_cloud_account['servicePrincipalId'] = cloud_account['servicePrincipalId']
+# TODO: Check list for any duplicates (in CSV). See pc-user-import.py.
 
-    cloud_accounts_to_import.append(temp_cloud_account)
-print('Done.')
-
-# Check ingested list for all required fields and data in all fields
-## To Do ##
-
-# Check ingested list for any duplicates in the CSV (Names or account ID's)
-## To Do ##
-
-# Get existing cloud account list
-print('API - Getting existing cloud account list...', end='')
+print('API - Getting the current list of Cloud Accounts ...', end='')
 pc_settings, response_package = pc_lib_api.api_cloud_accounts_list_get(pc_settings)
 cloud_accounts_list = response_package['data']
-print('Done.')
+print(' done.')
+print()
 
-# Figure out which accounts are already in Prisma Cloud and remove them from the import list
-## To Do ##
-
-# Check the remaining list for any duplicate names
-## To Do ##
+# TODO: Check list for any duplicates (in Prisma Cloud). See pc-user-import.py.
 
 # Import the account list into Prisma Cloud
-print('API - Adding cloud accounts...')
-cloud_type = "azure"
-print()
+print('API - Creating Cloud Accounts ...')
+cloud_type = 'azure'
 for new_cloud_account in cloud_accounts_to_import:
-    print('Adding cloud account: ' + new_cloud_account['cloudAccount']['name'])
+    print('Adding Cloud Account: %s' % new_cloud_account['cloudAccount']['name'])
     pc_settings, response_package = pc_lib_api.api_cloud_accounts_add(pc_settings, cloud_type, new_cloud_account)
-
-print()
-print('Import Complete.')
+print('Done.')

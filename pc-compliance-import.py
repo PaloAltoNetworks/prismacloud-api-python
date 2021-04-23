@@ -106,7 +106,7 @@ if compliance_standard:
     else:
         pc_lib_general.pc_exit_error(400, 'Compliance Standard already exists. Please verify the new Compliance Standard name, or delete the existing Compliance Standard.')
 
-print('API - Creating the new Compliance Standard ...', end='')
+print('API - Creating the Compliance Standard ...', end='')
 compliance_standard_temp = {}
 compliance_standard_temp['name'] = args.import_compliance_standard_name
 if 'description' in compliance_standard_original:
