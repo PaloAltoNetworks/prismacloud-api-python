@@ -9,30 +9,30 @@ import pc_lib_general
 
 # --Helper Methods-- #
 
-def pc_call_api(action, api_url, pc_settings, data=None, params=None, try_count=0, max_retries=2, auth_count=0, auth_retries=1):
-    retry_statuses = [429, 500, 502, 503, 504]
-    auth_statuses  = [401]
-    retry_wait_timer = 5
+def pc_call_api(action, api_url, pc_settings, data=None, params=None, retry_count=0, max_retries=3, auth_retry_count=0, auth_max_retries=3):
+    auth_retry_statuses = [401]
+    retry_statuses      = [429, 500, 502, 503, 504]
+    retry_wait_timer    = 5
     headers = {'Content-Type': 'application/json', 'x-redlock-auth': pc_settings['jwt']}
     response = requests.request(action, api_url, params=params, headers=headers, data=json.dumps(data))
     # Check for an error to retry, re-authenticate, or fail.
     if response.status_code in retry_statuses:
-        try_count = try_count + 1
-        if try_count <= max_retries:
+        retry_count = retry_count + 1
+        if retry_count <= max_retries:
             time.sleep(retry_wait_timer)
-            return pc_call_api(action=action, api_url=api_url, pc_settings=pc_settings, data=data, params=params, try_count=try_count, max_retries=max_retries, auth_count=auth_count, auth_retries=auth_retries)
+            return pc_call_api(action=action, api_url=api_url, pc_settings=pc_settings, data=data, params=params, retry_count=retry_count, max_retries=max_retries, auth_retry_count=auth_retry_count, auth_max_retries=auth_max_retries)
         else:
             response.raise_for_status()
-    elif response.status_code in auth_statuses and pc_settings['jwt'] is not None:
-        auth_count = auth_count + 1
-        if auth_count <= auth_retries:
-            pc_settings = pc_jwt_get(pc_settings)
-            return pc_call_api(action=action, api_url=api_url, pc_settings=pc_settings, data=data, params=params, try_count=try_count, max_retries=max_retries, auth_count=auth_count,auth_retries=auth_retries)
+    elif response.status_code in auth_retry_statuses and pc_settings['jwt'] is not None:
+        auth_retry_count = auth_retry_count + 1
+        if auth_retry_count <= auth_max_retries:
+            pc_settings = pc_login(pc_settings)
+            return pc_call_api(action=action, api_url=api_url, pc_settings=pc_settings, data=data, params=params, retry_count=retry_count, max_retries=max_retries, auth_retry_count=auth_retry_count, auth_max_retries=auth_max_retries)
         else:
             response.raise_for_status()
     else:
         response.raise_for_status()
-    # Check for valid response and catch if blank or unexpected.
+    # Check for valid response, and catch if empty, none, or otherwise unexpected.
     api_response_package = {}
     api_response_package['statusCode'] = response.status_code
     try:
@@ -45,7 +45,7 @@ def pc_call_api(action, api_url, pc_settings, data=None, params=None, try_count=
     return pc_settings, api_response_package
 
 
-def pc_jwt_get(pc_settings):
+def pc_login(pc_settings):
     url = "https://" + pc_settings['apiBase'] + "/login"
     action = "POST"
     pc_settings['jwt'] = pc_call_api(action, url, pc_settings, data=pc_settings)[1]['data']['token']

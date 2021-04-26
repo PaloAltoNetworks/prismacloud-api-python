@@ -128,9 +128,9 @@ def pc_settings_write(username, password, uiBase, settings_file_name=None, setti
     new_settings['apiBase']  = apiBase
     pc_file_write_json(settings_file_name, new_settings)
 
-# Login.
+# Get settings from command-line or settings file.
 
-def pc_login_get(username, password, uibase, settings_file_name=None):
+def pc_settings_get(username, password, uibase, settings_file_name=None):
     pc_settings = {}
     if username is None and password is None and uibase is None:
         pc_settings = pc_settings_read(settings_file_name)
