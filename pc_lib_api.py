@@ -15,18 +15,18 @@ def pc_call_api(action, api_url, pc_settings, data=None, params=None, retry_coun
     retry_wait_timer    = 5
     headers = {'Content-Type': 'application/json', 'x-redlock-auth': pc_settings['jwt']}
     response = requests.request(action, api_url, params=params, headers=headers, data=json.dumps(data))
-    # Check for an error to retry, re-authenticate, or fail.
-    if response.status_code in retry_statuses:
-        retry_count = retry_count + 1
-        if retry_count <= max_retries:
-            time.sleep(retry_wait_timer)
-            return pc_call_api(action=action, api_url=api_url, pc_settings=pc_settings, data=data, params=params, retry_count=retry_count, max_retries=max_retries, auth_retry_count=auth_retry_count, auth_max_retries=auth_max_retries)
-        else:
-            response.raise_for_status()
-    elif response.status_code in auth_retry_statuses and pc_settings['jwt'] is not None:
+    # Check for an error to re-authenticate and retry, error to retry, or fail.
+    if response.status_code in auth_retry_statuses and pc_settings['jwt'] is not None:
         auth_retry_count = auth_retry_count + 1
         if auth_retry_count <= auth_max_retries:
             pc_settings = pc_login(pc_settings)
+            return pc_call_api(action=action, api_url=api_url, pc_settings=pc_settings, data=data, params=params, retry_count=retry_count, max_retries=max_retries, auth_retry_count=auth_retry_count, auth_max_retries=auth_max_retries)
+        else:
+            response.raise_for_status()
+    elif response.status_code in retry_statuses:
+        retry_count = retry_count + 1
+        if retry_count <= max_retries:
+            time.sleep(retry_wait_timer)
             return pc_call_api(action=action, api_url=api_url, pc_settings=pc_settings, data=data, params=params, retry_count=retry_count, max_retries=max_retries, auth_retry_count=auth_retry_count, auth_max_retries=auth_max_retries)
         else:
             response.raise_for_status()
@@ -49,6 +49,16 @@ def pc_login(pc_settings):
     url = "https://" + pc_settings['apiBase'] + "/login"
     action = "POST"
     pc_settings['jwt'] = pc_call_api(action, url, pc_settings, data=pc_settings)[1]['data']['token']
+    return pc_settings
+
+
+def pc_extend_token(pc_settings):
+    if pc_settings['jwt'] == None:
+        pc_settings = pc_login(pc_settings)
+    else:
+        url = "https://" + pc_settings['apiBase'] + "/auth_token/extend"
+        action = "GET"
+        pc_call_api(action, url, pc_settings)
     return pc_settings
 
 # --Action Methods-- #
