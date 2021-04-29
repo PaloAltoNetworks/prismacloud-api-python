@@ -72,12 +72,13 @@ for policy_current in policy_list_current:
     print('Exporting: %s' % policy_current['name'])
     policy = pc_lib_api.api_policy_get(policy_current['policyId'])
     export_file_data['policy_object_original'][policy_current['policyId']] = policy
-    # Anomaly Policies (policy_current['rule']['type'] == 'Anomaly') do not have 'parameters'.
     if not 'parameters' in policy_current['rule']:
+        continue
+    if not 'savedSearch' in policy_current['rule']['parameters']:
         continue
     if policy_current['rule']['parameters']['savedSearch'] == 'true':
         if policy_current['rule']['criteria'] not in export_file_data['search_object_original']:
-            search_object_original = pc_lib_api.api_search_get(policy_current['rule']['criteria'])
+            search_object_original = pc_lib_api.api_saved_search_get(policy_current['rule']['criteria'])
             export_file_data['search_object_original'][policy_current['rule']['criteria']] = search_object_original
 print('Done.')
 print()

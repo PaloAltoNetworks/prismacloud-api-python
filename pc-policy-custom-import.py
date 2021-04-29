@@ -100,7 +100,7 @@ for policy_id, policy_object in policy_object_original.items():
                     if 'id' in search_object:
                         if search_object['id'] == search_id_to_match:
                             body_data = {'query': search_object['query'], 'saved': False, 'timeRange': {'type':'relative', 'value': {'unit': 'hour', 'amount': 24}}}
-                            new_search = pc_lib_api.api_search_add(search_object['searchType'], body_data)
+                            new_search = pc_lib_api.api_saved_search_add(search_object['searchType'], body_data)
                             policy_object['rule']['criteria'] = new_search['id']
                             search_object.pop('id', None)
                             # TODO: Validate need for timestamp and random string:

@@ -63,7 +63,7 @@ print()
 
 if args.rql:
     print('API - Getting the RQL (Saved Search) ...', end='')
-    policy_search = pc_lib_api.api_search_get(policy['rule']['criteria'])
+    policy_search = pc_lib_api.api_saved_search_get(policy['rule']['criteria'])
     print(' done.')
     print()
 

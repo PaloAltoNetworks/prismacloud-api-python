@@ -205,10 +205,10 @@ def api_policy_add(policy_to_add):
     return pc_api.execute('POST', 'policy', body_params=policy_to_add)
 
 def api_policy_get(policy_id):
-    return pc_api.execute('GET', 'policy/' % policy_id)
+    return pc_api.execute('GET', 'policy/%s' % policy_id)
 
 def api_policy_update(policy_id, policy_update):
-    return pc_api.execute('PUT', 'policy/' % policy_id, body_params=policy_update)
+    return pc_api.execute('PUT', 'policy/%s' % policy_id, body_params=policy_update)
 
 def api_policy_status_update(policy_id, policy_status_update):
     return pc_api.execute('PATCH', 'policy/%s/status/%s' % (policy_id, policy_status_update))
@@ -231,13 +231,13 @@ Additional:
 def api_saved_search_list_get():
     return pc_api.execute('GET', 'search/history?filter=saved')
 
-def api_search_add(type_of_search, search_to_add):
+def api_saved_search_add(type_of_search, saved_search_to_add):
     if type_of_search == 'network':
-        return pc_api.execute('POST', 'search', body_params=search_to_add)
+        return pc_api.execute('POST', 'search', body_params=saved_search_to_add)
     else:
-        return pc_api.execute('POST', 'search/%s' % type_of_search, body_params=search_to_add)
+        return pc_api.execute('POST', 'search/%s' % type_of_search, body_params=saved_search_to_add)
 
-def api_search_get(saved_search_id):
+def api_saved_search_get(saved_search_id):
     return pc_api.execute('GET', 'search/history/%s' % saved_search_id)
 
 def api_saved_search_delete(saved_search_id):
@@ -292,7 +292,7 @@ def api_user_add(user_to_add):
     return pc_api.execute('POST', 'user', body_params=user_to_add)
 
 def api_user_get(user_email):
-    return pc_api.execute('GET', 'user/%s' % user_role_id)
+    return pc_api.execute('GET', 'user/%s' % user_email)
 
 # TODO: Use this model for other updates?
 
@@ -395,7 +395,7 @@ def api_cloud_account_group_add(cloud_account_group_to_add):
     return pc_api.execute('POST', 'cloud/group', body_params=cloud_account_group_to_add)
 
 def api_cloud_account_group_get(cloud_account_group_id):
-    return pc_api.execute('GET', 'cloud/group' % cloud_account_group_id)
+    return pc_api.execute('GET', 'cloud/group/%s' % cloud_account_group_id)
 
 def api_cloud_account_group_update(cloud_account_group_id, cloud_account_group_update):
     return pc_api.execute('PUT', 'cloud/group/%s' % cloud_account_group_id, body_params=cloud_account_group_update)
@@ -437,7 +437,7 @@ def api_integration_list_get():
     return pc_api.execute('GET', 'integration')
 
 def api_integration_delete(integration_id):
-    return pc_api.execute('DELETE', 'integration/%s' % alert_rule_id)
+    return pc_api.execute('DELETE', 'integration/%s' % integration_id)
 
 """
   Resource Lists
@@ -480,7 +480,7 @@ def api_access_key_get(access_key_id):
     return pc_api.execute('GET', 'access_keys' % access_key_id)
 
 def api_access_key_update(access_key_id, access_key_update):
-    return pc_api.execute('PUT', 'access_keys/' % access_key_id, body_params=access_key_update)
+    return pc_api.execute('PUT', 'access_keys/%s' % access_key_id, body_params=access_key_update)
 
 # Note: Expired keys cannot be enabled.
 def api_access_key_status_update(access_key_id, access_key_status):
