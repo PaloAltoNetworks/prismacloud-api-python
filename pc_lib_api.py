@@ -15,7 +15,8 @@ class PrismaCloudAPI(object):
         self.username      = None
         self.password      = None
         self.token         = None
-        self.token_created = 0
+        self.token_timer   = 0
+        self.token_limit   = 540
         self.retry_limit   = 3
         self.retry_pause   = 5
         self.retry_status_codes = [401, 429, 500, 502, 503, 504]
@@ -26,6 +27,7 @@ class PrismaCloudAPI(object):
         self.password = password
 
     def login(self):
+        print('API - Getting login ...', end='')
         requ_url = 'https://%s/login' % self.api
         requ_action = 'POST'
         requ_headers = {'Content-Type': 'application/json'}
@@ -34,24 +36,35 @@ class PrismaCloudAPI(object):
         if api_response.ok:
             api_response = json.loads(api_response.content)
             self.token = api_response.get('token') 
-            self.token_created = time.time()
+            self.token_timer = time.time()
         else:
-            pc_lib_general.pc_exit_error(501, 'The API returned an unexpected response.')
+            pc_lib_general.pc_exit_error(api_response.status_code, 'The API (login) returned an unexpected response:\n%s' % api_response.content)
+        print(' done.')
+        print()
 
     def extend_token(self):
+        print('API - Extending token ...', end='')
         requ_url = 'https://%s/auth_token/extend' % self.api
         requ_action = 'GET'
         requ_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
         api_response = requests.request(requ_action, requ_url, headers=requ_headers)
+        if api_response.status_code in self.retry_status_codes:
+            for retry_number in range(1, self.retry_limit):
+                time.sleep(self.retry_pause)
+                api_response = requests.request(requ_action, requ_url, headers=requ_headers)
+                if api_response.ok:
+                    break
         if api_response.ok:
-            self.token_created = time.time() 
+            self.token_timer = time.time() 
         else:
-            pc_lib_general.pc_exit_error(501, 'The API returned an unexpected response.')
+            pc_lib_general.pc_exit_error(api_response.status_code, 'The API (extend) returned an unexpected response.')
+        print(' done.')
+        print()
 
     def execute(self, action, endpoint, query_params=None, body_params=None):
         if not self.token:
             self.login()
-        if int(time.time() - self.token_created) < 60:
+        if int(time.time() - self.token_timer) > self.token_limit:
             self.extend_token()
         requ_url = 'https://%s/%s' % (self.api, endpoint)
         requ_action = action
@@ -63,6 +76,9 @@ class PrismaCloudAPI(object):
         if api_response.status_code in self.retry_status_codes:
             for retry_number in range(1, self.retry_limit):
                 time.sleep(self.retry_pause)
+                api_response = requests.request(requ_action, requ_url, headers=requ_headers)
+                if api_response.ok:
+                    break
         if api_response.ok:
             try:
                 result = json.loads(api_response.content)
@@ -70,7 +86,7 @@ class PrismaCloudAPI(object):
                 if api_response.content == '':
                    result = None
         else:
-            pc_lib_general.pc_exit_error(501, 'The API returned an unexpected response.')
+            pc_lib_general.pc_exit_error(api_response.status_code, 'The API (execute) returned an unexpected response:\n%s' % api_response.content)
         return result
 
 pc_api = PrismaCloudAPI()
