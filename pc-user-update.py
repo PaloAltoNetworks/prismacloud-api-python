@@ -4,7 +4,6 @@ try:
 except NameError:
     pass
 from pc_lib_api import pc_api
-import pc_lib_api
 import pc_lib_general
 
 # --Configuration-- #
@@ -40,13 +39,13 @@ pc_api.configure(pc_settings['apiBase'], pc_settings['username'], pc_settings['p
 # --Main-- #
 
 print('API - Getting the User ...', end='')
-user = pc_lib_api.api_user_get(args.user_email.lower())
+user = pc_api.user_get(args.user_email.lower())
 print(' done.')
 print()
 
 if args.role is not None:
     print('API - Getting the Roles list ...', end='')
-    role_list = pc_lib_api.api_user_role_list_get()
+    role_list = pc_api.user_role_list_get()
     print(' done.')
     print()
     update_needed = False
@@ -66,7 +65,7 @@ if args.lastname is not None:
 
 if update_needed:
     print('API - Updating the User ...', end='')
-    pc_lib_api.api_user_update(user)
+    pc_api.user_update(user)
     print(' done.')
     print()
 else:

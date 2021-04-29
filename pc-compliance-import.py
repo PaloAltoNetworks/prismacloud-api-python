@@ -4,7 +4,6 @@ try:
 except NameError:
     pass
 from pc_lib_api import pc_api
-import pc_lib_api
 import pc_lib_general
 import json
 import requests
@@ -90,7 +89,7 @@ if compliance_standard_original is None:
     pc_lib_general.pc_exit_error(400, 'Compliance Standard not found in the import file. Please verify the Compliance Standard name.')
 
 print('API - Getting the current list of Compliance Standards ...', end='')
-compliance_standard_list_current = pc_lib_api.api_compliance_standard_list_get()
+compliance_standard_list_current = pc_api.compliance_standard_list_get()
 compliance_standard = pc_lib_general.search_list_object_lower(compliance_standard_list_current, 'name', args.import_compliance_standard_name)
 print(' done.')
 print()
@@ -98,7 +97,7 @@ print()
 if compliance_standard:
     if args.delete_existing:
         print('API - Deleting the existing Compliance Standard ...', end='')
-        pc_lib_api.api_compliance_standard_delete(compliance_standard['id'])
+        pc_api.compliance_standard_delete(compliance_standard['id'])
         print(' done.')
         print()
     else:
@@ -109,13 +108,13 @@ compliance_standard_temp = {}
 compliance_standard_temp['name'] = args.import_compliance_standard_name
 if 'description' in compliance_standard_original:
     compliance_standard_temp['description'] = compliance_standard_original['description']
-pc_lib_api.api_compliance_standard_add(compliance_standard_temp)
+pc_api.compliance_standard_add(compliance_standard_temp)
 print(' done.')
 print()
 
 print('API - Getting the newly created Compliance Standard ...', end='')
 time.sleep(WAIT_TIMER)
-compliance_standard_list_current = pc_lib_api.api_compliance_standard_list_get()
+compliance_standard_list_current = pc_api.compliance_standard_list_get()
 compliance_standard_new = pc_lib_general.search_list_object(compliance_standard_list_current, 'name', compliance_standard_temp['name'])
 if compliance_standard_new is None:
     pc_lib_general.pc_exit_error(500, 'New Compliance Standard not found.')
@@ -131,13 +130,13 @@ for compliance_requirement_original in compliance_requirement_list_original:
     compliance_requirement_temp['viewOrder']     = compliance_requirement_original['viewOrder']
     if 'description' in compliance_requirement_original:
         compliance_requirement_temp['description'] = compliance_requirement_original['description']
-    pc_lib_api.api_compliance_standard_requirement_add(compliance_standard_new['id'], compliance_requirement_temp)
+    pc_api.compliance_standard_requirement_add(compliance_standard_new['id'], compliance_requirement_temp)
 print(' done.')
 print()
 
 print('API - Getting the newly created Compliance Standard Requirements ...', end='')
 time.sleep(WAIT_TIMER)
-compliance_requirement_list_new = pc_lib_api.api_compliance_standard_requirement_list_get(compliance_standard_new['id'])
+compliance_requirement_list_new = pc_api.compliance_standard_requirement_list_get(compliance_standard_new['id'])
 print(' done.')
 print()
 
@@ -152,7 +151,7 @@ for compliance_requirement_original in compliance_requirement_list_original:
         compliance_section_temp['viewOrder'] = compliance_section_original['viewOrder']
         if 'description' in compliance_section_original:
             compliance_section_temp['description'] = compliance_section_original['description']
-        pc_lib_api.api_compliance_standard_requirement_section_add(compliance_requirement_temp['id'], compliance_section_temp)
+        pc_api.compliance_standard_requirement_section_add(compliance_requirement_temp['id'], compliance_section_temp)
         # Mapping Sections to Policies
         compliance_section_temp['original_compliance_requirement_id'] = compliance_requirement_original['id']
         compliance_section_temp['original_compliance_section_id']     = compliance_section_original['id']
@@ -179,7 +178,7 @@ if args.policy:
     # TODO: Replace inner and outer looping.
     for compliance_requirement_new in compliance_requirement_list_new:
         # Get the new Sections for the new Requirement.
-        compliance_section_list_new = pc_lib_api.api_compliance_standard_requirement_section_list_get(compliance_requirement_new['id'])
+        compliance_section_list_new = pc_api.compliance_standard_requirement_section_list_get(compliance_requirement_new['id'])
         # Get the new IDs for the new Sections.
         for compliance_section_new in compliance_section_list_new:
             found = False
@@ -218,7 +217,7 @@ if args.policy:
 
     # Compare updated (policyId) Policies with current Policies, and build a list of validated Policies.
     print('API - Getting the current list of Policies ...', end='')
-    policy_list_current = pc_lib_api.api_policy_v2_list_get()
+    policy_list_current = pc_api.policy_v2_list_get()
     policy_validate_error_list = []
     policy_list_updated_validated = []
     # TODO: Replace inner and outer looping.
@@ -251,7 +250,7 @@ if args.policy:
     print('API - Getting and updating the Policy list (please wait) ...')
     policy_update_error_list = []
     for policy_updated_validated in policy_list_updated_validated:
-        policy_current = pc_lib_api.api_policy_get(policy_updated_validated['policyId'])
+        policy_current = pc_api.policy_get(policy_updated_validated['policyId'])
         policy_object_original = import_file_data['policy_object_original'][policy_updated_validated['policyId']]
         # Add new Compliance Standard Section(s).
         compliance_metadata_to_merge = []
@@ -275,7 +274,7 @@ if args.policy:
             policy_current['labels'].append(args.import_compliance_standard_name)
         try:
             print('Updating Policy: %s' % policy_current['name'])
-            pc_lib_api.api_policy_update(policy_current['policyId'], policy_current)
+            pc_api.policy_update(policy_current['policyId'], policy_current)
         except requests.exceptions.HTTPError as ex:
             policy_update_error_list.append(policy_current['name'])
             print('Error updating Policy: %s\n\t%s' % (policy_current['name'], ex))

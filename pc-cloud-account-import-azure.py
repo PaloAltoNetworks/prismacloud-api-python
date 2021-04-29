@@ -4,7 +4,6 @@ try:
 except NameError:
     pass
 from pc_lib_api import pc_api
-import pc_lib_api
 import pc_lib_general
 
 # --Configuration-- #
@@ -55,7 +54,7 @@ for cloud_account in import_file_data:
 # TODO: Check list for any duplicates (in CSV). See pc-user-import.py.
 
 print('API - Getting the current list of Cloud Accounts ...', end='')
-cloud_accounts_list = pc_lib_api.api_cloud_accounts_list_get()
+cloud_accounts_list = pc_api.cloud_accounts_list_get()
 print(' done.')
 print()
 
@@ -66,5 +65,5 @@ print('API - Creating Cloud Accounts ...')
 cloud_type = 'azure'
 for new_cloud_account in cloud_accounts_to_import:
     print('Adding Cloud Account: %s' % new_cloud_account['cloudAccount']['name'])
-    pc_lib_api.api_cloud_accounts_add(cloud_type, new_cloud_account)
+    pc_api.cloud_accounts_add(cloud_type, new_cloud_account)
 print('Done.')

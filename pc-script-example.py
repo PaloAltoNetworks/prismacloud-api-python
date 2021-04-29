@@ -4,7 +4,6 @@ try:
 except NameError:
     pass
 from pc_lib_api import pc_api
-import pc_lib_api
 import pc_lib_general
 
 # --Configuration-- #
@@ -22,6 +21,5 @@ pc_api.configure(pc_settings['apiBase'], pc_settings['username'], pc_settings['p
 # --Main-- #
 
 # INSERT SCRIPT CODE HERE
-
-result = pc_lib_api.current_user()
+result = pc_api.current_user()
 print(result)

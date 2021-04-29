@@ -4,7 +4,6 @@ try:
 except NameError:
     pass
 from pc_lib_api import pc_api
-import pc_lib_api
 import pc_lib_general
 
 # --Configuration-- #
@@ -29,14 +28,14 @@ pc_api.configure(pc_settings['apiBase'], pc_settings['username'], pc_settings['p
 # --Main-- #
 
 print('API - Getting the current list of Users ...', end='')
-user_list_current = pc_lib_api.api_user_list_get_v2()
+user_list_current = pc_api.user_list_get_v2()
 print(' done.')
 print()
 
 user_list_to_import = pc_lib_general.pc_file_load_csv_text(args.import_file_name)
 
 print('API - Getting the Roles list ...', end='')
-user_role_list = pc_lib_api.api_user_role_list_get()
+user_role_list = pc_api.user_role_list_get()
 print(' done.')
 
 user_role_id = None
@@ -82,5 +81,5 @@ print('Users skipped (duplicates in Import File): %s' % users_duplicate_file_cou
 print('API - Creating Users ...')
 for new_user in user_list_to_import_validated:
     print('Adding User: %s' % new_user['email'])
-    pc_lib_api.api_user_add(new_user)
+    pc_api.user_add(new_user)
 print('Done.')

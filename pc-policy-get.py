@@ -4,7 +4,6 @@ try:
 except NameError:
     pass
 from pc_lib_api import pc_api
-import pc_lib_api
 import pc_lib_general
 import json
 
@@ -33,7 +32,7 @@ pc_api.configure(pc_settings['apiBase'], pc_settings['username'], pc_settings['p
 # Get Policy
 
 print('API - Getting the Policy list ...', end='')
-policy_list = pc_lib_api.api_policy_list_get()
+policy_list = pc_api.policy_list_get()
 print(' done.')
 print()
 
@@ -53,7 +52,7 @@ print(json.dumps(policy))
 print()
 
 print('API - Getting the Policy ...', end='')
-policy = pc_lib_api.api_policy_get(policy_id)
+policy = pc_api.policy_get(policy_id)
 print(' done.')
 print()
 
@@ -63,7 +62,7 @@ print()
 
 if args.rql:
     print('API - Getting the RQL (Saved Search) ...', end='')
-    policy_search = pc_lib_api.api_saved_search_get(policy['rule']['criteria'])
+    policy_search = pc_api.saved_search_get(policy['rule']['criteria'])
     print(' done.')
     print()
 

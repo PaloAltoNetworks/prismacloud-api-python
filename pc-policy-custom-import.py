@@ -3,7 +3,6 @@ try:
     input = raw_input
 except NameError:
     pass
-import pc_lib_api
 import pc_lib_general
 import json
 import random
@@ -61,7 +60,7 @@ search_object_original = import_file_data['search_object_original']
 
 # For duplicate policy name check.
 print('API - Getting the current list of Policies ...', end='')
-policy_list_current = pc_lib_api.api_policy_v2_list_get()
+policy_list_current = pc_api.policy_v2_list_get()
 print(' done.')
 print()
 
@@ -100,7 +99,7 @@ for policy_id, policy_object in policy_object_original.items():
                     if 'id' in search_object:
                         if search_object['id'] == search_id_to_match:
                             body_data = {'query': search_object['query'], 'saved': False, 'timeRange': {'type':'relative', 'value': {'unit': 'hour', 'amount': 24}}}
-                            new_search = pc_lib_api.api_saved_search_add(search_object['searchType'], body_data)
+                            new_search = pc_api.saved_search_add(search_object['searchType'], body_data)
                             policy_object['rule']['criteria'] = new_search['id']
                             search_object.pop('id', None)
                             # TODO: Validate need for timestamp and random string:
@@ -110,13 +109,13 @@ for policy_id, policy_object in policy_object_original.items():
                             if not search_object['description']:
                                 search_object['description'] = 'Imported'
                             search_object['saved'] = True
-                            pc_lib_api.api_saved_search_add(new_search['id'], search_object)
+                            pc_api.saved_search_add(new_search['id'], search_object)
         new_policy_id = None
         if not args.status:
             policy_object['enabled'] = False
         try:
             print('Importing: %s' % policy_object['name'])
-            new_policy = pc_lib_api.api_policy_add(policy_object)
+            new_policy = pc_api.policy_add(policy_object)
             new_policy_id = new_policy['policyId']
         except requests.exceptions.HTTPError as e:
             print('Error importing: %s' + policy_object['name'])
