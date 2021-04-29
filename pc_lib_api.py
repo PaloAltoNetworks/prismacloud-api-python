@@ -1,3 +1,4 @@
+from __future__ import print_function
 import json
 import requests
 import time
@@ -27,7 +28,6 @@ class PrismaCloudAPI(object):
         self.password = password
 
     def login(self):
-        print('API - Getting login ...', end='')
         requ_url = 'https://%s/login' % self.api
         requ_action = 'POST'
         requ_headers = {'Content-Type': 'application/json'}
@@ -39,11 +39,8 @@ class PrismaCloudAPI(object):
             self.token_timer = time.time()
         else:
             pc_lib_general.pc_exit_error(api_response.status_code, 'The API (login) returned an unexpected response:\n%s' % api_response.content)
-        print(' done.')
-        print()
 
     def extend_token(self):
-        print('API - Extending token ...', end='')
         requ_url = 'https://%s/auth_token/extend' % self.api
         requ_action = 'GET'
         requ_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
@@ -58,8 +55,6 @@ class PrismaCloudAPI(object):
             self.token_timer = time.time() 
         else:
             pc_lib_general.pc_exit_error(api_response.status_code, 'The API (extend) returned an unexpected response.')
-        print(' done.')
-        print()
 
     def execute(self, action, endpoint, query_params=None, body_params=None):
         if not self.token:
