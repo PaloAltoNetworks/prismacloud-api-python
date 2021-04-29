@@ -9,59 +9,76 @@ import pc_lib_general
 
 # --Helper Methods-- #
 
-def pc_call_api(action, api_url, pc_settings, data=None, params=None, retry_count=0, max_retries=3, auth_retry_count=0, auth_max_retries=3):
-    auth_retry_statuses = [401]
-    retry_statuses      = [429, 500, 502, 503, 504]
-    retry_wait_timer    = 5
-    headers = {'Content-Type': 'application/json', 'x-redlock-auth': pc_settings['jwt']}
-    response = requests.request(action, api_url, params=params, headers=headers, data=json.dumps(data))
-    # Check for an error to re-authenticate and retry, error to retry, or fail.
-    if response.status_code in auth_retry_statuses and pc_settings['jwt'] is not None:
-        auth_retry_count = auth_retry_count + 1
-        if auth_retry_count <= auth_max_retries:
-            pc_settings = pc_login(pc_settings)
-            return pc_call_api(action=action, api_url=api_url, pc_settings=pc_settings, data=data, params=params, retry_count=retry_count, max_retries=max_retries, auth_retry_count=auth_retry_count, auth_max_retries=auth_max_retries)
-        else:
-            response.raise_for_status()
-    elif response.status_code in retry_statuses:
-        retry_count = retry_count + 1
-        if retry_count <= max_retries:
-            time.sleep(retry_wait_timer)
-            return pc_call_api(action=action, api_url=api_url, pc_settings=pc_settings, data=data, params=params, retry_count=retry_count, max_retries=max_retries, auth_retry_count=auth_retry_count, auth_max_retries=auth_max_retries)
-        else:
-            response.raise_for_status()
-    else:
-        response.raise_for_status()
-    # Check for valid response, and catch if empty, none, or otherwise unexpected.
-    api_response_package = {}
-    api_response_package['statusCode'] = response.status_code
-    try:
-        api_response_package['data'] = response.json()
-    except ValueError:
-        if response.text == '':
-            api_response_package['data'] = None
+class PrismaCloudAPI(object):
+    def __init__(self):
+        self.api           = None
+        self.username      = None
+        self.password      = None
+        self.token         = None
+        self.token_created = 0
+        self.retry_limit   = 3
+        self.retry_pause   = 5
+        self.retry_status_codes = [401, 429, 500, 502, 503, 504]
+
+    def configure(self, api, username, password):
+        self.api      = api
+        self.username = username
+        self.password = password
+
+    def login(self):
+        requ_url = 'https://%s/login' % self.api
+        requ_action = 'POST'
+        requ_headers = {'Content-Type': 'application/json'}
+        requ_data = json.dumps({'username': self.username, 'password': self.password})
+        api_response = requests.request(requ_action, requ_url, headers=requ_headers, data=requ_data)
+        if api_response.ok:
+            api_response = json.loads(api_response.content)
+            self.token = api_response.get('token') 
+            self.token_created = time.time()
         else:
             pc_lib_general.pc_exit_error(501, 'The API returned an unexpected response.')
-    return pc_settings, api_response_package
 
+    def extend_token(self):
+        requ_url = 'https://%s/auth_token/extend' % self.api
+        requ_action = 'GET'
+        requ_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
+        api_response = requests.request(requ_action, requ_url, headers=requ_headers)
+        if api_response.ok:
+            self.token_created = time.time() 
+        else:
+            pc_lib_general.pc_exit_error(501, 'The API returned an unexpected response.')
 
-def pc_login(pc_settings):
-    url = "https://" + pc_settings['apiBase'] + "/login"
-    action = "POST"
-    pc_settings['jwt'] = pc_call_api(action, url, pc_settings, data=pc_settings)[1]['data']['token']
-    return pc_settings
+    def execute(self, action, endpoint, query_params=None, body_params=None):
+        if not self.token:
+            self.login()
+        if int(time.time() - self.token_created) < 60:
+            self.extend_token()
+        requ_url = 'https://%s/%s' % (self.api, endpoint)
+        requ_action = action
+        requ_headers = {'Content-Type': 'application/json'}
+        if self.token:
+            requ_headers['x-redlock-auth'] = self.token
+        requ_data = json.dumps(body_params)
+        api_response = requests.request(requ_action, requ_url, headers=requ_headers)
+        if api_response.status_code in self.retry_status_codes:
+            for retry_number in range(1, self.retry_limit):
+                time.sleep(self.retry_pause)
+        if api_response.ok:
+            try:
+                result = json.loads(api_response.content)
+            except ValueError:
+                if api_response.content == '':
+                   result = None
+        else:
+            pc_lib_general.pc_exit_error(501, 'The API returned an unexpected response.')
+        return result
 
-
-def pc_extend_token(pc_settings):
-    if pc_settings['jwt'] == None:
-        pc_settings = pc_login(pc_settings)
-    else:
-        url = "https://" + pc_settings['apiBase'] + "/auth_token/extend"
-        action = "GET"
-        pc_call_api(action, url, pc_settings)
-    return pc_settings
+pc_api = PrismaCloudAPI()
 
 # --Action Methods-- #
+
+def current_user():
+    return pc_api.execute('GET', 'user/me')
 
 """
   Note: Eventually, all objects covered should have full CRUD capability, ie, to create, read, update, and delete (and list)
@@ -91,27 +108,17 @@ Additional:
 [ ] As above with restrictions/filtering
 """
 
-def api_compliance_standard_list_get(pc_settings):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/compliance"
-    return pc_call_api(action, url, pc_settings)
+def api_compliance_standard_list_get():
+    return pc_api.execute('GET', 'compliance')
 
+def api_compliance_standard_add(compliance_standard_to_add):
+    return pc_api.execute('POST', 'compliance', body_params=compliance_standard_to_add)
 
-def api_compliance_standard_add(pc_settings, compliance_standard_new):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/compliance"
-    return pc_call_api(action, url, pc_settings, data=compliance_standard_new)
+def api_compliance_standard_get(compliance_standard_id):
+    return pc_api.execute('GET', 'compliance/%s' % compliance_standard_id)
 
-def api_compliance_standard_get(pc_settings, compliance_id):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/compliance/" + compliance_id
-    return pc_call_api(action, url, pc_settings)
-
-def api_compliance_standard_delete(pc_settings, compliance_id):
-    action = "DELETE"
-    url = "https://" + pc_settings['apiBase'] + "/compliance/" + compliance_id
-    return pc_call_api(action, url, pc_settings)
-
+def api_compliance_standard_delete(compliance_standard_id):
+    return pc_api.execute('DELETE', 'compliance/%s' % compliance_standard_id)
 
 """
   ComplianceStandards Requirements
@@ -125,17 +132,11 @@ Additional:
 [ ] As above with restrictions/filtering
 """
 
-def api_compliance_standard_requirement_list_get(pc_settings, compliance_standard_id):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/compliance/" + compliance_standard_id + "/requirement"
-    return pc_call_api(action, url, pc_settings)
+def api_compliance_standard_requirement_list_get(compliance_standard_id):
+    return pc_api.execute('GET', 'compliance/%s/requirement' % compliance_standard_id)
 
-
-def api_compliance_standard_requirement_add(pc_settings, compliance_standard_id, compliance_requirement_new):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/compliance/" + compliance_standard_id + "/requirement"
-    return pc_call_api(action, url, pc_settings, data=compliance_requirement_new)
-
+def api_compliance_standard_requirement_add(compliance_standard_id, compliance_requirement_to_add):
+    return pc_api.execute('POST', 'compliance/%s/requirement' % compliance_standard_id, body_params=compliance_requirement_to_add)
 
 """
   ComplianceStandards Requirements Sections
@@ -149,22 +150,17 @@ Additional:
 [ ] As above with restrictions/filtering
 """
 
-def api_compliance_standard_requirement_section_list_get(pc_settings, compliance_requirement_id):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/compliance/" + compliance_requirement_id + "/section"
-    return pc_call_api(action, url, pc_settings)
+def api_compliance_standard_requirement_section_list_get(compliance_requirement_id):
+    return pc_api.execute('GET', 'compliance/%s/section' % compliance_requirement_id)
 
-
-def api_compliance_standard_requirement_section_add(pc_settings, compliance_requirement_id, compliance_section_new):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/compliance/" + compliance_requirement_id + "/section"
-    return pc_call_api(action, url, pc_settings, data=compliance_section_new)
+def api_compliance_standard_requirement_section_add(compliance_requirement_id, compliance_section_to_add):
+    return pc_api.execute('POST', 'compliance/%s/section' % compliance_requirement_id, body_params=compliance_section_to_add)
 
 """
   ComplianceStandards Requirements Policies
 
 [x] LIST
-[x] CREATE/ADD
+[ ] CREATE/ADD
 [ ] READ/GET
 [ ] UPDATE/REPLACE
 [ ] DELETE/REMOVE
@@ -173,18 +169,13 @@ Additional:
 
 """
 
-def api_compliance_standard_policy_list_get(pc_settings, source_compliance_standard_name):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/policy"
-    filters = [('policy.complianceStandard', source_compliance_standard_name)]
-    return pc_call_api(action, url, pc_settings, params=filters)
+def api_compliance_standard_policy_list_get(compliance_standard_name):
+    filters = [('policy.complianceStandard', compliance_standard_name)]
+    return pc_api.execute('GET', 'policy', query_params=filters)
 
-
-def api_compliance_standard_policy_v2_list_get(pc_settings, source_compliance_standard_name):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/v2/policy"
-    filters = [('policy.complianceStandard', source_compliance_standard_name)]
-    return pc_call_api(action, url, pc_settings, params=filters)
+def api_compliance_standard_policy_v2_list_get(compliance_standard_name):
+    filters = [('policy.complianceStandard', compliance_standard_name)]
+    return pc_api.execute('GET', 'v2/policy', query_params=filters)
 
 """
   Policies
@@ -200,54 +191,30 @@ Additional:
 [x] UPDATE status
 """
 
+def api_policy_list_get():
+    return pc_api.execute('GET', 'policy')
 
-def api_policy_list_get(pc_settings):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/policy"
-    return pc_call_api(action, url, pc_settings)
+def api_policy_v2_list_get():
+    return pc_api.execute('GET', 'v2/policy')
 
-
-def api_policy_v2_list_get(pc_settings):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/v2/policy"
-    return pc_call_api(action, url, pc_settings)
-
-
-def api_policy_custom_v2_list_get(pc_settings):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/v2/policy"
+def api_policy_custom_v2_list_get():
     filters = [('policy.policyMode', 'custom')]
-    return pc_call_api(action, url, pc_settings, params=filters)
+    return pc_api.execute('GET', 'v2/policy', query_params=filters)
 
+def api_policy_add(policy_to_add):
+    return pc_api.execute('POST', 'policy', body_params=policy_to_add)
 
-def api_policy_add(pc_settings, policy_to_add):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/policy"
-    return pc_call_api(action, url, pc_settings, data=policy_to_add)
+def api_policy_get(policy_id):
+    return pc_api.execute('GET', 'policy/' % policy_id)
 
+def api_policy_update(policy_id, policy_update):
+    return pc_api.execute('PUT', 'policy/' % policy_id, body_params=policy_update)
 
-def api_policy_get(pc_settings, policy_id):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/policy/" + policy_id
-    return pc_call_api(action, url, pc_settings)
+def api_policy_status_update(policy_id, policy_status_update):
+    return pc_api.execute('PATCH', 'policy/%s/status/%s' % (policy_id, policy_status_update))
 
-
-def api_policy_update(pc_settings, policy_id, policy_update):
-    action = "PUT"
-    url = "https://" + pc_settings['apiBase'] + "/policy/" + policy_id
-    return pc_call_api(action, url, pc_settings, data=policy_update)
-
-
-def api_policy_status_update(pc_settings, policy_id, status):
-    action = "PATCH"
-    url = "https://" + pc_settings['apiBase'] + "/policy/" + policy_id + "/status/" + status
-    return pc_call_api(action, url, pc_settings)
-
-
-def api_policy_delete(pc_settings, policy_id):
-    action = "DELETE"
-    url = "https://" + pc_settings['apiBase'] + "/policy/" + policy_id
-    return pc_call_api(action, url, pc_settings)
+def api_policy_delete(policy_id):
+    return pc_api.execute('DELETE', 'policy/%s' % policy_id)
 
 """
   Search
@@ -261,73 +228,47 @@ Additional:
 [ ] As above with restrictions/filtering
 """
 
+def api_saved_search_list_get():
+    return pc_api.execute('GET', 'search/history?filter=saved')
 
-def api_saved_search_list_get(pc_settings):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/search/history?filter=saved"
-    return pc_call_api(action, url, pc_settings)
+def api_search_add(type_of_search, search_to_add):
+    if type_of_search == 'network':
+        return pc_api.execute('POST', 'search', body_params=search_to_add)
+    else:
+        return pc_api.execute('POST', 'search/%s' % type_of_search, body_params=search_to_add)
 
+def api_search_get(saved_search_id):
+    return pc_api.execute('GET', 'search/history/%s' % saved_search_id)
 
-def api_search_add(pc_settings, type_of_search, search_to_add):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/search/" + type_of_search
-    if type_of_search=='network':
-        url="https://" + pc_settings['apiBase'] + "/search"
-    return pc_call_api(action, url, pc_settings, data=search_to_add)
-
-
-def api_search_get(pc_settings, search_id):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/search/history/" + search_id
-    return pc_call_api(action, url, pc_settings)
-
-
-def api_saved_search_delete(pc_settings, search_id):
-    action = "DELETE"
-    url = "https://" + pc_settings['apiBase'] + "/search/history/" + search_id
-    return pc_call_api(action, url, pc_settings)
-
+def api_saved_search_delete(saved_search_id):
+    return pc_api.execute('DELETE', 'search/history/%s' % saved_search_id)
 
 """
   User Roles
 
 [x] LIST
 [ ] CREATE/ADD
-[ ] READ/GET
-[ ] UPDATE/REPLACE
+[x] READ/GET
+[x] UPDATE/REPLACE
 [x] DELETE/REMOVE
 Additional:
 [ ] As above with restrictions/filtering
 """
 
-def api_user_role_list_get(pc_settings):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/user/role"
-    return pc_call_api(action, url, pc_settings)
+def api_user_role_list_get():
+    return pc_api.execute('GET', 'user/role')
 
+def api_user_role_add(user_role_to_add):
+    return pc_api.execute('POST', 'user/role', body_params=user_role_to_add)
 
-def api_user_role_add(pc_settings, user_role_to_add):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/user/role"
-    return pc_call_api(action, url, pc_settings, data=user_role_to_add)
+def api_user_role_update(user_role_id, user_role_update):
+    return pc_api.execute('PUT', 'user/role/%s' % user_role_id, body_params=user_role_update)
 
+def api_user_role_get(user_role_id):
+    return pc_api.execute('GET', 'user/role/%s' % user_role_id)
 
-def api_user_role_update(pc_settings, user_role_to_update, user_role_update):
-    action = "PUT"
-    url = "https://" + pc_settings['apiBase'] + "/user/role/" + user_role_to_update
-    return pc_call_api(action, url, pc_settings, data=user_role_update)
-
-
-def api_user_role_get(pc_settings, user_role_to_get):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/user/role/" + user_role_to_get
-    return pc_call_api(action, url, pc_settings)
-
-
-def api_user_role_delete(pc_settings, account_id):
-    action = "DELETE"
-    url = "https://" + pc_settings['apiBase'] + "/user/role/" + id
-    return pc_call_api(action, url, pc_settings)
+def api_user_role_delete(user_role_id):
+    return pc_api.execute('DELETE', 'user/role/%s' % user_role_id)
 
 """
   Users
@@ -341,35 +282,22 @@ Additional:
 [x] LIST v2
 """
 
-def api_user_list_get(pc_settings):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/user"
-    return pc_call_api(action, url, pc_settings)
+def api_user_list_get():
+    return pc_api.execute('GET', 'user')
 
+def api_user_list_get_v2():
+    return pc_api.execute('GET', 'v2/user')
 
-def api_user_list_get_v2(pc_settings):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/v2/user"
-    return pc_call_api(action, url, pc_settings)
+def api_user_add(user_to_add):
+    return pc_api.execute('POST', 'user', body_params=user_to_add)
 
+def api_user_get(user_email):
+    return pc_api.execute('GET', 'user/%s' % user_role_id)
 
-def api_user_add(pc_settings, user_to_add):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/user"
-    return pc_call_api(action, url, pc_settings, data=user_to_add)
+# TODO: Use this model for other updates?
 
-
-def api_user_get(pc_settings, useremail):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/user/" + useremail
-    return pc_call_api(action, url, pc_settings)
-
-
-def api_user_update(pc_settings, user_to_update):
-    action = "PUT"
-    url = "https://" + pc_settings['apiBase'] + "/user/" + user_to_update['email']
-    return pc_call_api(action, url, pc_settings, data=user_to_update)
-
+def api_user_update(user_to_update):
+    return pc_api.execute('PUT', 'user/%s' % user_to_update['email'], body_params=user_to_update)
 
 """
   Alerts
@@ -378,22 +306,16 @@ def api_user_update(pc_settings, user_to_update):
 [ ] CREATE/ADD
 [ ] READ/GET
 [ ] UPDATE/REPLACE
-[x] DELETE/REMOVE
+[ ] DELETE/REMOVE
 Additional:
 [x] LIST v2
 """
 
-def api_alert_list_get(pc_settings, params=None, data=None):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/alert"
-    return pc_call_api(action, url, pc_settings, params=params, data=data)
+def api_alert_list_get(qp=None, bp=None):
+    return pc_api.execute('POST', 'alert', query_params=qp, body_params=bp)
 
-
-def api_alert_v2_list_get(pc_settings, params=None, data=None):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/v2/alert"
-    return pc_call_api(action, url, pc_settings, params=params, data=data)
-
+def api_alert_v2_list_get(qp=None, bp=None):
+    return pc_api.execute('POST', 'v2/alert', query_params=qp, body_params=bp)
 
 """
   Compliance Reports
@@ -407,35 +329,25 @@ Additional:
 [x] DOWNLOAD
 """
 
-def api_compliance_report_list_get(pc_settings):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/report"
-    return pc_call_api(action, url, pc_settings)
+def api_compliance_report_list_get():
+    return pc_api.execute('GET', 'report')
 
+def api_compliance_report_add(report_to_add):
+    return pc_api.execute('POST', 'report', body_params=report_to_add)
 
-def api_compliance_report_add(pc_settings, report_to_add):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/report"
-    return pc_call_api(action, url, pc_settings, data=report_to_add)
+def api_compliance_report_delete(report_id):
+    return pc_api.execute('DELETE', 'report/%s' % report_id)
 
-
-def api_compliance_report_delete(pc_settings, report_id):
-    action = "DELETE"
-    url = "https://" + pc_settings['apiBase'] + "/report/" + report_id
-    return pc_call_api(action, url, pc_settings)
-
-
-def api_compliance_report_download(pc_settings, report_id):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/report/" + report_id + "/download"
-    jwt, response_status, response_json = pc_call_api(action, url, pc_settings)
-    if response_status == 204:
-        # download pending
-        pass
-    elif response_status == 200:
-        # download ready
-        pass
-
+def api_compliance_report_download(report_id):
+    return pc_api.execute('GET', 'report/%s/download' % report_id)
+    # TODO: 
+    #if response_status == 204:
+    #    # download pending
+    #    pass
+    #elif response_status == 200:
+    #    # download ready
+    #    pass
+    #else:
 
 """
   Cloud Accounts
@@ -449,35 +361,20 @@ Additional:
 [x] LIST names
 """
 
-def api_cloud_accounts_list_get(pc_settings, params=None):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/cloud"
-    return pc_call_api(action, url, pc_settings, params=params)
+def api_cloud_accounts_list_get(qp=None):
+    return pc_api.execute('GET', 'cloud', query_params=qp)
 
+def api_cloud_accounts_list_names_get(qp=None):
+    return pc_api.execute('GET', 'cloud/name', query_params=qp)
 
-def api_cloud_accounts_list_names_get(pc_settings, params=None):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/cloud/name"
-    return pc_call_api(action, url, pc_settings, params=params)
+def api_cloud_accounts_add(cloud_type, cloud_account_to_add):
+    return pc_api.execute('POST', 'cloud/%s' % cloud_type, body_params=cloud_account_to_add)
 
+def api_cloud_account_update(cloud_type, cloud_account_id, cloud_account_update):
+    return pc_api.execute('PUT', 'cloud/%s/%s' % (cloud_type, cloud_account_id), body_params=cloud_account_update)
 
-def api_cloud_accounts_add(pc_settings, cloud_type, cloud_account_to_add):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/cloud/" + cloud_type
-    return pc_call_api(action, url, pc_settings, data=cloud_account_to_add)
-
-
-def api_cloud_account_update(pc_settings, cloud_type, cloud_account_to_update, cloud_account_update):
-    action = "PUT"
-    url = "https://" + pc_settings['apiBase'] + "/cloud/" + cloud_type + "/" + cloud_account_to_update
-    return pc_call_api(action, url, pc_settings, data=cloud_account_update)
-
-
-def api_cloud_account_delete(pc_settings, account_id):
-    action = "DELETE"
-    url = "https://" + pc_settings['apiBase'] + "/cloud/" + account_id
-    return pc_call_api(action, url, pc_settings)
-
+def api_cloud_account_delete(cloud_type, cloud_account_id):
+    return pc_api.execute('DELETE', 'cloud/%s/%s' % (cloud_type, cloud_account_id))
 
 """
   Cloud Account Groups
@@ -491,39 +388,25 @@ Additional:
 [ ] As above with restrictions/filtering
 """
 
-def api_cloud_account_group_list_get(pc_settings):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/cloud/group"
-    return pc_call_api(action, url, pc_settings)
+def api_cloud_account_group_list_get():
+    return pc_api.execute('GET', 'cloud/group')
 
+def api_cloud_account_group_add(cloud_account_group_to_add):
+    return pc_api.execute('POST', 'cloud/group', body_params=cloud_account_group_to_add)
 
-def api_account_group_add(pc_settings, account_group_to_add):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/cloud/group"
-    return pc_call_api(action, url, pc_settings, data=account_group_to_add)
+def api_cloud_account_group_get(cloud_account_group_id):
+    return pc_api.execute('GET', 'cloud/group' % cloud_account_group_id)
 
+def api_cloud_account_group_update(cloud_account_group_id, cloud_account_group_update):
+    return pc_api.execute('PUT', 'cloud/group/%s' % cloud_account_group_id, body_params=cloud_account_group_update)
 
-def api_account_group_get(pc_settings, account_group_to_get):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/cloud/group/" + account_group_to_get
-    return pc_call_api(action, url, pc_settings)
-
-
-def api_account_group_update(pc_settings, account_group_to_update, account_group_update):
-    action = "PUT"
-    url = "https://" + pc_settings['apiBase'] + "/cloud/group/" + account_group_to_update
-    return pc_call_api(action, url, pc_settings, data=account_group_update)
-
-
-def api_cloud_account_group_delete(pc_settings, group_id):
-    action = "DELETE"
-    url = "https://" + pc_settings['apiBase'] + "/cloud/group/" + group_id
-    return pc_call_api(action, url, pc_settings)
+def api_cloud_account_group_delete(cloud_account_group_id):
+    return pc_api.execute('DELETE', 'cloud/group/%s' % cloud_account_group_id)
 
 """
   Alert Rules
 
-[ ] LIST
+[x] LIST
 [ ] CREATE/ADD
 [ ] READ/GET
 [ ] UPDATE/REPLACE
@@ -532,41 +415,29 @@ Additional:
 [x] LIST v2
 """
 
-def api_alert_rule_list_get(pc_settings):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/v2/alert/rule"
-    return pc_call_api(action, url, pc_settings)
+def api_alert_rule_list_get():
+    return pc_api.execute('GET', 'v2/alert/rule')
 
-
-def api_alert_rule_delete(pc_settings, rule_id):
-    action = "DELETE"
-    url = "https://" + pc_settings['apiBase'] + "/alert/rule/" + rule_id
-    return pc_call_api(action, url, pc_settings)
-
+def api_alert_rule_delete(alert_rule_id):
+    return pc_api.execute('DELETE', 'alert/rule/%s' % alert_rule_id)
 
 """
   Integration Lists
 
-[ ] LIST
+[x] LIST
 [ ] CREATE/ADD
 [ ] READ/GET
 [ ] UPDATE/REPLACE
 [x] DELETE/REMOVE
 Additional:
-[x] LIST v2
+[ ] LIST v2
 """
 
-def api_integration_list_get(pc_settings):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/integration"
-    return pc_call_api(action, url, pc_settings)
+def api_integration_list_get():
+    return pc_api.execute('GET', 'integration')
 
-
-def api_integration_delete(pc_settings, integration_id):
-    action = "DELETE"
-    url = "https://" + pc_settings['apiBase'] + "/integration/" + integration_id
-    return pc_call_api(action, url, pc_settings)
-
+def api_integration_delete(integration_id):
+    return pc_api.execute('DELETE', 'integration/%s' % alert_rule_id)
 
 """
   Resource Lists
@@ -580,17 +451,12 @@ Additional:
 [ ] As above with restrictions/filtering
 """
 
-def api_resource_list_list_get(pc_settings):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/v1/resource_list"
-    return pc_call_api(action, url, pc_settings)
+def api_resource_list_list_get():
+    # TODO: Does this require ?listType=TAG
+    return pc_api.execute('GET', 'v1/resource_list')
 
-
-def api_resource_list_delete(pc_settings, resource_list_id):
-    action = "DELETE"
-    url = "https://" + pc_settings['apiBase'] + "/v1/resource_list/" + resource_list_id
-    return pc_call_api(action, url, pc_settings)
-
+def api_resource_list_delete(resource_list_id):
+    return pc_api.execute('DELETE', 'v1/resource_list/%s' % resource_list_id)
 
 """
   Access Keys
@@ -604,38 +470,21 @@ Additional:
 [x] UPDATE status
 """
 
-def api_access_keys_list_get(pc_settings):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/access_keys"
-    return pc_call_api(action, url, pc_settings)
+def api_access_keys_list_get():
+    return pc_api.execute('GET', 'access_keys')
 
+def api_access_key_add(access_key_to_add):
+    return pc_api.execute('POST', 'access_keys', body_params=access_key_to_add)
 
-def api_access_key_add(pc_settings, access_key_to_add):
-    action = "POST"
-    url = "https://" + pc_settings['apiBase'] + "/access_keys"
-    return pc_call_api(action, url, pc_settings, data=access_key_to_add)
+def api_access_key_get(access_key_id):
+    return pc_api.execute('GET', 'access_keys' % access_key_id)
 
-
-def api_access_key_by_id_get(pc_settings, access_key_id):
-    action = "GET"
-    url = "https://" + pc_settings['apiBase'] + "/access_keys/" + access_key_id
-    return pc_call_api(action, url, pc_settings)
-
-
-def api_access_key_update(pc_settings, access_key_to_update, access_key_values):
-    action = "PUT"
-    url = "https://" + pc_settings['apiBase'] + "/access_keys/" + access_key_to_update
-    return pc_call_api(action, url, pc_settings, data=access_key_values)
-
+def api_access_key_update(access_key_id, access_key_update):
+    return pc_api.execute('PUT', 'access_keys/' % access_key_id, body_params=access_key_update)
 
 # Note: Expired keys cannot be enabled.
-def api_access_key_status_update(pc_settings, access_key_to_update, access_key_status):
-    action = "PATCH"
-    url = "https://" + pc_settings['apiBase'] + "/access_keys/" + access_key_to_update + "/status/status"
-    return pc_call_api(action, url, pc_settings, data=access_key_status)
+def api_access_key_status_update(access_key_id, access_key_status):
+    return pc_api.execute('PATCH', 'access_keys/%s/status/%s' % (access_key_id, access_key_status))
 
-
-def api_access_key_delete(pc_settings, access_key_to_delete):
-    action = "DELETE"
-    url = "https://" + pc_settings['apiBase'] + "/access_keys/" + access_key_to_delete
-    return pc_call_api(action, url, pc_settings)
+def api_access_key_delete(access_key_id):
+    return pc_api.execute('DELETE', 'access_keys/%s' % access_key_id)

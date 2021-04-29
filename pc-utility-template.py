@@ -3,6 +3,7 @@ try:
     input = raw_input
 except NameError:
     pass
+from pc_lib_api import pc_api
 import pc_lib_api
 import pc_lib_general
 
@@ -12,14 +13,15 @@ parser = pc_lib_general.pc_arg_parser_defaults()
 # INSERT SCRIPT-SPECIFIC ARGUMENTS HERE
 args = parser.parse_args()
 
-# --Main-- #
+# --Initialize-- #
 
 pc_lib_general.prompt_for_verification_to_continue(args.yes)
-
-print('API - Getting login ...', end='')
 pc_settings = pc_lib_general.pc_settings_get(args.username, args.password, args.uiurl, args.config_file)
-pc_settings = pc_lib_api.pc_login(pc_settings)
-print(' done.')
-print()
+pc_api.configure(pc_settings['apiBase'], pc_settings['username'], pc_settings['password'])
+
+# --Main-- #
 
 # INSERT SCRIPT CODE HERE
+
+result = pc_lib_api.current_user()
+print(result)

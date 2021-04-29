@@ -3,6 +3,7 @@ try:
     input = raw_input
 except NameError:
     pass
+from pc_lib_api import pc_api
 import pc_lib_api
 import pc_lib_general
 
@@ -19,27 +20,23 @@ parser.add_argument(
     help='Role to assign to the imported Users.')
 args = parser.parse_args()
 
-# --Main-- #
+# --Initialize-- #
 
 pc_lib_general.prompt_for_verification_to_continue(args.yes)
-
-print('API - Getting login ...', end='')
 pc_settings = pc_lib_general.pc_settings_get(args.username, args.password, args.uiurl, args.config_file)
-pc_settings = pc_lib_api.pc_login(pc_settings)
-print(' done.')
-print()
+pc_api.configure(pc_settings['apiBase'], pc_settings['username'], pc_settings['password'])
+
+# --Main-- #
 
 print('API - Getting the current list of Users ...', end='')
-pc_settings, response_package = pc_lib_api.api_user_list_get_v2(pc_settings)
-user_list_current = response_package['data']
+user_list_current = pc_lib_api.api_user_list_get_v2()
 print(' done.')
 print()
 
 user_list_to_import = pc_lib_general.pc_file_load_csv_text(args.import_file_name)
 
 print('API - Getting the Roles list ...', end='')
-pc_settings, response_package = pc_lib_api.api_user_role_list_get(pc_settings)
-user_role_list = response_package['data']
+user_role_list = pc_lib_api.api_user_role_list_get()
 print(' done.')
 
 user_role_id = None
@@ -85,5 +82,5 @@ print('Users skipped (duplicates in Import File): %s' % users_duplicate_file_cou
 print('API - Creating Users ...')
 for new_user in user_list_to_import_validated:
     print('Adding User: %s' % new_user['email'])
-    pc_settings, response_package = pc_lib_api.api_user_add(pc_settings, new_user)
+    pc_lib_api.api_user_add(new_user)
 print('Done.')

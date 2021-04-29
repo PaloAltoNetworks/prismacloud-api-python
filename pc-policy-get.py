@@ -3,6 +3,7 @@ try:
     input = raw_input
 except NameError:
     pass
+from pc_lib_api import pc_api
 import pc_lib_api
 import pc_lib_general
 import json
@@ -21,21 +22,18 @@ parser.add_argument(
     help='(Required) - Name of the Policy.')
 args = parser.parse_args()
 
-# --Main-- #
+# --Initialize-- #
 
 pc_lib_general.prompt_for_verification_to_continue(args.yes)
-
-print('API - Getting login ...', end='')
 pc_settings = pc_lib_general.pc_settings_get(args.username, args.password, args.uiurl, args.config_file)
-pc_settings = pc_lib_api.pc_login(pc_settings)
-print(' done.')
-print()
+pc_api.configure(pc_settings['apiBase'], pc_settings['username'], pc_settings['password'])
+
+# --Main-- #
 
 # Get Policy
 
 print('API - Getting the Policy list ...', end='')
-pc_settings, response_package = pc_lib_api.api_policy_list_get(pc_settings)
-policy_list = response_package['data']
+policy_list = pc_lib_api.api_policy_list_get()
 print(' done.')
 print()
 
@@ -55,8 +53,7 @@ print(json.dumps(policy))
 print()
 
 print('API - Getting the Policy ...', end='')
-pc_settings, response_package = pc_lib_api.api_policy_get(pc_settings, policy_id)
-policy = response_package['data']
+policy = pc_lib_api.api_policy_get(policy_id)
 print(' done.')
 print()
 
@@ -66,8 +63,7 @@ print()
 
 if args.rql:
     print('API - Getting the RQL (Saved Search) ...', end='')
-    pc_settings, response_package = pc_lib_api.api_search_get(pc_settings, policy['rule']['criteria'])
-    policy_search = response_package['data']
+    policy_search = pc_lib_api.api_search_get(policy['rule']['criteria'])
     print(' done.')
     print()
 
