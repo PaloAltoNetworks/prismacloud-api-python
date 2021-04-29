@@ -3,6 +3,7 @@ try:
     input = raw_input
 except NameError:
     pass
+from pc_lib_api import pc_api
 import pc_lib_api
 import pc_lib_general
 import json
@@ -20,15 +21,13 @@ parser.add_argument(
     help='Name of the Cloud Account.')
 args = parser.parse_args()
 
-# --Main-- #
+# --Initialize-- #
 
 pc_lib_general.prompt_for_verification_to_continue(args.yes)
-
-print('API - Getting login ...', end='')
 pc_settings = pc_lib_general.pc_settings_get(args.username, args.password, args.uiurl, args.config_file)
-pc_settings = pc_lib_api.pc_login(pc_settings)
-print(' done.')
-print()
+pc_api.configure(pc_settings['apiBase'], pc_settings['username'], pc_settings['password'])
+
+# --Main-- #
 
 # COMPLIANCE ALERTS GET
 
@@ -41,8 +40,7 @@ time_range_type  = 'to_now'
 time_range_value = 'epoch'
 
 print('API - Getting the Compliance Standard Policy list ...', end='')
-pc_settings, response_package = pc_lib_api.api_compliance_standard_policy_list_get(pc_settings, compliance_standard_name)
-compliance_standard_policy_list = response_package['data']
+compliance_standard_policy_list = pc_lib_api.api_compliance_standard_policy_list_get(compliance_standard_name)
 print(' done.')
 print()
 
@@ -55,8 +53,8 @@ for compliance_policy in compliance_standard_policy_list:
                                 {'operator': '=', 'name': 'cloud.account', 'value': cloud_account_name},
                                 {'name': 'policy.id', 'operator': '=', 'value': compliance_policy['policyId']}]}
     print('API - Getting the Alerts for Policy: %s ...' % compliance_policy['name'], end='')
-    pc_settings, response_package = pc_lib_api.api_alert_list_get(pc_settings, data=alert_filter)
-    alert_list.extend(response_package['data'])
+    filtered_alert_list = pc_lib_api.api_alert_list_get(data=alert_filter)
+    alert_list.extend(filtered_alert_list)
     print(' done.')
     print()
 

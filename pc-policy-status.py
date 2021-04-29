@@ -3,6 +3,7 @@ try:
     input = raw_input
 except NameError:
     pass
+from pc_lib_api import pc_api
 import pc_lib_api
 import pc_lib_general
 
@@ -28,15 +29,13 @@ parser.add_argument(
     help='Policy status to set (enable or disable).')
 args = parser.parse_args()
 
-# --Main-- #
+# --Initialize-- #
 
 pc_lib_general.prompt_for_verification_to_continue(args.yes)
-
-print('API - Getting login ...', end='')
 pc_settings = pc_lib_general.pc_settings_get(args.username, args.password, args.uiurl, args.config_file)
-pc_settings = pc_lib_api.pc_login(pc_settings)
-print(' done.')
-print()
+pc_api.configure(pc_settings['apiBase'], pc_settings['username'], pc_settings['password'])
+
+# --Main-- #
 
 # Transform the status argument for use with Python and the API.
 specified_policy_status = True if args.status.lower() == 'enable' else False
@@ -47,8 +46,7 @@ policy_list_to_update = []
 if args.policy_type is not None:
     policy_type = args.policy_type.lower()
     print('API - Getting list of Policies by Policy Type ...', end='')
-    pc_settings, response_package = pc_lib_api.api_policy_v2_list_get(pc_settings)
-    policy_list = response_package['data']
+    policy_list = pc_lib_api.api_policy_v2_list_get()
     print(' done.')
     print()
     for policy in policy_list:
@@ -59,8 +57,7 @@ if args.policy_type is not None:
 if args.compliance_standard is not None:
     compliance_standard = args.compliance_standard
     print('API - Getting list of Policies by Compliance Standard ...', end='')
-    pc_settings, response_package = pc_lib_api.api_compliance_standard_policy_v2_list_get(pc_settings, compliance_standard)
-    policy_list = response_package['data']
+    policy_list = pc_lib_api.api_compliance_standard_policy_v2_list_get(compliance_standard)
     print(' done.')
     for policy in policy_list:
         if policy['enabled'] is not specified_policy_status:
@@ -69,5 +66,5 @@ if args.compliance_standard is not None:
 print('API - Updating Policies ...')
 for policy in policy_list_to_update:
     print('API - Updating Policy: %s' % policy['name'])
-    pc_settings, response_package = pc_lib_api.api_policy_status_update(pc_settings, policy['policyId'], specified_policy_status_string)
+    pc_lib_api.api_policy_status_update(policy['policyId'], specified_policy_status_string)
 print('Done.')

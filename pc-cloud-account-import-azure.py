@@ -3,6 +3,7 @@ try:
     input = raw_input
 except NameError:
     pass
+from pc_lib_api import pc_api
 import pc_lib_api
 import pc_lib_general
 
@@ -15,15 +16,13 @@ parser.add_argument(
     help='Import (CSV) file name for the Cloud Accounts.')
 args = parser.parse_args()
 
-# --Main-- #
+# --Initialize-- #
 
 pc_lib_general.prompt_for_verification_to_continue(args.yes)
-
-print('API - Getting login ...', end='')
 pc_settings = pc_lib_general.pc_settings_get(args.username, args.password, args.uiurl, args.config_file)
-pc_settings = pc_lib_api.pc_login(pc_settings)
-print(' done.')
-print()
+pc_api.configure(pc_settings['apiBase'], pc_settings['username'], pc_settings['password'])
+
+# --Main-- #
 
 # Import.
 
@@ -56,8 +55,7 @@ for cloud_account in import_file_data:
 # TODO: Check list for any duplicates (in CSV). See pc-user-import.py.
 
 print('API - Getting the current list of Cloud Accounts ...', end='')
-pc_settings, response_package = pc_lib_api.api_cloud_accounts_list_get(pc_settings)
-cloud_accounts_list = response_package['data']
+cloud_accounts_list = pc_lib_api.api_cloud_accounts_list_get()
 print(' done.')
 print()
 
@@ -68,5 +66,5 @@ print('API - Creating Cloud Accounts ...')
 cloud_type = 'azure'
 for new_cloud_account in cloud_accounts_to_import:
     print('Adding Cloud Account: %s' % new_cloud_account['cloudAccount']['name'])
-    pc_settings, response_package = pc_lib_api.api_cloud_accounts_add(pc_settings, cloud_type, new_cloud_account)
+    pc_lib_api.api_cloud_accounts_add(cloud_type, new_cloud_account)
 print('Done.')

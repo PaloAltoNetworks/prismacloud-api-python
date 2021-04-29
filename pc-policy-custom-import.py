@@ -27,15 +27,13 @@ parser.add_argument(
     help='(Optional) - Maintain the status of imported Custom Policies. By default, they will be disabled.')
 args = parser.parse_args()
 
-# --Main-- #
+# --Initialize-- #
 
 pc_lib_general.prompt_for_verification_to_continue(args.yes)
-
-print('API - Getting login ...', end='')
 pc_settings = pc_lib_general.pc_settings_get(args.username, args.password, args.uiurl, args.config_file)
-pc_settings = pc_lib_api.pc_login(pc_settings)
-print(' done.')
-print()
+pc_api.configure(pc_settings['apiBase'], pc_settings['username'], pc_settings['password'])
+
+# --Main-- #
 
 # Custom Policy Import
 
@@ -63,8 +61,7 @@ search_object_original = import_file_data['search_object_original']
 
 # For duplicate policy name check.
 print('API - Getting the current list of Policies ...', end='')
-pc_settings, response_package = pc_lib_api.api_policy_v2_list_get(pc_settings)
-policy_list_current = response_package['data']
+policy_list_current = pc_lib_api.api_policy_v2_list_get()
 print(' done.')
 print()
 
@@ -103,8 +100,7 @@ for policy_id, policy_object in policy_object_original.items():
                     if 'id' in search_object:
                         if search_object['id'] == search_id_to_match:
                             body_data = {'query': search_object['query'], 'saved': False, 'timeRange': {'type':'relative', 'value': {'unit': 'hour', 'amount': 24}}}
-                            pc_settings, response_package = pc_lib_api.api_search_add(pc_settings, search_object['searchType'], body_data)
-                            new_search = response_package['data']
+                            new_search = pc_lib_api.api_saved_search_add(search_object['searchType'], body_data)
                             policy_object['rule']['criteria'] = new_search['id']
                             search_object.pop('id', None)
                             # TODO: Validate need for timestamp and random string:
@@ -114,14 +110,14 @@ for policy_id, policy_object in policy_object_original.items():
                             if not search_object['description']:
                                 search_object['description'] = 'Imported'
                             search_object['saved'] = True
-                            pc_settings, response_package = pc_lib_api.api_saved_search_add(pc_settings, new_search['id'], search_object)
+                            pc_lib_api.api_saved_search_add(new_search['id'], search_object)
         new_policy_id = None
         if not args.status:
             policy_object['enabled'] = False
         try:
             print('Importing: %s' % policy_object['name'])
-            pc_settings, response_package = pc_lib_api.api_policy_add(pc_settings, policy_object)
-            new_policy_id = response_package['data']['policyId']
+            new_policy = pc_lib_api.api_policy_add(policy_object)
+            new_policy_id = new_policy['policyId']
         except requests.exceptions.HTTPError as e:
             print('Error importing: %s' + policy_object['name'])
             print('Possibly, the cloud provider for this Policy is not supported in the destination (esp: api.prismacloud.cn).')
