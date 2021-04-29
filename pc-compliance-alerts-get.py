@@ -4,7 +4,6 @@ try:
 except NameError:
     pass
 from pc_lib_api import pc_api
-import pc_lib_api
 import pc_lib_general
 import json
 
@@ -40,7 +39,7 @@ time_range_type  = 'to_now'
 time_range_value = 'epoch'
 
 print('API - Getting the Compliance Standard Policy list ...', end='')
-compliance_standard_policy_list = pc_lib_api.api_compliance_standard_policy_list_get(compliance_standard_name)
+compliance_standard_policy_list = pc_api.compliance_standard_policy_list_get(compliance_standard_name)
 print(' done.')
 print()
 
@@ -53,7 +52,7 @@ for compliance_policy in compliance_standard_policy_list:
                                 {'operator': '=', 'name': 'cloud.account', 'value': cloud_account_name},
                                 {'name': 'policy.id', 'operator': '=', 'value': compliance_policy['policyId']}]}
     print('API - Getting the Alerts for Policy: %s ...' % compliance_policy['name'], end='')
-    filtered_alert_list = pc_lib_api.api_alert_list_get(data=alert_filter)
+    filtered_alert_list = pc_api.alert_list_get(data=alert_filter)
     alert_list.extend(filtered_alert_list)
     print(' done.')
     print()

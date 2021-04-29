@@ -4,7 +4,6 @@ try:
 except NameError:
     pass
 from pc_lib_api import pc_api
-import pc_lib_api
 import pc_lib_general
 
 # --Configuration-- #
@@ -40,7 +39,7 @@ export_file_data['policy_list_original'] = []
 export_file_data['search_object_original'] = {}
 
 print('API - Getting the current list of Compliance Standards ...', end='')
-compliance_standard_list_current = pc_lib_api.api_compliance_standard_list_get()
+compliance_standard_list_current = pc_api.compliance_standard_list_get()
 compliance_standard_original = pc_lib_general.search_list_object_lower(compliance_standard_list_current, 'name', args.compliance_standard_name)
 if compliance_standard_original is None:
     pc_lib_general.pc_exit_error(400, 'Compliance Standard to export not found. Please verify the Compliance Standard name.')
@@ -49,20 +48,20 @@ print(' done.')
 print()
 
 print('API - Getting the Compliance Standard Requirements ...', end='')
-compliance_requirement_list_original = pc_lib_api.api_compliance_standard_requirement_list_get(compliance_standard_original['id'])
+compliance_requirement_list_original = pc_api.compliance_standard_requirement_list_get(compliance_standard_original['id'])
 export_file_data['compliance_requirement_list_original'] = compliance_requirement_list_original
 print(' done.')
 print()
 
 print('API - Getting the Compliance Standard Sections ...', end='')
 for compliance_requirement_original in compliance_requirement_list_original:
-    compliance_section_list_original = pc_lib_api.api_compliance_standard_requirement_section_list_get(compliance_requirement_original['id'])
+    compliance_section_list_original = pc_api.compliance_standard_requirement_section_list_get(compliance_requirement_original['id'])
     export_file_data['compliance_section_list_original'][compliance_requirement_original['id']] = compliance_section_list_original
 print(' done.')
 print()
 
 print('API - Getting the Compliance Standard Policies (please wait) ...', end='')
-policy_list_current = pc_lib_api.api_compliance_standard_policy_v2_list_get(compliance_standard_original['name'])
+policy_list_current = pc_api.compliance_standard_policy_v2_list_get(compliance_standard_original['name'])
 export_file_data['policy_list_original'] = policy_list_current
 print(' done.')
 print()
@@ -70,7 +69,7 @@ print()
 print('API - Getting the Policies (please wait) ...')
 for policy_current in policy_list_current:
     print('Exporting: %s' % policy_current['name'])
-    policy = pc_lib_api.api_policy_get(policy_current['policyId'])
+    policy = pc_api.policy_get(policy_current['policyId'])
     export_file_data['policy_object_original'][policy_current['policyId']] = policy
     if not 'parameters' in policy_current['rule']:
         continue
@@ -78,7 +77,7 @@ for policy_current in policy_list_current:
         continue
     if policy_current['rule']['parameters']['savedSearch'] == 'true':
         if policy_current['rule']['criteria'] not in export_file_data['search_object_original']:
-            search_object_original = pc_lib_api.api_saved_search_get(policy_current['rule']['criteria'])
+            search_object_original = pc_api.saved_search_get(policy_current['rule']['criteria'])
             export_file_data['search_object_original'][policy_current['rule']['criteria']] = search_object_original
 print('Done.')
 print()

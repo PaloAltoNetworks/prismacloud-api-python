@@ -4,7 +4,6 @@ try:
 except NameError:
     pass
 from pc_lib_api import pc_api
-import pc_lib_api
 import pc_lib_general
 
 # --Configuration-- #
@@ -45,7 +44,7 @@ pc_api.configure(pc_settings['apiBase'], pc_settings['username'], pc_settings['p
 # Compliance Get UUID
 
 print('API - Getting the Compliance Standards list ...', end='')
-compliance_standard_list = pc_lib_api.api_compliance_standard_list_get()
+compliance_standard_list = pc_api.compliance_standard_list_get()
 compliance_standard = pc_lib_general.search_list_object_lower(compliance_standard_list, 'name', args.compliance_standard_name)
 print(' done.')
 print()
@@ -59,7 +58,7 @@ print()
 
 if args.requirementId is not None:
     print('API - Getting Requirements List for Compliance Standard ...', end='')
-    compliance_requirement_list = pc_lib_api.api_compliance_standard_requirement_list_get(compliance_standard['id'])
+    compliance_requirement_list = pc_api.compliance_standard_requirement_list_get(compliance_standard['id'])
     print(' done.')
     print()
 
@@ -74,7 +73,7 @@ if args.requirementId is not None:
 
     if args.sectionId is not None:
         print('API - Getting Sections for Requirement ...', end='')
-        compliance_section_list = pc_lib_api.api_compliance_standard_requirement_section_list_get(compliance_requirement['id'])
+        compliance_section_list = pc_api.compliance_standard_requirement_section_list_get(compliance_requirement['id'])
         print(' done.')
         print()
 

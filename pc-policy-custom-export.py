@@ -4,7 +4,6 @@ try:
 except NameError:
     pass
 from pc_lib_api import pc_api
-import pc_lib_api
 import pc_lib_general
 
 # --Configuration-- #
@@ -35,7 +34,7 @@ export_file_data['policy_list_original'] = []
 export_file_data['search_object_original'] = {}
 
 print('API - Getting the current list of Custom Policies ...', end='')
-policy_list_current = pc_lib_api.api_policy_custom_v2_list_get()
+policy_list_current = pc_api.policy_custom_v2_list_get()
 export_file_data['policy_list_original'] = policy_list_current
 print(' done.')
 print()
@@ -43,7 +42,7 @@ print()
 print('API - Getting the Custom Policies (please wait) ...')
 for policy_current in policy_list_current:
     print('Exporting: %s' % policy_current['name'])
-    policy = pc_lib_api.api_policy_get(policy_current['policyId'])
+    policy = pc_api.policy_get(policy_current['policyId'])
     export_file_data['policy_object_original'][policy_current['policyId']] = policy
     if not 'parameters' in policy_current['rule']:
         continue
@@ -51,7 +50,7 @@ for policy_current in policy_list_current:
         continue
     if policy_current['rule']['parameters']['savedSearch'] == 'true':
         if policy_current['rule']['criteria'] not in export_file_data['search_object_original']:
-            search_object_original = pc_lib_api.api_saved_search_get(policy_current['rule']['criteria'])
+            search_object_original = pc_api.saved_search_get(policy_current['rule']['criteria'])
             export_file_data['search_object_original'][policy_current['rule']['criteria']] = search_object_original
 print('Done.')
 print()

@@ -4,7 +4,6 @@ try:
 except NameError:
     pass
 from pc_lib_api import pc_api
-import pc_lib_api
 import pc_lib_general
 
 # --Configuration-- #
@@ -46,7 +45,7 @@ policy_list_to_update = []
 if args.policy_type is not None:
     policy_type = args.policy_type.lower()
     print('API - Getting list of Policies by Policy Type ...', end='')
-    policy_list = pc_lib_api.api_policy_v2_list_get()
+    policy_list = pc_api.policy_v2_list_get()
     print(' done.')
     print()
     for policy in policy_list:
@@ -57,7 +56,7 @@ if args.policy_type is not None:
 if args.compliance_standard is not None:
     compliance_standard = args.compliance_standard
     print('API - Getting list of Policies by Compliance Standard ...', end='')
-    policy_list = pc_lib_api.api_compliance_standard_policy_v2_list_get(compliance_standard)
+    policy_list = pc_api.compliance_standard_policy_v2_list_get(compliance_standard)
     print(' done.')
     for policy in policy_list:
         if policy['enabled'] is not specified_policy_status:
@@ -66,5 +65,5 @@ if args.compliance_standard is not None:
 print('API - Updating Policies ...')
 for policy in policy_list_to_update:
     print('API - Updating Policy: %s' % policy['name'])
-    pc_lib_api.api_policy_status_update(policy['policyId'], specified_policy_status_string)
+    pc_api.policy_status_update(policy['policyId'], specified_policy_status_string)
 print('Done.')

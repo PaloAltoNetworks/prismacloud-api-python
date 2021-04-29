@@ -4,7 +4,6 @@ try:
 except NameError:
     pass
 from pc_lib_api import pc_api
-import pc_lib_api
 import pc_lib_general
 import json
 
@@ -79,7 +78,7 @@ if args.policytype is not None:
     alerts_filter['filters'].append(temp_filter)
 
 print('API - Getting the Alerts list ...', end='')
-alerts_list = pc_lib_api.api_alert_v2_list_get(data=alerts_filter)
+alerts_list = pc_api.alert_v2_list_get(data=alerts_filter)
 print(' done.')
 print()
 
