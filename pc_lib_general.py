@@ -10,7 +10,7 @@ import sys
 
 # --Configuration-- #
 
-DEFAULT_SETTINGS_FILE_NAME = 'pc-settings.conf'
+DEFAULT_SETTINGS_FILE_NAME    = 'pc-settings.conf'
 DEFAULT_SETTINGS_FILE_VERSION = 4
 
 # --Helper Methods-- #
@@ -60,6 +60,18 @@ def pc_exit_error(error_code, error_message=None, system_message=None):
 
 def pc_exit_success():
     sys.exit(0)
+
+# Double-check action.
+
+def prompt_for_verification_to_continue(yes):
+    if not yes:
+        print()
+        print('Ready to execute commands against your Prisma Cloud tenant ...')
+        verification_response = str(input('Would you like to continue (y or yes)? '))
+        continue_response = {'yes', 'y'}
+        print()
+        if verification_response not in continue_response:
+            pc_exit_error(400, 'Exiting ...')
 
 # Find the correct API Base URL.
 
@@ -185,18 +197,6 @@ def pc_file_read_json(file_name):
     except Exception as ex:
         pc_exit_error(500, 'Failed to read JSON file.', ex)
     return json_data
-
-# Double-check action.
-
-def prompt_for_verification_to_continue(yes):
-    if not yes:
-        print()
-        print('Ready to execute commands against your Prisma Cloud tenant.')
-        verification_response = str(input('Would you like to continue (y or yes)? '))
-        continue_response = {'yes', 'y'}
-        print()
-        if verification_response not in continue_response:
-            pc_exit_error(400, 'Exiting ...')
 
 # Search list for a field with a certain value and return another field value from that object.
 

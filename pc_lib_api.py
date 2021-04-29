@@ -1,4 +1,3 @@
-from __future__ import print_function
 import json
 import requests
 import time
@@ -6,7 +5,7 @@ import pc_lib_general
 
 # --Description-- #
 
-# Prisma Cloud API Helper library. Contains shared API functions.
+# Prisma Cloud API Helper library.
 
 # --Class Methods-- #
 
@@ -106,6 +105,90 @@ class PrismaCloudAPI(object):
     """
 
     """
+    Alerts
+
+    [x] LIST
+    [ ] CREATE/ADD
+    [ ] READ/GET
+    [ ] UPDATE/REPLACE
+    [ ] DELETE/REMOVE
+    Additional:
+    [x] LIST v2
+    """
+
+    def alert_list_get(self, qp=None, bp=None):
+        return self.execute('POST', 'alert', query_params=qp, body_params=bp)
+
+    def alert_v2_list_get(self, qp=None, bp=None):
+        return self.execute('POST', 'v2/alert', query_params=qp, body_params=bp)
+
+    """
+    Policies
+
+    [x] LIST
+    [x] CREATE/ADD
+    [x] READ/GET
+    [x] UPDATE/REPLACE
+    [x] DELETE/REMOVE
+    Additional:
+    [x] LIST v2
+    [x] LIST v2 where custom
+    [x] UPDATE status
+    """
+
+    def policy_list_get(self):
+        return self.execute('GET', 'policy')
+
+    def policy_v2_list_get(self):
+        return self.execute('GET', 'v2/policy')
+
+    def policy_custom_v2_list_get(self):
+        filters = [('policy.policyMode', 'custom')]
+        return self.execute('GET', 'v2/policy', query_params=filters)
+
+    def policy_add(self, policy_to_add):
+        return self.execute('POST', 'policy', body_params=policy_to_add)
+
+    def policy_get(self, policy_id):
+        return self.execute('GET', 'policy/%s' % policy_id)
+
+    def policy_update(self, policy_id, policy_update):
+        return self.execute('PUT', 'policy/%s' % policy_id, body_params=policy_update)
+
+    def policy_status_update(self, policy_id, policy_status_update):
+        return self.execute('PATCH', 'policy/%s/status/%s' % (policy_id, policy_status_update))
+
+    def policy_delete(self, policy_id):
+        return self.execute('DELETE', 'policy/%s' % policy_id)
+
+    """
+    Saved Searches
+
+    [x] LIST
+    [x] CREATE/ADD
+    [x] READ/GET
+    [ ] UPDATE/REPLACE
+    [x] DELETE/REMOVE
+    Additional:
+    [ ] As above with restrictions/filtering
+    """
+
+    def saved_search_list_get(self):
+        return self.execute('GET', 'search/history?filter=saved')
+
+    def saved_search_add(self, type_of_search, saved_search_to_add):
+        if type_of_search == 'network':
+            return self.execute('POST', 'search', body_params=saved_search_to_add)
+        else:
+            return self.execute('POST', 'search/%s' % type_of_search, body_params=saved_search_to_add)
+
+    def saved_search_get(self, saved_search_id):
+        return self.execute('GET', 'search/history/%s' % saved_search_id)
+
+    def saved_search_delete(self, saved_search_id):
+        return self.execute('DELETE', 'search/history/%s' % saved_search_id)
+
+    """
     Compliance Standards
 
     [x] LIST
@@ -187,99 +270,6 @@ class PrismaCloudAPI(object):
         return self.execute('GET', 'v2/policy', query_params=filters)
 
     """
-    Policies
-
-    [x] LIST
-    [x] CREATE/ADD
-    [x] READ/GET
-    [x] UPDATE/REPLACE
-    [x] DELETE/REMOVE
-    Additional:
-    [x] LIST v2
-    [x] LIST v2 where custom
-    [x] UPDATE status
-    """
-
-    def policy_list_get(self):
-        return self.execute('GET', 'policy')
-
-    def policy_v2_list_get(self):
-        return self.execute('GET', 'v2/policy')
-
-    def policy_custom_v2_list_get(self):
-        filters = [('policy.policyMode', 'custom')]
-        return self.execute('GET', 'v2/policy', query_params=filters)
-
-    def policy_add(self, policy_to_add):
-        return self.execute('POST', 'policy', body_params=policy_to_add)
-
-    def policy_get(self, policy_id):
-        return self.execute('GET', 'policy/%s' % policy_id)
-
-    def policy_update(self, policy_id, policy_update):
-        return self.execute('PUT', 'policy/%s' % policy_id, body_params=policy_update)
-
-    def policy_status_update(self, policy_id, policy_status_update):
-        return self.execute('PATCH', 'policy/%s/status/%s' % (policy_id, policy_status_update))
-
-    def policy_delete(self, policy_id):
-        return self.execute('DELETE', 'policy/%s' % policy_id)
-
-    """
-    Saved Search
-
-    [x] LIST
-    [x] CREATE/ADD
-    [x] READ/GET
-    [ ] UPDATE/REPLACE
-    [x] DELETE/REMOVE
-    Additional:
-    [ ] As above with restrictions/filtering
-    """
-
-    def saved_search_list_get(self):
-        return self.execute('GET', 'search/history?filter=saved')
-
-    def saved_search_add(self, type_of_search, saved_search_to_add):
-        if type_of_search == 'network':
-            return self.execute('POST', 'search', body_params=saved_search_to_add)
-        else:
-            return self.execute('POST', 'search/%s' % type_of_search, body_params=saved_search_to_add)
-
-    def saved_search_get(self, saved_search_id):
-        return self.execute('GET', 'search/history/%s' % saved_search_id)
-
-    def saved_search_delete(self, saved_search_id):
-        return self.execute('DELETE', 'search/history/%s' % saved_search_id)
-
-    """
-    User Roles
-
-    [x] LIST
-    [ ] CREATE/ADD
-    [x] READ/GET
-    [x] UPDATE/REPLACE
-    [x] DELETE/REMOVE
-    Additional:
-    [ ] As above with restrictions/filtering
-    """
-
-    def user_role_list_get(self):
-        return self.execute('GET', 'user/role')
-
-    def user_role_add(self, user_role_to_add):
-        return self.execute('POST', 'user/role', body_params=user_role_to_add)
-
-    def user_role_update(self, user_role_id, user_role_update):
-        return self.execute('PUT', 'user/role/%s' % user_role_id, body_params=user_role_update)
-
-    def user_role_get(self, user_role_id):
-        return self.execute('GET', 'user/role/%s' % user_role_id)
-
-    def user_role_delete(self, user_role_id):
-        return self.execute('DELETE', 'user/role/%s' % user_role_id)
-
-    """
     Users
 
     [x] LIST
@@ -309,54 +299,62 @@ class PrismaCloudAPI(object):
         return self.execute('PUT', 'user/%s' % user_to_update['email'], body_params=user_to_update)
 
     """
-    Alerts
+    User Roles
 
     [x] LIST
     [ ] CREATE/ADD
-    [ ] READ/GET
-    [ ] UPDATE/REPLACE
-    [ ] DELETE/REMOVE
+    [x] READ/GET
+    [x] UPDATE/REPLACE
+    [x] DELETE/REMOVE
     Additional:
-    [x] LIST v2
+    [ ] As above with restrictions/filtering
     """
 
-    def alert_list_get(self, qp=None, bp=None):
-        return self.execute('POST', 'alert', query_params=qp, body_params=bp)
+    def user_role_list_get(self):
+        return self.execute('GET', 'user/role')
 
-    def alert_v2_list_get(self, qp=None, bp=None):
-        return self.execute('POST', 'v2/alert', query_params=qp, body_params=bp)
+    def user_role_add(self, user_role_to_add):
+        return self.execute('POST', 'user/role', body_params=user_role_to_add)
+
+    def user_role_update(self, user_role_id, user_role_update):
+        return self.execute('PUT', 'user/role/%s' % user_role_id, body_params=user_role_update)
+
+    def user_role_get(self, user_role_id):
+        return self.execute('GET', 'user/role/%s' % user_role_id)
+
+    def user_role_delete(self, user_role_id):
+        return self.execute('DELETE', 'user/role/%s' % user_role_id)
 
     """
-    Compliance Reports
+    Access Keys
 
     [x] LIST
     [x] CREATE/ADD
-    [ ] READ/GET
-    [ ] UPDATE/REPLACE
+    [x] READ/GET
+    [x] UPDATE/REPLACE
     [x] DELETE/REMOVE
     Additional:
-    [x] DOWNLOAD
+    [x] UPDATE status
     """
 
-    def compliance_report_list_get(self):
-        return self.execute('GET', 'report')
+    def access_keys_list_get(self):
+        return self.execute('GET', 'access_keys')
 
-    def compliance_report_add(self, report_to_add):
-        return self.execute('POST', 'report', body_params=report_to_add)
+    def access_key_add(self, access_key_to_add):
+        return self.execute('POST', 'access_keys', body_params=access_key_to_add)
 
-    def compliance_report_delete(self, report_id):
-        return self.execute('DELETE', 'report/%s' % report_id)
+    def access_key_get(self, access_key_id):
+        return self.execute('GET', 'access_keys' % access_key_id)
 
-    def compliance_report_download(self, report_id):
-        return self.execute('GET', 'report/%s/download' % report_id)
-        # TODO: 
-        #if response_status == 204:
-        #    # download pending
-        #    pass
-        #elif response_status == 200:
-        #    # download ready
-        #    pass
-        #else:
+    def access_key_update(self, access_key_id, access_key_update):
+        return self.execute('PUT', 'access_keys/%s' % access_key_id, body_params=access_key_update)
+
+    # Note: Expired keys cannot be enabled.
+    def access_key_status_update(self, access_key_id, access_key_status):
+        return self.execute('PATCH', 'access_keys/%s/status/%s' % (access_key_id, access_key_status))
+
+    def access_key_delete(self, access_key_id):
+        return self.execute('DELETE', 'access_keys/%s' % access_key_id)
 
     """
     Cloud Accounts
@@ -468,35 +466,36 @@ class PrismaCloudAPI(object):
         return self.execute('DELETE', 'v1/resource_list/%s' % resource_list_id)
 
     """
-    Access Keys
+    Compliance Reports
 
     [x] LIST
     [x] CREATE/ADD
-    [x] READ/GET
-    [x] UPDATE/REPLACE
+    [ ] READ/GET
+    [ ] UPDATE/REPLACE
     [x] DELETE/REMOVE
     Additional:
-    [x] UPDATE status
+    [x] DOWNLOAD
     """
 
-    def access_keys_list_get(self):
-        return self.execute('GET', 'access_keys')
+    def compliance_report_list_get(self):
+        return self.execute('GET', 'report')
 
-    def access_key_add(self, access_key_to_add):
-        return self.execute('POST', 'access_keys', body_params=access_key_to_add)
+    def compliance_report_add(self, report_to_add):
+        return self.execute('POST', 'report', body_params=report_to_add)
 
-    def access_key_get(self, access_key_id):
-        return self.execute('GET', 'access_keys' % access_key_id)
+    def compliance_report_delete(self, report_id):
+        return self.execute('DELETE', 'report/%s' % report_id)
 
-    def access_key_update(self, access_key_id, access_key_update):
-        return self.execute('PUT', 'access_keys/%s' % access_key_id, body_params=access_key_update)
-
-    # Note: Expired keys cannot be enabled.
-    def access_key_status_update(self, access_key_id, access_key_status):
-        return self.execute('PATCH', 'access_keys/%s/status/%s' % (access_key_id, access_key_status))
-
-    def access_key_delete(self, access_key_id):
-        return self.execute('DELETE', 'access_keys/%s' % access_key_id)
+    def compliance_report_download(self, report_id):
+        return self.execute('GET', 'report/%s/download' % report_id)
+        # TODO: 
+        #if response_status == 204:
+        #    # download pending
+        #    pass
+        #elif response_status == 200:
+        #    # download ready
+        #    pass
+        #else:
 
 # --Class Instance-- #
 
