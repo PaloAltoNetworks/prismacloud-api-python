@@ -47,8 +47,8 @@ def threaded_saved_search_get(policy_current):
 export_file_data = {}
 export_file_data['export_file_version'] = DEFAULT_COMPLIANCE_EXPORT_FILE_VERSION
 export_file_data['compliance_section_list_original'] = {}
-export_file_data['policy_object_original'] = {}
 export_file_data['policy_list_original'] = []
+export_file_data['policy_object_original'] = {}
 export_file_data['search_object_original'] = {}
 
 print('API - Getting the current list of Compliance Standards ...', end='')
