@@ -40,9 +40,9 @@ args = parser.parse_args()
 
 # --Initialize-- #
 
-pc_lib_general.prompt_for_verification_to_continue(args.yes)
-pc_settings = pc_lib_general.pc_settings_get(args.username, args.password, args.uiurl, args.config_file)
-pc_api.configure(pc_settings['apiBase'], pc_settings['username'], pc_settings['password'])
+pc_lib_general.prompt_for_verification_to_continue(args)
+pc_settings = pc_lib_general.pc_settings_get(args)
+pc_api.configure(pc_settings)
 
 # --Main-- #
 

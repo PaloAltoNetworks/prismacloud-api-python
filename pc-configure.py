@@ -16,10 +16,14 @@ else:
 print()
 
 if args.username is not None and args.password is not None and args.uiurl is not None:
-    pc_lib_general.pc_settings_write(args.username, args.password, args.uiurl, args.config_file)
+    pc_lib_general.pc_settings_file_write(args)
     print('Settings saved.')
 elif args.username is None and args.password is None and args.uiurl is None:
-    pc_settings = pc_lib_general.pc_settings_read(args.config_file)
+    pc_settings = pc_lib_general.pc_settings_file_read(args.config_file)
+    if pc_settings['apiBase'] is not None:
+        print('Prisma Cloud API/UI Base URL:')
+        print(pc_settings['apiBase'])
+        print()
     if pc_settings['username'] is not None:
         print('Prisma Cloud Access Key:')
         print(pc_settings['username'])
@@ -28,11 +32,11 @@ elif args.username is None and args.password is None and args.uiurl is None:
         print('Prisma Cloud Secret Key:')
         print(pc_settings['password'])
         print()
-    if pc_settings['apiBase'] is not None:
-        print('Prisma Cloud API/UI Base URL:')
-        print(pc_settings['apiBase'])
+    if pc_settings['ca_bundle'] is not None:
+        print('(Optional) Custom CA (bundle) file:')
+        print(pc_settings['ca_bundle'])
         print()
-    print('-u %s -p %s -url %s' % (pc_settings['username'], pc_settings['password'], pc_settings['apiBase']))
+    print('-u %s -p %s --uiurl %s --ca_bundle %s' % (pc_settings['username'], pc_settings['password'], pc_settings['ca_bundle'], pc_settings['ca_bundle']))
 else:
     print('Please specify an Access Key (-u / --username), Secret Key (-p / --password), and API/UI Base URL (-url / --uiurl) to save your configuration.')
     print()

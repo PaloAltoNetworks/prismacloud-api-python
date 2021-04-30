@@ -14,6 +14,7 @@ class PrismaCloudAPI(object):
         self.api           = None
         self.username      = None
         self.password      = None
+        self.ca_bundle     = None
         self.token         = None
         self.token_timer   = 0
         self.token_limit   = 540
@@ -21,17 +22,18 @@ class PrismaCloudAPI(object):
         self.retry_pause   = 5
         self.retry_status_codes = [401, 429, 500, 502, 503, 504]
 
-    def configure(self, api, username, password):
-        self.api      = api
-        self.username = username
-        self.password = password
+    def configure(self, pc_settings):
+        self.api       = pc_settings['apiBase']
+        self.username  = pc_settings['username']
+        self.password  = pc_settings['password']
+        self.ca_bundle = pc_settings['ca_bundle']
 
     def login(self):
         requ_url = 'https://%s/login' % self.api
         requ_action = 'POST'
         requ_headers = {'Content-Type': 'application/json'}
         requ_data = json.dumps({'username': self.username, 'password': self.password})
-        api_response = requests.request(requ_action, requ_url, headers=requ_headers, data=requ_data)
+        api_response = requests.request(requ_action, requ_url, headers=requ_headers, data=requ_data, verify=self.ca_bundle)
         if api_response.ok:
             api_response = json.loads(api_response.content)
             self.token = api_response.get('token') 
@@ -43,11 +45,11 @@ class PrismaCloudAPI(object):
         requ_url = 'https://%s/auth_token/extend' % self.api
         requ_action = 'GET'
         requ_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
-        api_response = requests.request(requ_action, requ_url, headers=requ_headers)
+        api_response = requests.request(requ_action, requ_url, headers=requ_headers, verify=self.ca_bundle)
         if api_response.status_code in self.retry_status_codes:
             for retry_number in range(1, self.retry_limit):
                 time.sleep(self.retry_pause)
-                api_response = requests.request(requ_action, requ_url, headers=requ_headers)
+                api_response = requests.request(requ_action, requ_url, headers=requ_headers, verify=self.ca_bundle)
                 if api_response.ok:
                     break
         if api_response.ok:
@@ -68,11 +70,11 @@ class PrismaCloudAPI(object):
         if self.token:
             requ_headers['x-redlock-auth'] = self.token
         requ_data = json.dumps(body_params)
-        api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=query_params, data=body_params)
+        api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=query_params, data=body_params, verify=self.ca_bundle)
         if api_response.status_code in self.retry_status_codes:
             for retry_number in range(1, self.retry_limit):
                 time.sleep(self.retry_pause)
-                api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=query_params, data=body_params)
+                api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=query_params, data=body_params, verify=self.ca_bundle)
                 if api_response.ok:
                     break
         if api_response.ok:
