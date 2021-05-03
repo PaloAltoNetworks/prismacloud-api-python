@@ -1,9 +1,11 @@
-import json
-import requests
-import time
+from __future__ import print_function
 
 from .pc_lib_api_extended import PrismaCloudAPIExtended
 from .pc_lib_utility import PrismaCloudUtility
+
+import json
+import requests
+import time
 
 # --Description-- #
 
