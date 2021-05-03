@@ -3,8 +3,8 @@ try:
     input = raw_input
 except NameError:
     pass
-from pc_lib_api import pc_api
-import pc_lib_general
+from pc_lib import pc_api, pc_utility
+
 import json
 import requests
 import time
@@ -17,7 +17,7 @@ CUSTOM_POLICY_ID_MAP_FILE = 'PolicyIdMap.json'
 DEFAULT_COMPLIANCE_IMPORT_FILE_VERSION = 3
 WAIT_TIMER = 5
 
-parser = pc_lib_general.pc_arg_parser_defaults()
+parser = pc_utility.get_arg_parser()
 parser.add_argument(
     '--delete_existing',
     action='store_true',
@@ -47,50 +47,50 @@ args = parser.parse_args()
 if args.policy:
     if args.map_custom_policies:
         if not os.path.isfile(CUSTOM_POLICY_ID_MAP_FILE):
-            pc_lib_general.pc_exit_error(500, 'Custom policy map file does not exist. Please run pc-policy-custom-export.py and then pc-policy-custom-import.py to generate the file.')
+            pc_utility.error_and_exit(500, 'Custom policy map file does not exist. Please run pc-policy-custom-export.py and then pc-policy-custom-import.py to generate the file.')
 
 # --Initialize-- #
 
-pc_lib_general.prompt_for_verification_to_continue(args)
-pc_settings = pc_lib_general.pc_settings_get(args)
-pc_api.configure(pc_settings)
+pc_utility.prompt_for_verification_to_continue(args)
+settings = pc_utility.get_settings(args)
+pc_api.configure(settings)
 
 # --Main-- #
 
 # Compliance Import
 
-import_file_data = pc_lib_general.pc_file_read_json(args.import_file_name)
+import_file_data = pc_utility.read_json_file(args.import_file_name)
 
 # Validation
 if 'compliance_standard_original' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'compliance_standard_original section not found. Please verify the import file and name.')
+    pc_utility.error_and_exit(404, 'compliance_standard_original section not found. Please verify the import file and name.')
 if 'compliance_requirement_list_original' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'compliance_requirement_list_original section not found. Please verify the import file and name.')
+    pc_utility.error_and_exit(404, 'compliance_requirement_list_original section not found. Please verify the import file and name.')
 if 'compliance_section_list_original' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'compliance_section_list_original section not found. Please verify the import file and name.')
+    pc_utility.error_and_exit(404, 'compliance_section_list_original section not found. Please verify the import file and name.')
 if 'policy_list_original' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'policy_list_original section not found. Please verify the import file and name.')
+    pc_utility.error_and_exit(404, 'policy_list_original section not found. Please verify the import file and name.')
 if 'policy_object_original' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'policy_object_original section not found. Please verify the import file and name.')
+    pc_utility.error_and_exit(404, 'policy_object_original section not found. Please verify the import file and name.')
 if 'export_file_version' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'export_file_version section not found. Please verify the import file and name.')
+    pc_utility.error_and_exit(404, 'export_file_version section not found. Please verify the import file and name.')
 if import_file_data['export_file_version'] != DEFAULT_COMPLIANCE_IMPORT_FILE_VERSION:
-    pc_lib_general.pc_exit_error(404, 'The import file appears to be an unexpected export version. Please verify the import file and name.')
+    pc_utility.error_and_exit(404, 'The import file appears to be an unexpected export version. Please verify the import file and name.')
 
 # The following will check the export version for the correct level.
 # If you have an older version that you want to try to import, you can comment out this line,
 # but please be aware it will be untested on older versions of an export file.
 # At this moment, it *should* still work...
 if 'search_object_original' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'search_object_original not found. Please verify the import file and name. The import file may also be an old version: please re-export.')
+    pc_utility.error_and_exit(404, 'search_object_original not found. Please verify the import file and name. The import file may also be an old version: please re-export.')
 
 compliance_standard_original = import_file_data['compliance_standard_original']
 if compliance_standard_original is None:
-    pc_lib_general.pc_exit_error(400, 'Compliance Standard not found in the import file. Please verify the Compliance Standard name.')
+    pc_utility.error_and_exit(400, 'Compliance Standard not found in the import file. Please verify the Compliance Standard name.')
 
 print('API - Getting the current list of Compliance Standards ...', end='')
 compliance_standard_list_current = pc_api.compliance_standard_list_get()
-compliance_standard = pc_lib_general.search_list_object_lower(compliance_standard_list_current, 'name', args.import_compliance_standard_name)
+compliance_standard = pc_utility.search_list_object_lower(compliance_standard_list_current, 'name', args.import_compliance_standard_name)
 print(' done.')
 print()
 
@@ -101,7 +101,7 @@ if compliance_standard:
         print(' done.')
         print()
     else:
-        pc_lib_general.pc_exit_error(400, 'Compliance Standard already exists. Please verify the new Compliance Standard name, or delete the existing Compliance Standard.')
+        pc_utility.error_and_exit(400, 'Compliance Standard already exists. Please verify the new Compliance Standard name, or delete the existing Compliance Standard.')
 
 print('API - Creating the Compliance Standard ...', end='')
 compliance_standard_temp = {}
@@ -115,9 +115,9 @@ print()
 print('API - Getting the newly created Compliance Standard ...', end='')
 time.sleep(WAIT_TIMER)
 compliance_standard_list_current = pc_api.compliance_standard_list_get()
-compliance_standard_new = pc_lib_general.search_list_object(compliance_standard_list_current, 'name', compliance_standard_temp['name'])
+compliance_standard_new = pc_utility.search_list_object(compliance_standard_list_current, 'name', compliance_standard_temp['name'])
 if compliance_standard_new is None:
-    pc_lib_general.pc_exit_error(500, 'New Compliance Standard not found.')
+    pc_utility.error_and_exit(500, 'New Compliance Standard not found.')
 print(' done.')
 print()
 
@@ -144,7 +144,7 @@ print('API - Creating the Sections and adding them to the new Requirements ...',
 sections_to_map_to_policies = []
 for compliance_requirement_original in compliance_requirement_list_original:
     compliance_section_list_original = import_file_data['compliance_section_list_original'][compliance_requirement_original['id']]
-    compliance_requirement_temp = pc_lib_general.search_list_object(compliance_requirement_list_new, 'name', compliance_requirement_original['name'])
+    compliance_requirement_temp = pc_utility.search_list_object(compliance_requirement_list_new, 'name', compliance_requirement_original['name'])
     for compliance_section_original in compliance_section_list_original:
         compliance_section_temp = {}
         compliance_section_temp['sectionId'] = compliance_section_original['sectionId']
@@ -188,7 +188,7 @@ if args.policy:
                     found = True
                     break
             if not found:
-                pc_lib_general.pc_exit_error(500, 'Failed to validate the new Section: %s for Requirement: %s' % (section_to_map, compliance_requirement_new['id']))
+                pc_utility.error_and_exit(500, 'Failed to validate the new Section: %s for Requirement: %s' % (section_to_map, compliance_requirement_new['id']))
     print(' done.')
     print()
 
@@ -268,7 +268,7 @@ if args.policy:
                     compliance_metadata_to_merge.append(compliance_metadata_updated)
                     break
         if len(compliance_metadata_to_merge) == 0:
-            pc_lib_general.pc_exit_error(500, 'Cannot find any Compliance metadata for Policy object %s' % compliance_metadata_original)
+            pc_utility.error_and_exit(500, 'Cannot find any Compliance metadata for Policy object %s' % compliance_metadata_original)
         policy_current['complianceMetadata'].extend(compliance_metadata_to_merge)
         if args.label:
             policy_current['labels'].append(args.import_compliance_standard_name)

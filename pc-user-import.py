@@ -3,12 +3,12 @@ try:
     input = raw_input
 except NameError:
     pass
-from pc_lib_api import pc_api
-import pc_lib_general
+from pc_lib import pc_api, pc_utility
+
 
 # --Configuration-- #
 
-parser = pc_lib_general.pc_arg_parser_defaults()
+parser = pc_utility.get_arg_parser()
 parser.add_argument(
     'import_file_name',
     type=str,
@@ -21,9 +21,9 @@ args = parser.parse_args()
 
 # --Initialize-- #
 
-pc_lib_general.prompt_for_verification_to_continue(args)
-pc_settings = pc_lib_general.pc_settings_get(args)
-pc_api.configure(pc_settings)
+pc_utility.prompt_for_verification_to_continue(args)
+settings = pc_utility.get_settings(args)
+pc_api.configure(settings)
 
 # --Main-- #
 
@@ -32,7 +32,7 @@ user_list_current = pc_api.user_list_get_v2()
 print(' done.')
 print()
 
-user_list_to_import = pc_lib_general.pc_file_load_csv_text(args.import_file_name)
+user_list_to_import = pc_utility.pc_file_load_csv_text(args.import_file_name)
 
 print('API - Getting the Roles list ...', end='')
 user_role_list = pc_api.user_role_list_get()
@@ -44,7 +44,7 @@ for user_role in user_role_list:
         user_role_id = user_role['id']
         break
 if user_role_id is None:
-    pc_lib_general.pc_exit_error(400, 'Role not found. Please verify the Role name.')
+    pc_utility.error_and_exit(400, 'Role not found. Please verify the Role name.')
 
 users_duplicate_current_count = 0
 users_duplicate_file_count = 0

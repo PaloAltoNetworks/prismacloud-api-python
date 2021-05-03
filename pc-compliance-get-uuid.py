@@ -3,12 +3,12 @@ try:
     input = raw_input
 except NameError:
     pass
-from pc_lib_api import pc_api
-import pc_lib_general
+from pc_lib import pc_api, pc_utility
+
 
 # --Configuration-- #
 
-parser = pc_lib_general.pc_arg_parser_defaults()
+parser = pc_utility.get_arg_parser()
 parser.add_argument(
     'compliance_standard_name',
     type=str,
@@ -30,14 +30,14 @@ args = parser.parse_args()
 
 if args.sectionId is not None:
     if args.requirementId is None:
-        pc_lib_general.pc_exit_error(400, 'A Requirement is required if you want to get the UUID of a Section. '
+        pc_utility.error_and_exit(400, 'A Requirement is required if you want to get the UUID of a Section. '
             'Please enter the correct Requirement for the desired Section.')
 
 # --Initialize-- #
 
-pc_lib_general.prompt_for_verification_to_continue(args)
-pc_settings = pc_lib_general.pc_settings_get(args)
-pc_api.configure(pc_settings)
+pc_utility.prompt_for_verification_to_continue(args)
+settings = pc_utility.get_settings(args)
+pc_api.configure(settings)
 
 # --Main-- #
 
@@ -45,12 +45,12 @@ pc_api.configure(pc_settings)
 
 print('API - Getting the Compliance Standards list ...', end='')
 compliance_standard_list = pc_api.compliance_standard_list_get()
-compliance_standard = pc_lib_general.search_list_object_lower(compliance_standard_list, 'name', args.compliance_standard_name)
+compliance_standard = pc_utility.search_list_object_lower(compliance_standard_list, 'name', args.compliance_standard_name)
 print(' done.')
 print()
 
 if compliance_standard is None:
-    pc_lib_general.pc_exit_error(400, 'Compliance Standard not found. Please verify the Compliance Standard name.')
+    pc_utility.error_and_exit(400, 'Compliance Standard not found. Please verify the Compliance Standard name.')
 
 print()
 print('Compliance Standard Name: ' + compliance_standard['name'] + "\nUUID: " + compliance_standard['id'])
@@ -62,9 +62,9 @@ if args.requirementId is not None:
     print(' done.')
     print()
 
-    compliance_requirement = pc_lib_general.search_list_object_lower(compliance_requirement_list, 'requirementId', args.requirementId)
+    compliance_requirement = pc_utility.search_list_object_lower(compliance_requirement_list, 'requirementId', args.requirementId)
     if compliance_requirement is None:
-        pc_lib_general.pc_exit_error(400, 'Requirement not found in the specified Compliance Standard. '
+        pc_utility.error_and_exit(400, 'Requirement not found in the specified Compliance Standard. '
         'Please verify the Compliance Standard and Requirement names.')
 
     print()
@@ -77,9 +77,9 @@ if args.requirementId is not None:
         print(' done.')
         print()
 
-        compliance_section = pc_lib_general.search_list_object_lower(compliance_section_list, 'sectionId', args.sectionId)
+        compliance_section = pc_utility.search_list_object_lower(compliance_section_list, 'sectionId', args.sectionId)
         if compliance_section is None:
-            pc_lib_general.pc_exit_error(400, 'Section not found in the specified Requirement.  '
+            pc_utility.error_and_exit(400, 'Section not found in the specified Requirement.  '
             'Please verify the Compliance Standard, Requirement, and Section names.')
 
         print()
