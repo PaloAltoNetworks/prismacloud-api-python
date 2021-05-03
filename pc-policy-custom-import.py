@@ -3,8 +3,8 @@ try:
     input = raw_input
 except NameError:
     pass
-from pc_lib_api import pc_api
-import pc_lib_general
+from pc_lib import pc_api, pc_utility
+
 import json
 import random
 import requests
@@ -16,7 +16,7 @@ CUSTOM_POLICY_ID_MAP_FILE = 'PolicyIdMap.json'
 DEFAULT_POLICY_IMPORT_FILE_VERSION = 2
 WAIT_TIMER = 5
 
-parser = pc_lib_general.pc_arg_parser_defaults()
+parser = pc_utility.get_arg_parser()
 parser.add_argument(
     'import_file_name',
     type=str,
@@ -29,32 +29,32 @@ args = parser.parse_args()
 
 # --Initialize-- #
 
-pc_lib_general.prompt_for_verification_to_continue(args)
-pc_settings = pc_lib_general.pc_settings_get(args)
-pc_api.configure(pc_settings)
+pc_utility.prompt_for_verification_to_continue(args)
+settings = pc_utility.get_settings(args)
+pc_api.configure(settings)
 
 # --Main-- #
 
 # Custom Policy Import
 
-import_file_data = pc_lib_general.pc_file_read_json(args.import_file_name)
+import_file_data = pc_utility.read_json_file(args.import_file_name)
 
 # Validation
 if 'policy_list_original' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'policy_list_original section not found. Please verify the import file and name.')
+    pc_utility.error_and_exit(404, 'policy_list_original section not found. Please verify the import file and name.')
 if 'policy_object_original' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'policy_object_original section not found. Please verify the import file and name.')
+    pc_utility.error_and_exit(404, 'policy_object_original section not found. Please verify the import file and name.')
 if 'export_file_version' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'export_file_version section not found. Please verify the import file and name.')
+    pc_utility.error_and_exit(404, 'export_file_version section not found. Please verify the import file and name.')
 if 'search_object_original' not in import_file_data:
-    pc_lib_general.pc_exit_error(404, 'search_object_original section not found. Please verify the import file and name.')
+    pc_utility.error_and_exit(404, 'search_object_original section not found. Please verify the import file and name.')
 
 # The following will check the export version for the correct level.
 # If you have an older version that you want to try to import, you can comment out this line,
 # but please be aware it will be untested on older versions of an export file.
 # At this moment, it *should* still work...
 if  import_file_data['export_file_version'] != DEFAULT_POLICY_IMPORT_FILE_VERSION:
-    pc_lib_general.pc_exit_error(404, 'Import file appears to be an unexpected export version. Please verify the import file and name.')
+    pc_utility.error_and_exit(404, 'Import file appears to be an unexpected export version. Please verify the import file and name.')
 
 policy_object_original = import_file_data['policy_object_original']
 search_object_original = import_file_data['search_object_original']

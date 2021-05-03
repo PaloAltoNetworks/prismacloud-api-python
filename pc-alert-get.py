@@ -3,13 +3,13 @@ try:
     input = raw_input
 except NameError:
     pass
-from pc_lib_api import pc_api
-import pc_lib_general
+from pc_lib import pc_api, pc_utility
+
 import json
 
 # --Configuration-- #
 
-parser = pc_lib_general.pc_arg_parser_defaults()
+parser = pc_utility.get_arg_parser()
 parser.add_argument(
     '--detailed',
     action='store_true',
@@ -40,9 +40,9 @@ args = parser.parse_args()
 
 # --Initialize-- #
 
-pc_lib_general.prompt_for_verification_to_continue(args)
-pc_settings = pc_lib_general.pc_settings_get(args)
-pc_api.configure(pc_settings)
+pc_utility.prompt_for_verification_to_continue(args)
+settings = pc_utility.get_settings(args)
+pc_api.configure(settings)
 
 # --Main-- #
 

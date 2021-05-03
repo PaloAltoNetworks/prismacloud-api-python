@@ -3,15 +3,13 @@ try:
     input = raw_input
 except NameError:
     pass
-from pc_lib_api import pc_api
-import pc_lib_general
-import concurrent.futures
+from pc_lib import pc_api, pc_utility
 
 # --Configuration-- #
 
 DEFAULT_COMPLIANCE_EXPORT_FILE_VERSION = 3
 
-parser = pc_lib_general.pc_arg_parser_defaults()
+parser = pc_utility.get_arg_parser()
 parser.add_argument(
     'compliance_standard_name',
     type=str,
@@ -24,21 +22,9 @@ args = parser.parse_args()
 
 # --Initialize-- #
 
-pc_lib_general.prompt_for_verification_to_continue(args)
-pc_settings = pc_lib_general.pc_settings_get(args)
-pc_api.configure(pc_settings)
-
-# --Threading-- #
-
-thread_pool_executor = concurrent.futures.ThreadPoolExecutor(16)
-
-def threaded_policy_get(policy_current):
-    print('Getting Policy: %s' % policy_current['name'])
-    return pc_api.policy_get(policy_current['policyId'])
-
-def threaded_saved_search_get(policy_current):
-    print('Getting Saved Search: %s' % policy_current['name'])
-    return pc_api.saved_search_get(policy_current['rule']['criteria'])
+pc_utility.prompt_for_verification_to_continue(args)
+settings = pc_utility.get_settings(args)
+pc_api.configure(settings)
 
 # --Main-- #
 
@@ -53,9 +39,9 @@ export_file_data['search_object_original'] = {}
 
 print('API - Getting the current list of Compliance Standards ...', end='')
 compliance_standard_list_current = pc_api.compliance_standard_list_get()
-compliance_standard_original = pc_lib_general.search_list_object_lower(compliance_standard_list_current, 'name', args.compliance_standard_name)
+compliance_standard_original = pc_utility.search_list_object_lower(compliance_standard_list_current, 'name', args.compliance_standard_name)
 if compliance_standard_original is None:
-    pc_lib_general.pc_exit_error(400, 'Compliance Standard to export not found. Please verify the Compliance Standard name.')
+    pc_utility.error_and_exit(400, 'Compliance Standard to export not found. Please verify the Compliance Standard name.')
 export_file_data['compliance_standard_original'] = compliance_standard_original
 print(' done.')
 print()
@@ -79,37 +65,10 @@ export_file_data['policy_list_original'] = policy_list_current
 print(' done.')
 print()
 
-# Same as in pc-policy-custom-export.py
+result = pc_api.export_policies_with_saved_searches(policy_list_current)
+export_file_data['policy_object_original'] = result['policies']
+export_file_data['search_object_original'] = result['searches']
 
-print('API - Getting the Policies associated with the Compliance Standard ...')
-futures = []
-for policy_current in policy_list_current:
-    print('Scheduling Policy Request: %s' % policy_current['name'])
-    futures.append(thread_pool_executor.submit(threaded_policy_get, policy_current))
-concurrent.futures.wait(futures)
-for future in concurrent.futures.as_completed(futures):
-    policy_current = future.result()
-    export_file_data['policy_object_original'][policy_current['policyId']] = policy_current
-print('Done.')
-print()
-
-print('API - Getting the Policies Saved Searches ...')
-futures = []
-for policy_current in policy_list_current:
-    if not 'parameters' in policy_current['rule']:
-        continue
-    if not 'savedSearch' in policy_current['rule']['parameters']:
-        continue
-    if policy_current['rule']['parameters']['savedSearch'] == 'true':
-        print('Scheduling Saved Search Request: %s' % policy_current['name'])
-        futures.append(thread_pool_executor.submit(threaded_saved_search_get, policy_current))
-concurrent.futures.wait(futures)
-for future in concurrent.futures.as_completed(futures):
-    saved_search = future.result()
-    export_file_data['search_object_original'][saved_search['id']] = saved_search
-print('Done.')
-print()
-
-pc_lib_general.pc_file_write_json(args.export_file_name, export_file_data)
+pc_utility.write_json_file(args.export_file_name, export_file_data)
 
 print('Exported to: %s' % args.export_file_name)

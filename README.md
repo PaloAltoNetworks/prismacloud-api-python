@@ -25,7 +25,7 @@ They are not Supported by Palo Alto Networks, but the maintainers will make a be
 
 ## Documented Scripts
 
-Each of the scripts requires the `pc_api_lib.py` and `pc_lib_general.py` library files to be in the same directory as the scripts themselves.
+Each of the scripts requires the `pc_lib` library directory to be in the same directory as the script itself.
 
 **pc-configure.py**
 

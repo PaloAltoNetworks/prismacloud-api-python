@@ -3,40 +3,40 @@ import pc_lib_general
 
 # --Configuration-- #
 
-parser = pc_lib_general.pc_arg_parser_defaults()
+parser = pc_utility.get_arg_parser()
 args = parser.parse_args()
 
 # --Main-- #
 
 print('Configuration File:')
 if args.config_file is None:
-	print(pc_lib_general.DEFAULT_SETTINGS_FILE_NAME)
+	print(pc_utility.DEFAULT_SETTINGS_FILE_NAME)
 else:
 	print(args.config_file)
 print()
 
 if args.username is not None and args.password is not None and args.uiurl is not None:
-    pc_lib_general.pc_settings_file_write(args)
+    pc_utility.write_settings_file(args)
     print('Settings saved.')
 elif args.username is None and args.password is None and args.uiurl is None:
-    pc_settings = pc_lib_general.pc_settings_file_read(args.config_file)
-    if pc_settings['apiBase'] is not None:
+    settings = pc_utility.read_settings_file(args.config_file)
+    if settings['apiBase'] is not None:
         print('Prisma Cloud API/UI Base URL:')
-        print(pc_settings['apiBase'])
+        print(settings['apiBase'])
         print()
-    if pc_settings['username'] is not None:
+    if settings['username'] is not None:
         print('Prisma Cloud Access Key:')
-        print(pc_settings['username'])
+        print(settings['username'])
         print()
-    if pc_settings['password'] is not None:
+    if settings['password'] is not None:
         print('Prisma Cloud Secret Key:')
-        print(pc_settings['password'])
+        print(settings['password'])
         print()
-    if pc_settings['ca_bundle'] is not None:
+    if settings['ca_bundle'] is not None:
         print('(Optional) Custom CA (bundle) file:')
-        print(pc_settings['ca_bundle'])
+        print(settings['ca_bundle'])
         print()
-    print('-u %s -p %s --uiurl %s --ca_bundle %s' % (pc_settings['username'], pc_settings['password'], pc_settings['ca_bundle'], pc_settings['ca_bundle']))
+    print('-u %s -p %s --uiurl %s --ca_bundle %s' % (settings['username'], settings['password'], settings['ca_bundle'], settings['ca_bundle']))
 else:
     print('Please specify an Access Key (-u / --username), Secret Key (-p / --password), and API/UI Base URL (-url / --uiurl) to save your configuration.')
     print()

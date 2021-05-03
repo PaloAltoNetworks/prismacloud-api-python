@@ -3,13 +3,13 @@ try:
     input = raw_input
 except NameError:
     pass
-from pc_lib_api import pc_api
-import pc_lib_general
+from pc_lib import pc_api, pc_utility
+
 import json
 
 # --Configuration-- #
 
-parser = pc_lib_general.pc_arg_parser_defaults()
+parser = pc_utility.get_arg_parser()
 parser.add_argument(
     '-rql',
     '--rql',
@@ -23,9 +23,9 @@ args = parser.parse_args()
 
 # --Initialize-- #
 
-pc_lib_general.prompt_for_verification_to_continue(args)
-pc_settings = pc_lib_general.pc_settings_get(args)
-pc_api.configure(pc_settings)
+pc_utility.prompt_for_verification_to_continue(args)
+settings = pc_utility.get_settings(args)
+pc_api.configure(settings)
 
 # --Main-- #
 
@@ -44,7 +44,7 @@ for policy in policy_list:
         policy_id = policy['policyId']
         break
 if policy_id is None:
-    pc_lib_general.pc_exit_error(500, 'Policy was not found. Please verify the Policy name.')
+    pc_utility.error_and_exit(500, 'Policy was not found. Please verify the Policy name.')
 
 print()
 print('Policy from Policy list:')
