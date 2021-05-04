@@ -3,8 +3,8 @@ from .pc_lib_utility import PrismaCloudUtility
 
 # Backward compatibility with SDK Version 1.0.
 
-from .config_helper import ConfigHelper
-from .redlock_sdk import RLSession
+from .lib.config_helper import ConfigHelper
+from .lib.redlock_sdk import RLSession
 
 __author__  = 'Palo Alto Networks CSE/SE Team'
 __version__ = '2.0'

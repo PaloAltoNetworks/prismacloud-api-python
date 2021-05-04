@@ -14,8 +14,8 @@ class ConfigHelper(object):
     @classmethod
     def read_yml(self, f='configs.yml', d=None):
         if not d:
-            d = os.path.join(os.getcwd(), 'config'
-        yaml_file = os.path.join('%s/%s' % d, f)
+            d = os.path.join(os.getcwd(), 'config')
+        yaml_file = '%s/%s' % (d, f)
         with open(yaml_file, 'r') as stream:
             return yaml.safe_load(stream)
 
@@ -30,8 +30,8 @@ class ConfigHelper(object):
             config['prisma_cloud']['ca_bundle']     = ''
             config['prisma_cloud']['filename']      = ''
         if not d:
-            d = os.path.join(os.getcwd(), 'config'
-        yaml_file = os.path.join('%s/%s' % d, f)
+            d = os.path.join(os.getcwd(), 'config')
+        yaml_file = '%s/%s' % (d, f)
         with open(yaml_file, 'w') as stream:
             yaml.dump(config, stream)
         return None
