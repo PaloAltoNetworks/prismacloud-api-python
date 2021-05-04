@@ -128,11 +128,11 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [x] LIST v2
     """
 
-    def alert_list_get(self, qp=None, bp=None):
-        return self.execute('POST', 'alert', query_params=qp, body_params=bp)
+    def alert_list_get(self, query_params=None, body_params=None):
+        return self.execute('POST', 'alert', query_params=query_params, body_params=body_params)
 
-    def alert_v2_list_get(self, qp=None, bp=None):
-        return self.execute('POST', 'v2/alert', query_params=qp, body_params=bp)
+    def alert_v2_list_get(self, query_params=None, body_params=None):
+        return self.execute('POST', 'v2/alert', query_params=query_params, body_params=body_params)
 
     """
     Policies
@@ -380,10 +380,10 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [x] LIST names
     """
 
-    def cloud_accounts_list_get(self, qp=None):
+    def cloud_accounts_list_get(self, query_params=None):
         return self.execute('GET', 'cloud', query_params=qp)
 
-    def cloud_accounts_list_names_get(self, qp=None):
+    def cloud_accounts_list_names_get(self, query_params=None):
         return self.execute('GET', 'cloud/name', query_params=qp)
 
     def cloud_accounts_add(self, cloud_type, cloud_account_to_add):
@@ -434,8 +434,8 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [x] LIST v2
     """
 
-    def asset_inventory_list_get(self, qp=None):
-        return self.execute('GET', 'v2/inventory', query_params=qp)
+    def asset_inventory_list_get(self, query_params=None):
+        return self.execute('GET', 'v2/inventory', query_params=query_params)
 
     """
     (Assets) Resources
@@ -447,11 +447,11 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [ ] DELETE/REMOVE
     """
 
-    def resource_get(self, bp=None):
-        return self.execute('POST', 'resource', body_params=bp)
+    def resource_get(self, body_params=None):
+        return self.execute('POST', 'resource', body_params=body_params)
 
-    def resource_timeline_get(self, bp=None):
-        return self.execute('POST', 'resource/timeline', body_params=bp)
+    def resource_timeline_get(self, body_params=None):
+        return self.execute('POST', 'resource/timeline', body_params=body_params)
 
     """
     Alert Rules
