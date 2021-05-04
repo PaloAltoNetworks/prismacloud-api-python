@@ -30,7 +30,6 @@ if args.sectionId is not None:
 
 # --Initialize-- #
 
-pc_utility.prompt_for_verification_to_continue(args)
 settings = pc_utility.get_settings(args)
 pc_api.configure(settings)
 
