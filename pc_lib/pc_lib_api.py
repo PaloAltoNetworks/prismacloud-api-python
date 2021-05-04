@@ -74,12 +74,13 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
         requ_headers = {'Content-Type': 'application/json'}
         if self.token:
             requ_headers['x-redlock-auth'] = self.token
+        requ_params = query_params
         requ_data = json.dumps(body_params)
-        api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=query_params, data=body_params, verify=self.ca_bundle)
+        api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=requ_params, data=requ_data, verify=self.ca_bundle)
         if api_response.status_code in self.retry_status_codes:
             for retry_number in range(1, self.retry_limit):
                 time.sleep(self.retry_pause)
-                api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=query_params, data=body_params, verify=self.ca_bundle)
+                api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=query_params, data=requ_data, verify=self.ca_bundle)
                 if api_response.ok:
                     break
         if api_response.ok:
@@ -420,6 +421,37 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
 
     def cloud_account_group_delete(self, cloud_account_group_id):
         return self.execute('DELETE', 'cloud/group/%s' % cloud_account_group_id)
+
+    """
+    Asset (Resources) Inventory
+
+    [x] LIST
+    [ ] CREATE/ADD
+    [ ] READ/GET
+    [ ] UPDATE/REPLACE
+    [ ] DELETE/REMOVE
+    Additional:
+    [x] LIST v2
+    """
+
+    def asset_inventory_list_get(self, qp=None):
+        return self.execute('GET', 'v2/inventory', query_params=qp)
+
+    """
+    (Assets) Resources
+
+    [ ] LIST
+    [ ] CREATE/ADD
+    [x] READ/GET
+    [ ] UPDATE/REPLACE
+    [ ] DELETE/REMOVE
+    """
+
+    def resource_get(self, bp=None):
+        return self.execute('POST', 'resource', body_params=bp)
+
+    def resource_timeline_get(self, bp=None):
+        return self.execute('POST', 'resource/timeline', body_params=bp)
 
     """
     Alert Rules
