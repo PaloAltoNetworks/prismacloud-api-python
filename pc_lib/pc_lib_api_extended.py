@@ -23,10 +23,16 @@ class PrismaCloudAPIExtended():
         self.progress('Getting Saved Search: %s' % policy_current['name'])
         return self.saved_search_get(policy_current['rule']['criteria'])
 
+    def threaded_resource_get(self, resource):
+        self.progress('Getting Resource: %s' % resource['rrn'])
+        return self.resource_get(body_params={'rrn': resource['rrn']})
+
     # --Main-- #
 
     def export_policies_with_saved_searches(self, policy_list_current):
         result = {'policies': {}, 'searches': {}}
+        if not policy_list_current:
+            return result
         thread_pool_executor = concurrent.futures.ThreadPoolExecutor(self.max_workers)
         self.progress('API - Getting the Custom Policies ...')
         futures = []
@@ -55,4 +61,27 @@ class PrismaCloudAPIExtended():
             result['searches'][saved_search['id']] = saved_search
         self.progress('Done.')
         self.progress()
+        return result
+
+    def export_resources(self, cloud_account_resource_list):
+        result = []
+        if not cloud_account_resource_list:
+            return result
+        thread_pool_executor = concurrent.futures.ThreadPoolExecutor(self.max_workers)
+        self.progress('API - Getting the Resources ...')
+        futures = []
+        for cloud_account_resource in cloud_account_resource_list:
+            if 'rrn' not in cloud_account_resource:
+                self.progress()
+                self.progress('No RRN for Resource: %s' % cloud_account_resource)
+                self.progress()
+                continue
+            self.progress('Scheduling Resource Request: %s' % cloud_account_resource['rrn'])
+            futures.append(thread_pool_executor.submit(self.threaded_resource_get, cloud_account_resource))
+        concurrent.futures.wait(futures)
+        for future in concurrent.futures.as_completed(futures):
+            resource = future.result()
+            if resource:
+                result.append(resource)
+        self.progress('Done.')
         return result

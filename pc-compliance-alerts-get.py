@@ -47,7 +47,7 @@ for compliance_policy in compliance_standard_policy_list:
                                 {'operator': '=', 'name': 'cloud.account', 'value': cloud_account_name},
                                 {'name': 'policy.id', 'operator': '=', 'value': compliance_policy['policyId']}]}
     print('API - Getting the Alerts for Policy: %s ...' % compliance_policy['name'], end='')
-    filtered_alert_list = pc_api.alert_list_get(data=alert_filter)
+    filtered_alert_list = pc_api.alert_list_get(body_params=alert_filter)
     alert_list.extend(filtered_alert_list)
     print(' done.')
     print()

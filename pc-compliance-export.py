@@ -60,10 +60,10 @@ export_file_data['policy_list_original'] = policy_list_current
 print(' done.')
 print()
 
+# Threaded Queries.
 result = pc_api.export_policies_with_saved_searches(policy_list_current)
+
 export_file_data['policy_object_original'] = result['policies']
 export_file_data['search_object_original'] = result['searches']
-
 pc_utility.write_json_file(args.export_file_name, export_file_data)
-
 print('Exported to: %s' % args.export_file_name)

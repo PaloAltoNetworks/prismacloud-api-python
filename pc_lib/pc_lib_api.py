@@ -381,10 +381,10 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     """
 
     def cloud_accounts_list_get(self, query_params=None):
-        return self.execute('GET', 'cloud', query_params=qp)
+        return self.execute('GET', 'cloud', query_params=query_params)
 
     def cloud_accounts_list_names_get(self, query_params=None):
-        return self.execute('GET', 'cloud/name', query_params=qp)
+        return self.execute('GET', 'cloud/name', query_params=query_params)
 
     def cloud_accounts_add(self, cloud_type, cloud_account_to_add):
         return self.execute('POST', 'cloud/%s' % cloud_type, body_params=cloud_account_to_add)
@@ -394,6 +394,9 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
 
     def cloud_account_delete(self, cloud_type, cloud_account_id):
         return self.execute('DELETE', 'cloud/%s/%s' % (cloud_type, cloud_account_id))
+
+    def cloud_types_list_get(self, query_params=None):
+        return self.execute('GET', 'cloud/type', query_params=query_params)
 
     """
     Cloud Account Groups
@@ -450,8 +453,21 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     def resource_get(self, body_params=None):
         return self.execute('POST', 'resource', body_params=body_params)
 
-    def resource_timeline_get(self, body_params=None):
-        return self.execute('POST', 'resource/timeline', body_params=body_params)
+    def resource_scan_info_get(self, body_params=None):
+        result = []
+        page_number = 1
+        while page_number == 1 or 'pageToken' in body_params:
+            api_response = self.execute('POST', 'resource/scan_info', body_params=body_params)
+            if 'resources' in api_response:
+                result.extend(api_response['resources'])
+            if 'nextPageToken' in api_response:
+                body_params['pageToken'] = api_response['nextPageToken']
+            else:
+                body_params.pop('pageToken', None)
+            if 'totalMatchedCount' in api_response:
+                print('Resources: %s, Page Size: %s, Page: %s' % (api_response['totalMatchedCount'], body_params['limit'], page_number))
+            page_number = page_number + 1
+        return result
 
     """
     Alert Rules
