@@ -17,18 +17,18 @@ class PrismaCloudAPIExtended():
 
     def threaded_policy_read(self, policy_current):
         self.progress('Getting Policy: %s' % policy_current['name'])
-        return self.policy_get(policy_current['policyId'])
+        return self.policy_read(policy_current['policyId'])
 
     def threaded_saved_search_read(self, policy_current):
         self.progress('Getting Saved Search: %s' % policy_current['name'])
-        return self.saved_search_get(policy_current['rule']['criteria'])
+        return self.saved_search_read(policy_current['rule']['criteria'])
 
     def threaded_resource_read(self, resource):
         self.progress('Getting Resource: %s' % resource['rrn'])
-        return self.resource_get(body_params={'rrn': resource['rrn']}, force=True)
+        return self.resource_read(body_params={'rrn': resource['rrn']}, force=True)
         """
-        res = self.resource_get(body_params={'rrn': resource['rrn']}, force=True)
-        net = self.resource_network_get(body_params={'rrn': resource['rrn']}, force=True)
+        res = self.resource_read(body_params={'rrn': resource['rrn']}, force=True)
+        net = self.resource_network_read(body_params={'rrn': resource['rrn']}, force=True)
         if res and net:
             res['prisma_resource_network'] = net
         return res
@@ -45,7 +45,7 @@ class PrismaCloudAPIExtended():
         futures = []
         for policy_current in policy_list_current:
             self.progress('Scheduling Policy Request: %s' % policy_current['name'])
-            futures.append(thread_pool_executor.submit(self.threaded_policy_get, policy_current))
+            futures.append(thread_pool_executor.submit(self.threaded_policy_read, policy_current))
         concurrent.futures.wait(futures)
         for future in concurrent.futures.as_completed(futures):
             policy_current = future.result()
@@ -61,7 +61,7 @@ class PrismaCloudAPIExtended():
                 continue
             if policy_current['rule']['parameters']['savedSearch'] == 'true':
                 self.progress('Scheduling Saved Search Request: %s' % policy_current['name'])
-                futures.append(thread_pool_executor.submit(self.threaded_saved_search_get, policy_current))
+                futures.append(thread_pool_executor.submit(self.threaded_saved_search_read, policy_current))
         concurrent.futures.wait(futures)
         for future in concurrent.futures.as_completed(futures):
             saved_search = future.result()
@@ -79,7 +79,7 @@ class PrismaCloudAPIExtended():
         futures = []
         for cloud_account_resource in cloud_account_resource_list:
             self.progress('Scheduling Resource Request: %s' % cloud_account_resource['rrn'])
-            futures.append(thread_pool_executor.submit(self.threaded_resource_get, cloud_account_resource))
+            futures.append(thread_pool_executor.submit(self.threaded_resource_read, cloud_account_resource))
         concurrent.futures.wait(futures)
         for future in concurrent.futures.as_completed(futures):
             resource = future.result()

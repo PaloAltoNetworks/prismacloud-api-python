@@ -140,8 +140,6 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [ ] READ
     [ ] UPDATE
     [ ] DELETE
-    Additional:
-    [ ] As above with restrictions/filtering
     """
 
     """
@@ -153,7 +151,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [ ] UPDATE
     [ ] DELETE
     Additional:
-    [x] LIST v2
+    [x] LIST (v2)
     """
 
     def alert_list_read(self, query_params=None, body_params=None):
@@ -171,9 +169,9 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [x] UPDATE
     [x] DELETE
     Additional:
-    [x] LIST v2
-    [x] LIST v2 where custom
-    [x] UPDATE status
+    [x] LIST (v2)
+    [x] LIST (v2) CUSTOM
+    [x] UPDATE STATUS
     """
 
     def policy_list_read(self):
@@ -209,8 +207,6 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [x] READ
     [ ] UPDATE
     [x] DELETE
-    Additional:
-    [ ] As above with restrictions/filtering
     """
 
     def saved_search_list_read(self):
@@ -236,8 +232,6 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [x] READ
     [ ] UPDATE
     [x] DELETE
-    Additional:
-    [ ] As above with restrictions/filtering
     """
 
     def compliance_standard_list_read(self):
@@ -260,8 +254,6 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [ ] READ
     [ ] UPDATE
     [ ] DELETE
-    Additional:
-    [ ] As above with restrictions/filtering
     """
 
     def compliance_standard_requirement_list_read(self, compliance_standard_id):
@@ -278,8 +270,6 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [ ] READ
     [ ] UPDATE
     [ ] DELETE
-    Additional:
-    [ ] As above with restrictions/filtering
     """
 
     def compliance_standard_requirement_section_list_read(self, compliance_requirement_id):
@@ -318,7 +308,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [x] UPDATE
     [ ] DELETE
     Additional:
-    [x] LIST v2
+    [x] LIST (v2)
     """
 
     def user_list_read(self):
@@ -346,8 +336,6 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [x] READ
     [x] UPDATE
     [x] DELETE
-    Additional:
-    [ ] As above with restrictions/filtering
     """
 
     def user_role_list_read(self):
@@ -374,7 +362,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [x] UPDATE
     [x] DELETE
     Additional:
-    [x] UPDATE status
+    [x] UPDATE STATUS
     """
 
     def access_keys_list_read(self):
@@ -405,7 +393,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [x] UPDATE
     [x] DELETE
     Additional:
-    [x] LIST names
+    [x] LIST NAMES
     """
 
     def cloud_accounts_list_read(self, query_params=None):
@@ -434,8 +422,6 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [x] READ
     [x] UPDATE
     [x] DELETE
-    Additional:
-    [ ] As above with restrictions/filtering
     """
 
     def cloud_account_group_list_read(self):
@@ -462,7 +448,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [ ] UPDATE
     [ ] DELETE
     Additional:
-    [x] LIST v2
+    [x] LIST (v2)
     """
 
     def asset_inventory_list_read(self, query_params=None):
@@ -509,7 +495,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [ ] UPDATE
     [x] DELETE
     Additional:
-    [x] LIST v2
+    [x] LIST (v2)
     """
 
     def alert_rule_list_read(self):
@@ -527,7 +513,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [ ] UPDATE
     [x] DELETE
     Additional:
-    [ ] LIST v2
+    [ ] LIST (v2)
     """
 
     def integration_list_read(self):
@@ -544,12 +530,9 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [ ] READ
     [ ] UPDATE
     [x] DELETE
-    Additional:
-    [ ] As above with restrictions/filtering
     """
 
     def resource_list_list_read(self):
-        # TODO: Does this require ?listType=TAG
         return self.execute('GET', 'v1/resource_list')
 
     def resource_list_delete(self, resource_list_id):
