@@ -91,7 +91,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
                    result = None
         else:
             if force:
-                self.progress('The API (%s) returned an unexpected response: %s' % (requ_url, api_response.status_code))
+                self.progress('The API (%s) returned an unexpected response: %s, continuing ...' % (requ_url, api_response.status_code))
                 result = None
             else:
                 PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'The API (%s) returned an unexpected response\n%s' % (requ_url, api_response.text))
