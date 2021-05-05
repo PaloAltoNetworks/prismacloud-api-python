@@ -38,7 +38,7 @@ pc_api.configure(settings)
 # Compliance Get UUID
 
 print('API - Getting the Compliance Standards list ...', end='')
-compliance_standard_list = pc_api.compliance_standard_list_get()
+compliance_standard_list = pc_api.compliance_standard_list_read()
 compliance_standard = pc_utility.search_list_object_lower(compliance_standard_list, 'name', args.compliance_standard_name)
 print(' done.')
 print()
@@ -52,7 +52,7 @@ print()
 
 if args.requirementId is not None:
     print('API - Getting Requirements List for Compliance Standard ...', end='')
-    compliance_requirement_list = pc_api.compliance_standard_requirement_list_get(compliance_standard['id'])
+    compliance_requirement_list = pc_api.compliance_standard_requirement_list_read(compliance_standard['id'])
     print(' done.')
     print()
 
@@ -67,7 +67,7 @@ if args.requirementId is not None:
 
     if args.sectionId is not None:
         print('API - Getting Sections for Requirement ...', end='')
-        compliance_section_list = pc_api.compliance_standard_requirement_section_list_get(compliance_requirement['id'])
+        compliance_section_list = pc_api.compliance_standard_requirement_section_list_read(compliance_requirement['id'])
         print(' done.')
         print()
 

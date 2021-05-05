@@ -40,7 +40,7 @@ policy_list_to_update = []
 if args.policy_type is not None:
     policy_type = args.policy_type.lower()
     print('API - Getting list of Policies by Policy Type ...', end='')
-    policy_list = pc_api.policy_v2_list_get()
+    policy_list = pc_api.policy_v2_list_read()
     print(' done.')
     print()
     for policy in policy_list:
@@ -51,7 +51,7 @@ if args.policy_type is not None:
 if args.compliance_standard is not None:
     compliance_standard = args.compliance_standard
     print('API - Getting list of Policies by Compliance Standard ...', end='')
-    policy_list = pc_api.compliance_standard_policy_v2_list_get(compliance_standard)
+    policy_list = pc_api.compliance_standard_policy_v2_list_read(compliance_standard)
     print(' done.')
     for policy in policy_list:
         if policy['enabled'] is not specified_policy_status:

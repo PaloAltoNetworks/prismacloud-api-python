@@ -34,13 +34,13 @@ pc_api.configure(settings)
 # --Main-- #
 
 print('API - Getting the User ...', end='')
-user = pc_api.user_get(args.user_email.lower())
+user = pc_api.user_read(args.user_email.lower())
 print(' done.')
 print()
 
 if args.role is not None:
     print('API - Getting the Roles list ...', end='')
-    role_list = pc_api.user_role_list_get()
+    role_list = pc_api.user_role_list_read()
     print(' done.')
     print()
     update_needed = False

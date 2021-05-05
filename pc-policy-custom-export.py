@@ -28,7 +28,7 @@ export_file_data['policy_object_original'] = {}
 export_file_data['search_object_original'] = {}
 
 print('API - Getting the current list of Custom Policies ...', end='')
-policy_list_current = pc_api.policy_custom_v2_list_get()
+policy_list_current = pc_api.policy_custom_v2_list_read()
 export_file_data['policy_list_original'] = policy_list_current
 print(' done.')
 print()

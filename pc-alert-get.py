@@ -73,7 +73,7 @@ if args.policytype is not None:
     alerts_filter['filters'].append(temp_filter)
 
 print('API - Getting the Alerts list ...', end='')
-alerts_list = pc_api.alert_v2_list_get(body_params=alerts_filter)
+alerts_list = pc_api.alert_v2_list_read(body_params=alerts_filter)
 print(' done.')
 print()
 

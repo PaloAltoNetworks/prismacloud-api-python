@@ -27,7 +27,7 @@ pc_api.configure(settings)
 # Get Policy
 
 print('API - Getting the Policy list ...', end='')
-policy_list = pc_api.policy_list_get()
+policy_list = pc_api.policy_list_read()
 print(' done.')
 print()
 
@@ -47,7 +47,7 @@ print(json.dumps(policy))
 print()
 
 print('API - Getting the Policy ...', end='')
-policy = pc_api.policy_get(policy_id)
+policy = pc_api.policy_read(policy_id)
 print(' done.')
 print()
 
@@ -57,7 +57,7 @@ print()
 
 if args.rql:
     print('API - Getting the RQL (Saved Search) ...', end='')
-    policy_search = pc_api.saved_search_get(policy['rule']['criteria'])
+    policy_search = pc_api.saved_search_read(policy['rule']['criteria'])
     print(' done.')
     print()
 

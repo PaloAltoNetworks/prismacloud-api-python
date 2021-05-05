@@ -15,15 +15,15 @@ class PrismaCloudAPIExtended():
 
     # --Thread Wrappers-- #
 
-    def threaded_policy_get(self, policy_current):
+    def threaded_policy_read(self, policy_current):
         self.progress('Getting Policy: %s' % policy_current['name'])
         return self.policy_get(policy_current['policyId'])
 
-    def threaded_saved_search_get(self, policy_current):
+    def threaded_saved_search_read(self, policy_current):
         self.progress('Getting Saved Search: %s' % policy_current['name'])
         return self.saved_search_get(policy_current['rule']['criteria'])
 
-    def threaded_resource_get(self, resource):
+    def threaded_resource_read(self, resource):
         self.progress('Getting Resource: %s' % resource['rrn'])
         return self.resource_get(body_params={'rrn': resource['rrn']}, force=True)
         """

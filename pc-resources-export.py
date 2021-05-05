@@ -24,7 +24,7 @@ pc_api.configure(settings)
 # --Main-- #
 
 print('API - Getting the current list of Cloud Accounts ...', end='')
-cloud_accounts_list = pc_api.cloud_accounts_list_get(query_params={'excludeAccountGroupDetails': 'true'})
+cloud_accounts_list = pc_api.cloud_accounts_list_read(query_params={'excludeAccountGroupDetails': 'true'})
 print(' done.')
 print()
 
@@ -45,7 +45,7 @@ for cloud_account in cloud_accounts_list:
         'timeRange': {'type': 'to_now'}
     }
     print('API - Getting the current Resources for Cloud Account: %s ...' % cloud_account['name'])
-    cloud_account_resource_list = pc_api.resource_scan_info_get(body_params=body_params)
+    cloud_account_resource_list = pc_api.resource_scan_info_read(body_params=body_params)
     print('Done.')
     # Threaded Queries.
     resource_list.append(pc_api.export_resources(cloud_account_resource_list))

@@ -33,7 +33,7 @@ export_file_data['policy_object_original'] = {}
 export_file_data['search_object_original'] = {}
 
 print('API - Getting the current list of Compliance Standards ...', end='')
-compliance_standard_list_current = pc_api.compliance_standard_list_get()
+compliance_standard_list_current = pc_api.compliance_standard_list_read()
 compliance_standard_original = pc_utility.search_list_object_lower(compliance_standard_list_current, 'name', args.compliance_standard_name)
 if compliance_standard_original is None:
     pc_utility.error_and_exit(400, 'Compliance Standard to export not found. Please verify the Compliance Standard name.')
@@ -42,20 +42,20 @@ print(' done.')
 print()
 
 print('API - Getting the Compliance Standard Requirements ...', end='')
-compliance_requirement_list_original = pc_api.compliance_standard_requirement_list_get(compliance_standard_original['id'])
+compliance_requirement_list_original = pc_api.compliance_standard_requirement_list_read(compliance_standard_original['id'])
 export_file_data['compliance_requirement_list_original'] = compliance_requirement_list_original
 print(' done.')
 print()
 
 print('API - Getting the Compliance Standard Sections ...', end='')
 for compliance_requirement_original in compliance_requirement_list_original:
-    compliance_section_list_original = pc_api.compliance_standard_requirement_section_list_get(compliance_requirement_original['id'])
+    compliance_section_list_original = pc_api.compliance_standard_requirement_section_list_read(compliance_requirement_original['id'])
     export_file_data['compliance_section_list_original'][compliance_requirement_original['id']] = compliance_section_list_original
 print(' done.')
 print()
 
 print('API - Getting the Compliance Standard Policy List (please wait) ...', end='')
-policy_list_current = pc_api.compliance_standard_policy_v2_list_get(compliance_standard_original['name'])
+policy_list_current = pc_api.compliance_standard_policy_v2_list_read(compliance_standard_original['name'])
 export_file_data['policy_list_original'] = policy_list_current
 print(' done.')
 print()

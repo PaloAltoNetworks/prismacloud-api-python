@@ -30,7 +30,7 @@ print()
 user_list_to_import = pc_utility.pc_file_load_csv_text(args.import_file_name)
 
 print('API - Getting the Roles list ...', end='')
-user_role_list = pc_api.user_role_list_get()
+user_role_list = pc_api.user_role_list_read()
 print(' done.')
 
 user_role_id = None
@@ -76,5 +76,5 @@ print('Users skipped (duplicates in Import File): %s' % users_duplicate_file_cou
 print('API - Creating Users ...')
 for new_user in user_list_to_import_validated:
     print('Adding User: %s' % new_user['email'])
-    pc_api.user_add(new_user)
+    pc_api.user_create(new_user)
 print('Done.')
