@@ -457,6 +457,9 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     def resource_get(self, body_params=None, force=False):
         return self.execute('POST', 'resource', body_params=body_params, force=force)
 
+    def resource_network_get(self, body_params=None, force=False):
+        return self.execute('POST', 'resource/network', body_params=body_params, force=force)
+
     def resource_scan_info_get(self, body_params=None):
         result = []
         page_number = 1

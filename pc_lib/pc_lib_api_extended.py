@@ -25,7 +25,13 @@ class PrismaCloudAPIExtended():
 
     def threaded_resource_get(self, resource):
         self.progress('Getting Resource: %s' % resource['rrn'])
-        return self.resource_get(body_params={'rrn': resource['rrn']}, force=True)
+        resource = self.resource_get(body_params={'rrn': resource['rrn']}, force=True)
+        #"""
+        networks = self.resource_network_get(body_params={'rrn': resource['rrn']}, force=True)
+        if resource and networks:
+            resource['prisma_resource_network'] = networks
+        #"""
+        return resource
 
     # --Main-- #
 
