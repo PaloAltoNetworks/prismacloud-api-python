@@ -44,7 +44,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
             self.token = api_response.get('token') 
             self.token_timer = time.time()
         else:
-            PrismaCloudUtility.error_and_exit(api_response.status_code, 'The API (login) returned an unexpected response:\n%s' % api_response.text)
+            PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'The API (%s) returned an unexpected response\n%s' % (requ_url, api_response.text))
 
     def extend_token(self):
         requ_url = 'https://%s/auth_token/extend' % self.api
@@ -62,9 +62,9 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
             self.token = api_response.get('token') 
             self.token_timer = time.time() 
         else:
-            PrismaCloudUtility.error_and_exit(api_response.status_code, 'The API (extend) returned an unexpected response:\n%s' % api_response.text)
+            PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'The API (%s) returned an unexpected response\n%s' % (requ_url, api_response.text))
 
-    def execute(self, action, endpoint, query_params=None, body_params=None):
+    def execute(self, action, endpoint, query_params=None, body_params=None, force=False):
         if not self.token:
             self.login()
         if int(time.time() - self.token_timer) > self.token_limit:
@@ -90,7 +90,11 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
                 if api_response.content == '':
                    result = None
         else:
-            PrismaCloudUtility.error_and_exit(api_response.status_code, 'The API (%s) returned an unexpected response:\n%s' % (endpoint, api_response.text))
+            if force:
+                self.progress('The API (%s) returned an unexpected response: %s' % (requ_url, api_response.status_code))
+                result = None
+            else:
+                PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'The API (%s) returned an unexpected response\n%s' % (requ_url, api_response.text))
         return result
 
     def progress(self, output='', optional=False):
@@ -450,8 +454,8 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
     [ ] DELETE/REMOVE
     """
 
-    def resource_get(self, body_params=None):
-        return self.execute('POST', 'resource', body_params=body_params)
+    def resource_get(self, body_params=None, force=False):
+        return self.execute('POST', 'resource', body_params=body_params, force=force)
 
     def resource_scan_info_get(self, body_params=None):
         result = []
@@ -465,7 +469,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
             else:
                 body_params.pop('pageToken', None)
             if 'totalMatchedCount' in api_response:
-                print('Resources: %s, Page Size: %s, Page: %s' % (api_response['totalMatchedCount'], body_params['limit'], page_number))
+                self.progress('Resources: %s, Page Size: %s, Page: %s' % (api_response['totalMatchedCount'], body_params['limit'], page_number))
             page_number = page_number + 1
         return result
 

@@ -36,14 +36,14 @@ resource_list = []
 
 for cloud_account in cloud_accounts_list:
     body_params = {
-        "filters":[
+        'filters':[
             {'operator':'=', 'name':'includeEventForeignEntities', 'value': 'false'},
             {'operator':'=', 'name':'asset.severity', 'value': 'all'},
             {'operator':'=', 'name':'cloud.account',  'value': '%s' % cloud_account['name']},
             {'operator':'=', 'name':'cloud.type',     'value': '%s' % cloud_account['deploymentType']},
             {'operator':'=', 'name':'scan.status',    'value': 'all'}],
-        "limit": 1000,
-        "timeRange": {"type":"to_now"}
+        'limit': 1000,
+        'timeRange': {'type': 'to_now'}
     }
     print('API - Getting the current Resources for Cloud Account: %s ...' % cloud_account['name'])
     cloud_account_resource_list = pc_api.resource_scan_info_get(body_params=body_params)

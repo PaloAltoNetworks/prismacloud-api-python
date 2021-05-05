@@ -25,7 +25,7 @@ class PrismaCloudAPIExtended():
 
     def threaded_resource_get(self, resource):
         self.progress('Getting Resource: %s' % resource['rrn'])
-        return self.resource_get(body_params={'rrn': resource['rrn']})
+        return self.resource_get(body_params={'rrn': resource['rrn']}, force=True)
 
     # --Main-- #
 
@@ -71,11 +71,6 @@ class PrismaCloudAPIExtended():
         self.progress('API - Getting the Resources ...')
         futures = []
         for cloud_account_resource in cloud_account_resource_list:
-            if 'rrn' not in cloud_account_resource:
-                self.progress()
-                self.progress('No RRN for Resource: %s' % cloud_account_resource)
-                self.progress()
-                continue
             self.progress('Scheduling Resource Request: %s' % cloud_account_resource['rrn'])
             futures.append(thread_pool_executor.submit(self.threaded_resource_get, cloud_account_resource))
         concurrent.futures.wait(futures)
