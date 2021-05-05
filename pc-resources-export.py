@@ -51,4 +51,7 @@ for cloud_account in cloud_accounts_list:
     resource_list.append(pc_api.export_resources(cloud_account_resource_list))
 
 pc_utility.write_json_file(args.export_file_name, resource_list)
+print()
 print('Exported to: %s' % args.export_file_name)
+
+pc_api.error_report()

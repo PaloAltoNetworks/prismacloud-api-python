@@ -4,6 +4,7 @@ from .pc_lib_api_extended import PrismaCloudAPIExtended
 from .pc_lib_utility import PrismaCloudUtility
 
 import json
+import logging
 import requests
 import time
 
@@ -12,6 +13,16 @@ import time
 # Prisma Cloud API library.
 
 # --Class Methods-- #
+
+class CallCounter:
+    # Decorator to determine number of calls for a method.
+    def __init__(self,method):
+        self.method = method
+        self.counter = 0
+
+    def __call__(self,*args,**kwargs):
+        self.counter += 1
+        return self.method(*args,**kwargs)
 
 class PrismaCloudAPI(PrismaCloudAPIExtended):
     def __init__(self):
@@ -26,12 +37,20 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
         self.retry_pause        = 5
         self.retry_status_codes = [401, 429, 500, 502, 503, 504]
         self.max_workers        = 16
+        self.error_log          = 'error.log'
 
     def configure(self, settings):
         self.api       = settings['apiBase']
         self.username  = settings['username']
         self.password  = settings['password']
         self.ca_bundle = settings['ca_bundle']
+        self.logger    = logging.getLogger(__name__)
+        formatter      = logging.Formatter(fmt='%(asctime)s: %(levelname)s: %(message)s', datefmt='%Y-%m-%d %I:%M:%S %p')
+        filehandler    = logging.FileHandler(self.error_log)
+        filehandler.setLevel(level=logging.DEBUG)
+        filehandler.setFormatter(formatter)
+        self.logger.addHandler(filehandler)
+        self.logger.error = CallCounter(self.logger.error)
 
     def login(self):
         requ_url = 'https://%s/login' % self.api
@@ -44,7 +63,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
             self.token = api_response.get('token') 
             self.token_timer = time.time()
         else:
-            PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'The API (%s) returned an unexpected response\n%s' % (requ_url, api_response.text))
+            PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
 
     def extend_token(self):
         requ_url = 'https://%s/auth_token/extend' % self.api
@@ -62,7 +81,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
             self.token = api_response.get('token') 
             self.token_timer = time.time() 
         else:
-            PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'The API (%s) returned an unexpected response\n%s' % (requ_url, api_response.text))
+            PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
 
     def execute(self, action, endpoint, query_params=None, body_params=None, force=False):
         if not self.token:
@@ -91,11 +110,16 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
                    result = None
         else:
             if force:
-                self.progress('The API (%s) returned an unexpected response: %s, continuing ...' % (requ_url, api_response.status_code))
+                self.logger.error('API: (%s) responded with an error: (%s), with query %s and body: %s' % (requ_url, api_response.status_code, query_params, body_params))
+                self.progress('API: (%s) responded with an error: (%s) details logged to: (%s)' % (requ_url, api_response.status_code, self.error_log))
                 result = None
             else:
-                PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'The API (%s) returned an unexpected response\n%s' % (requ_url, api_response.text))
+                PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
         return result
+
+    def error_report(self):
+        if self.logger.error.counter > 0:
+            print('API responded with (%s) error(s): details logged to: (%s)' % (self.logger.error.counter, self.error_log))
 
     def progress(self, output='', optional=False):
         if not optional:

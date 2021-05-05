@@ -13,7 +13,7 @@ import time
 
 class PrismaCloudAPIExtended():
 
-    # --Threading-- #
+    # --Thread Wrappers-- #
 
     def threaded_policy_get(self, policy_current):
         self.progress('Getting Policy: %s' % policy_current['name'])
