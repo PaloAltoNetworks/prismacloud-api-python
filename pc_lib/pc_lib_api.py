@@ -16,17 +16,18 @@ import time
 
 class CallCounter:
     # Decorator to determine number of calls for a method.
-    def __init__(self,method):
+    def __init__(self, method):
         self.method = method
         self.counter = 0
 
-    def __call__(self,*args,**kwargs):
+    def __call__(self, *args, **kwargs):
         self.counter += 1
-        return self.method(*args,**kwargs)
+        return self.method(*args, **kwargs)
 
 class PrismaCloudAPI(PrismaCloudAPIExtended):
     def __init__(self):
         self.api                = None
+        self.api_compute        = None
         self.username           = None
         self.password           = None
         self.ca_bundle          = None
@@ -40,13 +41,17 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
         self.error_log          = 'error.log'
 
     def configure(self, settings):
-        self.api       = settings['apiBase']
-        self.username  = settings['username']
-        self.password  = settings['password']
-        self.ca_bundle = settings['ca_bundle']
-        self.logger    = logging.getLogger(__name__)
-        formatter      = logging.Formatter(fmt='%(asctime)s: %(levelname)s: %(message)s', datefmt='%Y-%m-%d %I:%M:%S %p')
-        filehandler    = logging.FileHandler(self.error_log)
+        # Required.
+        self.api         = settings['apiBase']
+        self.username    = settings['username']
+        self.password    = settings['password']
+        # Optional.
+        self.api_compute = settings['api_compute']
+        self.ca_bundle   = settings['ca_bundle']
+        # Logging!
+        self.logger = logging.getLogger(__name__)
+        formatter   = logging.Formatter(fmt='%(asctime)s: %(levelname)s: %(message)s', datefmt='%Y-%m-%d %I:%M:%S %p')
+        filehandler = logging.FileHandler(self.error_log)
         filehandler.setLevel(level=logging.DEBUG)
         filehandler.setFormatter(formatter)
         self.logger.addHandler(filehandler)
@@ -83,12 +88,16 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
         else:
             PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
 
-    def execute(self, action, endpoint, query_params=None, body_params=None, force=False):
+    # Default to RedLock API.
+
+    def execute(self, action, endpoint, api=None, query_params=None, body_params=None, force=False):
         if not self.token:
             self.login()
         if int(time.time() - self.token_timer) > self.token_limit:
             self.extend_token()
-        requ_url = 'https://%s/%s' % (self.api, endpoint)
+        if not api:
+            api = self.api
+        requ_url = 'https://%s/%s' % (api, endpoint)
         requ_action = action
         requ_headers = {'Content-Type': 'application/json'}
         if self.token:
@@ -108,15 +117,24 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
             except ValueError:
                 if api_response.content == '':
                    result = None
+                else:
+                   self.logger.error('API: (%s) responded with an error: (%s), with query %s and body: %s' % (requ_url, api_response.status_code, query_params, body_params))
+                   result = None
         else:
             if force:
                 self.logger.error('API: (%s) responded with an error: (%s), with query %s and body: %s' % (requ_url, api_response.status_code, query_params, body_params))
-                self.progress('API: (%s) responded with an error: (%s) details logged to: (%s)' % (requ_url, api_response.status_code, self.error_log))
                 result = None
             else:
                 PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
         return result
 
+    # Default to TwistLock API.
+
+    def execute_compute(self, action, endpoint, api=None, query_params=None, body_params=None, force=False):
+        if not api:
+            api = self.api_compute
+        return self.execute(action, endpoint, api=api, query_params=None, body_params=None, force=False)
+        
     def error_report(self):
         if self.logger.error.counter > 0:
             print('API responded with (%s) error(s): details logged to: (%s)' % (self.logger.error.counter, self.error_log))
@@ -483,7 +501,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
                 body_params.pop('pageToken', None)
             if 'totalMatchedCount' in api_response:
                 self.progress('Resources: %s, Page Size: %s, Page: %s' % (api_response['totalMatchedCount'], body_params['limit'], page_number))
-            page_number = page_number + 1
+            page_number += 1
         return result
 
     """

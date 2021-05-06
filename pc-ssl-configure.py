@@ -11,7 +11,7 @@ import socket
 
 pc_arg_parser = argparse.ArgumentParser()
 pc_arg_parser.add_argument(
-        '--uiurl',
+        '--api',
         default='api.prismacloud.io',
         type=str,
         help='(Optional) - Prisma Cloud API/UI Base URL')
@@ -24,7 +24,7 @@ args = pc_arg_parser.parse_args()
 
 src_ca_file = certifi.where()
 dst_ca_file = args.ca_bundle
-host_name = args.uiurl 
+host_name = args.api 
 port = 443
 panw_subjects = [
     '/C=US/ST=CA/O=paloalto networks/OU=IT/CN=decrypt.paloaltonetworks.com',

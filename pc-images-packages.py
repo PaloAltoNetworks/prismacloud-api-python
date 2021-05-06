@@ -1,3 +1,4 @@
+from __future__ import print_function
 from pc_lib import pc_api, pc_utility
 
 import json
@@ -9,11 +10,6 @@ parser.add_argument(
     '--image_id',
     type=str,
     help='ID of the Image (sha256:...).')
-parser.add_argument(
-    '--compute_endpoint',
-    type=str,
-    required=True,
-    help='Compute Endpoint (See Compute > Manage > System > Downloads: Path to Console).')
 args = parser.parse_args()
 
 # --Initialize-- #
@@ -24,10 +20,6 @@ pc_api.configure(settings)
 # --Main-- #
 
 pc_api.login()
-
-redlock_api = pc_api.api
-twistlock_api = args.compute_endpoint.replace('http://', '')
-pc_api.api = twistlock_api
 
 get_deployed_images = True
 get_ci_images = True
@@ -58,9 +50,9 @@ deployed_images = {}
 offset = 0
 while get_deployed_images:
     if args.image_id:
-        images = pc_api.execute('GET', 'api/v1/images?id=%s&filterBaseImage=true&limit=%s&offset=%s' % (args.image_id, qlimit, offset))
+        images = pc_api.execute_compute('GET', 'api/v1/images?id=%s&filterBaseImage=true&limit=%s&offset=%s' % (args.image_id, qlimit, offset))
     else:
-        images = pc_api.execute('GET', 'api/v1/images?filterBaseImage=true&limit=%s&offset=%s' % (qlimit, offset))
+        images = pc_api.execute_compute('GET', 'api/v1/images?filterBaseImage=true&limit=%s&offset=%s' % (qlimit, offset))
     if not images:
         break
     for image in images:
@@ -96,9 +88,9 @@ ci_images = {}
 offset = 0
 while get_ci_images:
     if args.image_id:
-        images = pc_api.execute('GET', 'api/v1/scans?imageID=%s&filterBaseImage=true&limit=%s&offset=%s' % (args.image_id, qlimit, offset))
+        images = pc_api.execute_compute('GET', 'api/v1/scans?imageID=%s&filterBaseImage=true&limit=%s&offset=%s' % (args.image_id, qlimit, offset))
     else:
-        images = pc_api.execute('GET', 'api/v1/scans?filterBaseImage=true&limit=%s&offset=%s' % (qlimit, offset))
+        images = pc_api.execute_compute('GET', 'api/v1/scans?filterBaseImage=true&limit=%s&offset=%s' % (qlimit, offset))
     if not images:
         break
     for image in images:
