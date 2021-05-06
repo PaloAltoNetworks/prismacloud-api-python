@@ -233,6 +233,7 @@ if args.policy:
     print(' done.')
     print()
 
+    # TODO: Use error logging as per pc-resources-export.py.
     if policy_validate_error_list:
         print()
         print('The following is a list of the Policies that could not be found in the destination.')
