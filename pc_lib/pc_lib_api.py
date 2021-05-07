@@ -134,7 +134,11 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
         if not api:
             api = self.api_compute
         return self.execute(action, endpoint, api=api, query_params=None, body_params=None, force=False)
-        
+
+    def validate_api_compute(self):
+        if not self.api_compute:
+            PrismaCloudUtility.error_and_exit(self, 500, 'Please specify a Prisma Cloud Compute Base URL.')
+
     def error_report(self):
         if self.logger.error.counter > 0:
             print('API responded with (%s) error(s): details logged to: (%s)' % (self.logger.error.counter, self.error_log))

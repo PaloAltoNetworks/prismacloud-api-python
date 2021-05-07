@@ -16,6 +16,7 @@ args = parser.parse_args()
 
 settings = pc_utility.get_settings(args)
 pc_api.configure(settings)
+pc_api.validate_api_compute()
 
 # --Main-- #
 
