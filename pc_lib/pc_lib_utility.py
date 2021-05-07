@@ -50,7 +50,6 @@ class PrismaCloudUtility(object):
             type=str,
             help='(Optional) - Custom CA (bundle) file')
         get_arg_parser.add_argument(
-            '-conf_file', # Deprecated
             '--config_file',
             default=None,
             type=str,
