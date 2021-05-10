@@ -10,7 +10,20 @@ parser.add_argument(
     '--image_id',
     type=str,
     help='ID of the Image (sha256:...).')
+parser.add_argument(
+    '--package_id',
+    type=str,
+    help='ID of the Package (name:version).')
 args = parser.parse_args()
+
+search_package_name    = None
+search_package_version = None
+
+if args.package_id:
+   if ':' in args.package_id:
+       [search_package_name, search_package_version] = args.package_id.split(':')
+   else:
+       search_package_name = args.package_id
 
 # --Initialize-- #
 
@@ -25,6 +38,9 @@ pc_api.login()
 get_deployed_images = True
 get_ci_images = True
 qlimit = 50
+
+deployed_images_with_package = []
+ci_images_with_package = []
 
 """
 	"instances": [{
@@ -44,6 +60,10 @@ qlimit = 50
 			"layerTime": 1557275612
 		}, {
 """
+
+if search_package_name:
+    print('Searching for Package: (%s) Version: (%s)' % (search_package_name, search_package_version))
+    print()
 
 # Monitor > Vulnerabilities > Images > Deployed
 print('Getting Deployed Images ...')
@@ -82,6 +102,13 @@ for image in deployed_images:
             print('\tVers: %s' % package['version'])
             print('\tCVEs: %s' % package['cveCount'])
             print()
+            if package_type['pkgsType'] == 'package':
+                if search_package_name and (search_package_name == package['name']):
+                       if search_package_version:
+                           if search_package_version == package['version']:
+                               deployed_images_with_package.append(deployed_images[image]['instance'])
+                       else:
+                           deployed_images_with_package.append(deployed_images[image]['instance'])
     print()
 
 # Monitor > Vulnerabilities > Images > CI
@@ -123,5 +150,31 @@ for image in ci_images:
             print('\tVers: %s' % package['version'])
             print('\tCVEs: %s' % package['cveCount'])
             print()
+            if package_type['pkgsType'] == 'package':
+                if search_package_name and (search_package_name == package['name']):
+                       if search_package_version:
+                           if search_package_version == package['version']:
+                               ci_images_with_package.append(deployed_images[image]['instance'])
+                       else:
+                           ci_images_with_package.append(deployed_images[image]['instance'])
     print()
 
+if args.package_id:
+    print()
+    if deployed_images_with_package:
+        print('Package: (%s) Version: (%s) found in these Deployed images:' % (search_package_name, search_package_version))
+        print()
+        for image in deployed_images_with_package:
+            print('\t%s' % image)
+    else:
+        print('Package: (%s) Version: (%s) not found in any Deployed images' % (search_package_name, search_package_version))
+
+    print()
+    if ci_images_with_package:
+        print('Package: (%s) Version: (%s) found in these CI images:' % (search_package_name, search_package_version))
+        print()
+        for image in ci_images_with_package:
+            print('\t%s' % image)
+    else:
+        print('Package: (%s) Version: (%s) not found in any CI images' % (search_package_name, search_package_version))
+    
