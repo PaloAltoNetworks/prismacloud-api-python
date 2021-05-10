@@ -55,6 +55,7 @@ while get_deployed_images:
     else:
         images = pc_api.execute_compute('GET', 'api/v1/images?filterBaseImage=true&limit=%s&offset=%s' % (qlimit, offset))
     if not images:
+        get_deployed_images = False
         break
     for image in images:
         image_id = image['id']
@@ -93,6 +94,7 @@ while get_ci_images:
     else:
         images = pc_api.execute_compute('GET', 'api/v1/scans?filterBaseImage=true&limit=%s&offset=%s' % (qlimit, offset))
     if not images:
+        get_ci_images = False
         break
     for image in images:
         image_id = image['entityInfo']['id']

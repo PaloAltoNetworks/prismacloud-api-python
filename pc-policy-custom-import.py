@@ -18,9 +18,9 @@ parser.add_argument(
     type=str,
     help='Import file name for Custom Policies.')
 parser.add_argument(
-    '--status',
+    '--maintain_status',
     action='store_true',
-    help='(Optional) - Maintain the status of imported Custom Policies. By default, they will be disabled.')
+    help='(Optional) - Maintain the status of imported Custom Policies. By default, imported Policies will be disabled.')
 args = parser.parse_args()
 
 # --Initialize-- #
@@ -76,7 +76,7 @@ for policy_id, policy_object in policy_object_original.items():
     if duplicate_found:
         print('Skipping Duplicate (by name) Policy: %' % policy_object['name'])
     else:
-        if not args.status:
+        if not args.maintain_status:
             policy_object['enabled'] = False
         # Strip out denormalized data not required to import.
         if 'complianceMetadata' in policy_object:
@@ -108,7 +108,7 @@ for policy_id, policy_object in policy_object_original.items():
                             search_object['saved'] = True
                             pc_api.saved_search_create(new_search['id'], search_object)
         new_policy_id = None
-        if not args.status:
+        if not args.maintain_status:
             policy_object['enabled'] = False
         try:
             print('Importing: %s' % policy_object['name'])
