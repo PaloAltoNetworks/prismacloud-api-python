@@ -65,7 +65,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
         api_response = requests.request(requ_action, requ_url, headers=requ_headers, data=requ_data, verify=self.ca_bundle)
         if api_response.ok:
             api_response = json.loads(api_response.content)
-            self.token = api_response.get('token') 
+            self.token = api_response.get('token')
             self.token_timer = time.time()
         else:
             PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
@@ -83,22 +83,20 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
                     break
         if api_response.ok:
             api_response = json.loads(api_response.content)
-            self.token = api_response.get('token') 
-            self.token_timer = time.time() 
+            self.token = api_response.get('token')
+            self.token_timer = time.time()
         else:
             PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
 
-    # Default to RedLock API.
+    # RedLock API.
 
-    def execute(self, action, endpoint, api=None, query_params=None, body_params=None, force=False):
+    def execute(self, action, endpoint, query_params=None, body_params=None, force=False):
         if not self.token:
             self.login()
         if int(time.time() - self.token_timer) > self.token_limit:
             self.extend_token()
-        if not api:
-            api = self.api
-        requ_url = 'https://%s/%s' % (api, endpoint)
         requ_action = action
+        requ_url = 'https://%s/%s' % (self.api, endpoint)
         requ_headers = {'Content-Type': 'application/json'}
         if self.token:
             requ_headers['x-redlock-auth'] = self.token
@@ -110,41 +108,93 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
                 time.sleep(self.retry_pause)
                 api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=query_params, data=requ_data, verify=self.ca_bundle)
                 if api_response.ok:
-                    break
+                    break # retry loop
         if api_response.ok:
             try:
                 result = json.loads(api_response.content)
             except ValueError:
                 if api_response.content == '':
-                   result = None
+                   return None
                 else:
-                   self.logger.error('API: (%s) responded with an error: (%s), with query %s and body: %s' % (requ_url, api_response.status_code, query_params, body_params))
-                   result = None
+                   self.logger.error('API: (%s) responded with an error: (%s), with query %s and body params: %s' % (requ_url, api_response.status_code, query_params, body_params))
+                   return None
         else:
             if force:
-                self.logger.error('API: (%s) responded with an error: (%s), with query %s and body: %s' % (requ_url, api_response.status_code, query_params, body_params))
-                result = None
+                self.logger.error('API: (%s) responded with an error: (%s), with query %s and body params: %s' % (requ_url, api_response.status_code, query_params, body_params))
+                return None
             else:
                 PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
         return result
 
-    # Default to TwistLock API.
+    # TwistLock API.
 
-    def execute_compute(self, action, endpoint, api=None, query_params=None, body_params=None, force=False):
-        if not api:
-            api = self.api_compute
-        return self.execute(action, endpoint, api=api, query_params=None, body_params=None, force=False)
+    def execute_compute(self, action, endpoint, query_params=None, body_params=None, force=False, paginated=False):
+        if not self.token:
+            self.login()
+        # Endpoints that have the potential to return large numbers of results return a 'Total-Count' response header.
+        offset = 0
+        limit = 50
+        total = 0
+        results = []
+        while offset == 0 or offset < total:
+            if int(time.time() - self.token_timer) > self.token_limit:
+                self.extend_token()
+            requ_action = action
+            if paginated:
+                requ_url = 'https://%s/%s&limit=%s&offset=%s' % (self.api_compute, endpoint, limit, offset)
+            else:
+                requ_url = 'https://%s/%s' % (self.api_compute, endpoint)
+            requ_headers = {'Content-Type': 'application/json'}
+            if self.token:
+                requ_headers['x-redlock-auth'] = self.token
+            requ_params = query_params
+            requ_data = json.dumps(body_params)
+            api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=requ_params, data=requ_data, verify=self.ca_bundle)
+            if api_response.status_code in self.retry_status_codes:
+                for retry_number in range(1, self.retry_limit):
+                    time.sleep(self.retry_pause)
+                    api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=query_params, data=requ_data, verify=self.ca_bundle)
+                    if api_response.ok:
+                        break # retry loop
+            if api_response.ok:
+                try:
+                    result = json.loads(api_response.content)
+                except ValueError:
+                    if api_response.content == '':
+                        return None
+                    else:
+                        self.logger.error('API: (%s) responded with an error: (%s), with query %s and body params: %s' % (requ_url, api_response.status_code, query_params, body_params))
+                        return None
+                if 'Total-Count' in api_response.headers:
+                    results.extend(result)
+                    total = int(api_response.headers['Total-Count'])
+                else:
+                    return result
+            else:
+                if force:
+                    self.logger.error('API: (%s) responded with an error: (%s), with query %s and body params: %s' % (requ_url, api_response.status_code, query_params, body_params))
+                    return None
+                else:
+                    PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
+            offset += limit
+        return results
+
+    # The Compute API setting is optional.
 
     def validate_api_compute(self):
         if not self.api_compute:
             PrismaCloudUtility.error_and_exit(self, 500, 'Please specify a Prisma Cloud Compute Base URL.')
 
+    # Output counted errors.
+
     def error_report(self):
         if self.logger.error.counter > 0:
             print('API responded with (%s) error(s): details logged to: (%s)' % (self.logger.error.counter, self.error_log))
 
-    def progress(self, output='', optional=False):
-        if not optional:
+    # Optionally output progress.
+
+    def progress(self, output='', mode='verbose'):
+        if mode == 'verbose':
             print(output)
 
     # --API Endpoints-- #
@@ -583,7 +633,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
 
     def compliance_report_download(self, report_id):
         return self.execute('GET', 'report/%s/download' % report_id)
-        # TODO: 
+        # TODO:
         #if response_status == 204:
         #    # download pending
         #    pass
