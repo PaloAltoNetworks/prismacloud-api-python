@@ -7,23 +7,32 @@ import json
 
 parser = pc_utility.get_arg_parser()
 parser.add_argument(
+    '--mode',
+    type=str,
+    choices=['ci', 'deployed', 'all'],
+    default='all',
+    help='(Optional) - Report on CI, Deployed, or All Images.')
+parser.add_argument(
     '--image_id',
     type=str,
-    help='ID of the Image (sha256:...).')
+    help='(Optional) - ID of the Image (sha256:...).')
 parser.add_argument(
     '--package_id',
     type=str,
-    help='ID of the Package (name:version).')
+    help='(Optional) - ID of the Package (name:version).')
 args = parser.parse_args()
 
 search_package_name    = None
 search_package_version = None
 
 if args.package_id:
+   output_mode = 'quiet'
    if ':' in args.package_id:
        [search_package_name, search_package_version] = args.package_id.split(':')
    else:
        search_package_name = args.package_id
+else:
+   output_mode = 'verbose'
 
 # --Initialize-- #
 
@@ -33,14 +42,11 @@ pc_api.validate_api_compute()
 
 # --Main-- #
 
-pc_api.login()
-
 get_deployed_images = True
-get_ci_images = True
-qlimit = 50
+get_ci_images       = True
 
 deployed_images_with_package = []
-ci_images_with_package = []
+ci_images_with_package       = []
 
 """
 	"instances": [{
@@ -61,120 +67,113 @@ ci_images_with_package = []
 		}, {
 """
 
+print('Testing Compute API Access ...', end='')
+intelligence = pc_api.execute_compute('GET', 'api/v1/statuses/intelligence')
+print(' done.')
+print()
+
 if search_package_name:
     print('Searching for Package: (%s) Version: (%s)' % (search_package_name, search_package_version))
     print()
 
 # Monitor > Vulnerabilities > Images > Deployed
-print('Getting Deployed Images ...')
-deployed_images = {}
-offset = 0
-while get_deployed_images:
+if args.mode in ['deployed', 'all']:
+    print('Getting Deployed Images ...')
+    deployed_images = {}
     if args.image_id:
-        images = pc_api.execute_compute('GET', 'api/v1/images?id=%s&filterBaseImage=true&limit=%s&offset=%s' % (args.image_id, qlimit, offset))
+        images = pc_api.execute_compute('GET', 'api/v1/images?id=%s&filterBaseImage=true' % args.image_id, paginated=True)
     else:
-        images = pc_api.execute_compute('GET', 'api/v1/images?filterBaseImage=true&limit=%s&offset=%s' % (qlimit, offset))
-    if not images:
-        get_deployed_images = False
-        break
+        images = pc_api.execute_compute('GET', 'api/v1/images?filterBaseImage=true', paginated=True)
     for image in images:
         image_id = image['id']
         # TODO: Verify instances array length.
         image_ii = '%s %s' % (image['instances'][0]['image'], image['instances'][0]['host'])
-        # print(image_id)
         deployed_images[image_id] = {
             'id':        image['id'],
             'instance':  image_ii,
             'instances': image['instances'],
             'packages':  image['packages']}
-    offset = offset + qlimit
-print()
-
-for image in deployed_images:
-    print('Deployed Image  ')
-    print('ID: %s' % image)
-    print('Instance: %s' % deployed_images[image]['instance'])
-    print()
-    for package_type in deployed_images[image]['packages']:
-        for package in package_type['pkgs']:
-            print('\tType: %s' % package_type['pkgsType'])
-            print('\tName: %s' % package['name'])
-            print('\tVers: %s' % package['version'])
-            print('\tCVEs: %s' % package['cveCount'])
-            print()
-            if package_type['pkgsType'] == 'package':
-                if search_package_name and (search_package_name == package['name']):
-                       if search_package_version:
-                           if search_package_version == package['version']:
+    pc_api.progress(mode=output_mode)
+    for image in deployed_images:
+        pc_api.progress('Deployed Image', mode=output_mode)
+        pc_api.progress('ID: %s' % image, mode=output_mode)
+        pc_api.progress('Instance: %s' % deployed_images[image]['instance'], mode=output_mode)
+        pc_api.progress(mode=output_mode)
+        for package_type in deployed_images[image]['packages']:
+            for package in package_type['pkgs']:
+                pc_api.progress('\tType: %s' % package_type['pkgsType'], mode=output_mode)
+                pc_api.progress('\tName: %s' % package['name'], mode=output_mode)
+                pc_api.progress('\tVers: %s' % package['version'], mode=output_mode)
+                pc_api.progress('\tCVEs: %s' % package['cveCount'], mode=output_mode)
+                pc_api.progress(mode=output_mode)
+                if package_type['pkgsType'] == 'package':
+                    if search_package_name and (search_package_name == package['name']):
+                           if search_package_version:
+                               if search_package_version == package['version']:
+                                   deployed_images_with_package.append(deployed_images[image]['instance'])
+                           else:
                                deployed_images_with_package.append(deployed_images[image]['instance'])
-                       else:
-                           deployed_images_with_package.append(deployed_images[image]['instance'])
+    print('Done.')
     print()
 
 # Monitor > Vulnerabilities > Images > CI
-print('Getting CI Images ...')
-ci_images = {}
-offset = 0
-while get_ci_images:
+if args.mode in ['ci', 'all']:
+    print('Getting CI Images ...')
+    ci_images = {}
     if args.image_id:
-        images = pc_api.execute_compute('GET', 'api/v1/scans?imageID=%s&filterBaseImage=true&limit=%s&offset=%s' % (args.image_id, qlimit, offset))
+        images = pc_api.execute_compute('GET', 'api/v1/scans?imageID=%s&filterBaseImage=true' % args.image_id)
     else:
-        images = pc_api.execute_compute('GET', 'api/v1/scans?filterBaseImage=true&limit=%s&offset=%s' % (qlimit, offset))
-    if not images:
-        get_ci_images = False
-        break
+        images = pc_api.execute_compute('GET', 'api/v1/scans?filterBaseImage=true')
     for image in images:
         image_id = image['entityInfo']['id']
         if image['entityInfo']['instances']:
             image_ii = '%s %s' % (image['entityInfo']['instances'][0]['image'], image['entityInfo']['instances'][0]['host'])
         else:
             image_ii = None
-        # print(image_id)
         ci_images[image_id] = {
             'id':        image['entityInfo']['id'],
             'instance':  image_ii,
             'instances': image['entityInfo']['instances'],
             'packages':  image['entityInfo']['packages']}
-    offset = offset + qlimit
-print()
-
-for image in ci_images:
-    print('CI Image')
-    print('ID: %s' % image)
-    print('Instance: %s' % ci_images[image]['instance'])
-    print()
-    for package_type in ci_images[image]['packages']:
-        for package in package_type['pkgs']:
-            print('\tType: %s' % package_type['pkgsType'])
-            print('\tName: %s' % package['name'])
-            print('\tVers: %s' % package['version'])
-            print('\tCVEs: %s' % package['cveCount'])
-            print()
-            if package_type['pkgsType'] == 'package':
-                if search_package_name and (search_package_name == package['name']):
-                       if search_package_version:
-                           if search_package_version == package['version']:
+    pc_api.progress(mode=output_mode)
+    for image in ci_images:
+        pc_api.progress('CI Image', mode=output_mode)
+        pc_api.progress('ID: %s' % image, mode=output_mode)
+        pc_api.progress('Instance: %s' % ci_images[image]['instance'], mode=output_mode)
+        pc_api.progress(mode=output_mode)
+        for package_type in ci_images[image]['packages']:
+            for package in package_type['pkgs']:
+                pc_api.progress('\tType: %s' % package_type['pkgsType'], mode=output_mode)
+                pc_api.progress('\tName: %s' % package['name'], mode=output_mode)
+                pc_api.progress('\tVers: %s' % package['version'], mode=output_mode)
+                pc_api.progress('\tCVEs: %s' % package['cveCount'], mode=output_mode)
+                pc_api.progress(mode=output_mode)
+                if package_type['pkgsType'] == 'package':
+                    if search_package_name and (search_package_name == package['name']):
+                           if search_package_version:
+                               if search_package_version == package['version']:
+                                   ci_images_with_package.append(deployed_images[image]['instance'])
+                           else:
                                ci_images_with_package.append(deployed_images[image]['instance'])
-                       else:
-                           ci_images_with_package.append(deployed_images[image]['instance'])
+    print('Done.')
     print()
 
 if args.package_id:
     print()
     if deployed_images_with_package:
-        print('Package: (%s) Version: (%s) found in these Deployed images:' % (search_package_name, search_package_version))
+        print('Package: (%s) Version: (%s) found in these Deployed Images:' % (search_package_name, search_package_version))
         print()
         for image in deployed_images_with_package:
             print('\t%s' % image)
     else:
-        print('Package: (%s) Version: (%s) not found in any Deployed images' % (search_package_name, search_package_version))
+        print('Package: (%s) Version: (%s) not found in any Deployed Images' % (search_package_name, search_package_version))
 
     print()
     if ci_images_with_package:
-        print('Package: (%s) Version: (%s) found in these CI images:' % (search_package_name, search_package_version))
+        print('Package: (%s) Version: (%s) found in these CI Images:' % (search_package_name, search_package_version))
         print()
         for image in ci_images_with_package:
             print('\t%s' % image)
     else:
-        print('Package: (%s) Version: (%s) not found in any CI images' % (search_package_name, search_package_version))
+        print('Package: (%s) Version: (%s) not found in any CI Images' % (search_package_name, search_package_version))
     
