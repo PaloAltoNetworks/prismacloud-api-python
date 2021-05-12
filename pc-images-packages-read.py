@@ -11,7 +11,13 @@ parser.add_argument(
     type=str,
     choices=['ci', 'deployed', 'all'],
     default='all',
-    help='(Optional) - Report on CI, Deployed, or All Images.')
+    help='(Optional) - Report on CI, Deployed, or all Images.')
+parser.add_argument(
+    '--package_type',
+    type=str,
+    choices=['binary', 'gem', 'go', 'jar', 'nodejs', 'nuget', 'package', 'python', 'windows', 'all'],
+    default='all',
+    help='(Optional) - Report on one or all Package Types.')
 parser.add_argument(
     '--image_id',
     type=str,
@@ -49,22 +55,36 @@ deployed_images_with_package = []
 ci_images_with_package       = []
 
 """
-	"instances": [{
-		"image": "k8s.gcr.io/etcd:3.4.3-0",
-		"host": "demo",
-		"registry": "k8s.gcr.io"
-		"repo": "etcd",
-		"tag": "3.4.3-0",
+"instances": [{
+	"image": "k8s.gcr.io/etcd:3.4.3-0",
+    "host": "demo",
+    "registry": "k8s.gcr.io"
+    "repo": "etcd",
+    "tag": "3.4.3-0",
 	}],
-	"packages": [{
-		"pkgsType": "package",
-		"pkgs": [{
-			"version": "2.27-2",
-			"name": "grep",
-			"cveCount": 12,
-			"license": "GPL-3+",
-			"layerTime": 1557275612
-		}, {
+"packages": [{
+    "pkgsType": "package",
+    "pkgs": [{
+		"version": "2.27-2",
+		"name": "grep",
+		"cveCount": 12,
+		"license": "GPL-3+",
+		"layerTime": 1557275612
+	}],
+"""
+
+"""
+"pkgsType": [
+    "binary",
+    "gem",
+    "go",
+    "jar",
+    "nodejs",
+    "nuget",
+    "package",
+    "python",
+    "windows",
+]
 """
 
 print('Testing Compute API Access ...', end='')
@@ -106,7 +126,7 @@ if args.mode in ['deployed', 'all']:
                 pc_api.progress('\tVers: %s' % package['version'], mode=output_mode)
                 pc_api.progress('\tCVEs: %s' % package['cveCount'], mode=output_mode)
                 pc_api.progress(mode=output_mode)
-                if package_type['pkgsType'] == 'package':
+                if args.package_type in [package_type['pkgsType'], 'all']:
                     if search_package_name and (search_package_name == package['name']):
                            if search_package_version:
                                if search_package_version == package['version']:
@@ -148,7 +168,7 @@ if args.mode in ['ci', 'all']:
                 pc_api.progress('\tVers: %s' % package['version'], mode=output_mode)
                 pc_api.progress('\tCVEs: %s' % package['cveCount'], mode=output_mode)
                 pc_api.progress(mode=output_mode)
-                if package_type['pkgsType'] == 'package':
+                if args.package_type in [package_type['pkgsType'], 'all']:
                     if search_package_name and (search_package_name == package['name']):
                            if search_package_version:
                                if search_package_version == package['version']:
