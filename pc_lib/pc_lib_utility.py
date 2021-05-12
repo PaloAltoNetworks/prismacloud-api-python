@@ -77,7 +77,7 @@ class PrismaCloudUtility(object):
             settings['apiBase']     = self.normalize_api_base(args.api)
             settings['username']    = args.username
             settings['password']    = args.password
-            settings['api_compute'] = self.normalize_api_base(args.api_compute)
+            settings['api_compute'] = self.normalize_api_compute_base(args.api_compute)
             settings['ca_bundle']   = args.ca_bundle
         return settings
     
@@ -103,7 +103,7 @@ class PrismaCloudUtility(object):
         settings['apiBase']     = self.normalize_api_base(args.api)
         settings['username']    = args.username
         settings['password']    = args.password
-        settings['api_compute'] = self.normalize_api_compute_base(args.api)
+        settings['api_compute'] = self.normalize_api_compute_base(args.api_compute)
         settings['ca_bundle']   = args.ca_bundle
         self.write_json_file(settings_file_name, settings, pretty=True)
     
@@ -137,6 +137,7 @@ class PrismaCloudUtility(object):
         api = api.replace('app', 'api')
         api = api.replace('redlock', 'prismacloud')
         api = api.replace('http://', '')
+        api = api.replace('https://', '')
         return api
 
     # Normalize Compute API/UI Base URL.
@@ -146,6 +147,7 @@ class PrismaCloudUtility(object):
             return None
         api_compute = api_compute.lower()
         api_compute = api_compute.replace('http://', '')
+        api_compute = api_compute.replace('https://', '')
         return api_compute
     
     # Double-check action.
