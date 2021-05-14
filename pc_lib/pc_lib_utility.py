@@ -138,6 +138,7 @@ class PrismaCloudUtility(object):
         api = api.replace('redlock', 'prismacloud')
         api = api.replace('http://', '')
         api = api.replace('https://', '')
+        api = api.rstrip('/')
         return api
 
     # Normalize Compute API/UI Base URL.
@@ -148,6 +149,7 @@ class PrismaCloudUtility(object):
         api_compute = api_compute.lower()
         api_compute = api_compute.replace('http://', '')
         api_compute = api_compute.replace('https://', '')
+        api_compute = api_compute.rstrip('/')
         return api_compute
     
     # Double-check action.
