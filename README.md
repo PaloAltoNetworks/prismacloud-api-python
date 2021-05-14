@@ -20,7 +20,7 @@ These scripts require the following Python packages:
 To install or check for these packages:
 
 ```
-pip install requests --upgrade
+pip install requests pyyaml --upgrade
 ```
 
 Or:
