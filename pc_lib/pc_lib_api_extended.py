@@ -10,30 +10,9 @@ import concurrent.futures
 
 class PrismaCloudAPIExtended():
 
-    # --Thread Wrappers-- #
-
-    def threaded_policy_read(self, policy_current):
-        self.progress('Getting Policy: %s' % policy_current['name'])
-        return self.policy_read(policy_current['policyId'])
-
-    def threaded_saved_search_read(self, policy_current):
-        self.progress('Getting Saved Search: %s' % policy_current['name'])
-        return self.saved_search_read(policy_current['rule']['criteria'])
-
-    def threaded_resource_read(self, resource):
-        self.progress('Getting Resource: %s' % resource['rrn'])
-        return self.resource_read(body_params={'rrn': resource['rrn']}, force=True)
-        """
-        res = self.resource_read(body_params={'rrn': resource['rrn']}, force=True)
-        net = self.resource_network_read(body_params={'rrn': resource['rrn']}, force=True)
-        if res and net:
-            res['prisma_resource_network'] = net
-        return res
-        """
-
     # --Main-- #
 
-    def export_policies_with_saved_searches(self, policy_list_current):
+    def get_policies_with_saved_searches(self, policy_list_current):
         result = {'policies': {}, 'searches': {}}
         if not policy_list_current:
             return result
@@ -42,13 +21,14 @@ class PrismaCloudAPIExtended():
         futures = []
         for policy_current in policy_list_current:
             self.progress('Scheduling Policy Request: %s' % policy_current['name'])
-            futures.append(thread_pool_executor.submit(self.threaded_policy_read, policy_current))
+            thread_progress = 'Getting Policy: %s' % policy_current['name']
+            futures.append(thread_pool_executor.submit(self.policy_read, policy_current['policyId'], message=thread_progress))
         concurrent.futures.wait(futures)
         for future in concurrent.futures.as_completed(futures):
             policy_current = future.result()
             result['policies'][policy_current['policyId']] = policy_current
         self.progress('Done.')
-        self.progress()
+        self.progress(' ')
         self.progress('API - Getting the Custom Policies Saved Searches ...')
         futures = []
         for policy_current in policy_list_current:
@@ -58,16 +38,17 @@ class PrismaCloudAPIExtended():
                 continue
             if policy_current['rule']['parameters']['savedSearch'] == 'true':
                 self.progress('Scheduling Saved Search Request: %s' % policy_current['name'])
-                futures.append(thread_pool_executor.submit(self.threaded_saved_search_read, policy_current))
+                thread_progress = 'Getting Saved Search: %s' % policy_current['name']
+                futures.append(thread_pool_executor.submit(self.saved_search_read, policy_current['rule']['criteria'], message=thread_progress))
         concurrent.futures.wait(futures)
         for future in concurrent.futures.as_completed(futures):
             saved_search = future.result()
             result['searches'][saved_search['id']] = saved_search
         self.progress('Done.')
-        self.progress()
+        self.progress(' ')
         return result
 
-    def export_resources(self, cloud_account_resource_list):
+    def get_cloud_resources(self, cloud_account_resource_list):
         result = []
         if not cloud_account_resource_list:
             return result
@@ -76,7 +57,8 @@ class PrismaCloudAPIExtended():
         futures = []
         for cloud_account_resource in cloud_account_resource_list:
             self.progress('Scheduling Resource Request: %s' % cloud_account_resource['rrn'])
-            futures.append(thread_pool_executor.submit(self.threaded_resource_read, cloud_account_resource))
+            thread_progress = 'Getting Resource: %s' % resource['rrn']
+            futures.append(thread_pool_executor.submit(self.resource_read, body_params={'rrn': resource['rrn']}, force=True, message=thread_progress))
         concurrent.futures.wait(futures)
         for future in concurrent.futures.as_completed(futures):
             resource = future.result()

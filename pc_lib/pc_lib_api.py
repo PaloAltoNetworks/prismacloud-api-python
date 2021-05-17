@@ -135,14 +135,14 @@ class PrismaCloudAPI(PrismaCloudAPICompute, PrismaCloudAPIExtended):
 
     # Optionally output progress.
 
-    def progress(self, output='', mode='verbose'):
-        if mode == 'verbose':
-            print(output)
+    def progress(self, txt=None):
+        if txt:
+            print(txt)
 
     # --API Endpoints-- #
 
     def current_user(self):
-            return self.execute('GET', 'user/me')
+        return self.execute('GET', 'user/me')
 
     """
     Note: Eventually, all objects covered should have full CRUD capability, ie, to create, read, update, and delete (and list).
@@ -201,7 +201,8 @@ class PrismaCloudAPI(PrismaCloudAPICompute, PrismaCloudAPIExtended):
     def policy_create(self, policy_to_add):
         return self.execute('POST', 'policy', body_params=policy_to_add)
 
-    def policy_read(self, policy_id):
+    def policy_read(self, policy_id, message=None):
+        self.progress(message)
         return self.execute('GET', 'policy/%s' % policy_id)
 
     def policy_update(self, policy_id, policy_update):
@@ -232,7 +233,8 @@ class PrismaCloudAPI(PrismaCloudAPICompute, PrismaCloudAPIExtended):
         else:
             return self.execute('POST', 'search/%s' % type_of_search, body_params=saved_search_to_add)
 
-    def saved_search_read(self, saved_search_id):
+    def saved_search_read(self, saved_search_id, message=None):
+        self.progress(message)
         return self.execute('GET', 'search/history/%s' % saved_search_id)
 
     def saved_search_delete(self, saved_search_id):
@@ -495,8 +497,8 @@ class PrismaCloudAPI(PrismaCloudAPICompute, PrismaCloudAPIExtended):
                 body_params['pageToken'] = api_response['nextPageToken']
             else:
                 body_params.pop('pageToken', None)
-            if 'totalMatchedCount' in api_response:
-                self.progress('Resources: %s, Page Size: %s, Page: %s' % (api_response['totalMatchedCount'], body_params['limit'], page_number))
+            #if 'totalMatchedCount' in api_response:
+            #    self.progress('Resources: %s, Page Size: %s, Page: %s' % (api_response['totalMatchedCount'], body_params['limit'], page_number))
             page_number += 1
         return result
 

@@ -48,7 +48,7 @@ for cloud_account in cloud_accounts_list:
     cloud_account_resource_list = pc_api.resource_scan_info_read(body_params=body_params)
     print('Done.')
     # Threaded Queries.
-    resource_list.append(pc_api.export_resources(cloud_account_resource_list))
+    resource_list.append(pc_api.get_cloud_resources(cloud_account_resource_list))
 
 pc_utility.write_json_file(args.export_file_name, resource_list)
 print()

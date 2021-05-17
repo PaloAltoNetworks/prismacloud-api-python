@@ -32,13 +32,19 @@ search_package_name    = None
 search_package_version = None
 
 if args.package_id:
-   output_mode = 'quiet'
+   print_all_packages = False
    if ':' in args.package_id:
        [search_package_name, search_package_version] = args.package_id.split(':')
    else:
        search_package_name = args.package_id
 else:
-   output_mode = 'verbose'
+   print_all_packages = True
+
+# --Helpers-- #
+
+def optional_print(txt='', mode=True):
+    if mode:
+        print(txt)
 
 # --Initialize-- #
 
@@ -110,19 +116,19 @@ if args.mode in ['deployed', 'all']:
             'instance':  image_ii,
             'instances': image['instances'],
             'packages':  image['packages']}
-    pc_api.progress(mode=output_mode)
+    optional_print(mode=print_all_packages)
     for image in deployed_images:
-        pc_api.progress('Deployed Image', mode=output_mode)
-        pc_api.progress('ID: %s' % image, mode=output_mode)
-        pc_api.progress('Instance: %s' % deployed_images[image]['instance'], mode=output_mode)
-        pc_api.progress(mode=output_mode)
+        optional_print('Deployed Image', mode=print_all_packages)
+        optional_print('ID: %s' % image, mode=print_all_packages)
+        optional_print('Instance: %s' % deployed_images[image]['instance'], mode=print_all_packages)
+        optional_print(mode=print_all_packages)
         for package_type in deployed_images[image]['packages']:
             for package in package_type['pkgs']:
-                pc_api.progress('\tType: %s' % package_type['pkgsType'], mode=output_mode)
-                pc_api.progress('\tName: %s' % package['name'], mode=output_mode)
-                pc_api.progress('\tVers: %s' % package['version'], mode=output_mode)
-                pc_api.progress('\tCVEs: %s' % package['cveCount'], mode=output_mode)
-                pc_api.progress(mode=output_mode)
+                optional_print('\tType: %s' % package_type['pkgsType'], mode=print_all_packages)
+                optional_print('\tName: %s' % package['name'], mode=print_all_packages)
+                optional_print('\tVers: %s' % package['version'], mode=print_all_packages)
+                optional_print('\tCVEs: %s' % package['cveCount'], mode=print_all_packages)
+                optional_print(mode=print_all_packages)
                 if args.package_type in [package_type['pkgsType'], 'all']:
                     if search_package_name and (search_package_name == package['name']):
                            if search_package_version:
@@ -149,19 +155,19 @@ if args.mode in ['ci', 'all']:
             'instance':  image_ii,
             'instances': image['entityInfo']['instances'],
             'packages':  image['entityInfo']['packages']}
-    pc_api.progress(mode=output_mode)
+    optional_print(mode=print_all_packages)
     for image in ci_images:
-        pc_api.progress('CI Image', mode=output_mode)
-        pc_api.progress('ID: %s' % image, mode=output_mode)
-        pc_api.progress('Instance: %s' % ci_images[image]['instance'], mode=output_mode)
-        pc_api.progress(mode=output_mode)
+        optional_print('CI Image', mode=print_all_packages)
+        optional_print('ID: %s' % image, mode=print_all_packages)
+        optional_print('Instance: %s' % ci_images[image]['instance'], mode=print_all_packages)
+        optional_print(mode=print_all_packages)
         for package_type in ci_images[image]['packages']:
             for package in package_type['pkgs']:
-                pc_api.progress('\tType: %s' % package_type['pkgsType'], mode=output_mode)
-                pc_api.progress('\tName: %s' % package['name'], mode=output_mode)
-                pc_api.progress('\tVers: %s' % package['version'], mode=output_mode)
-                pc_api.progress('\tCVEs: %s' % package['cveCount'], mode=output_mode)
-                pc_api.progress(mode=output_mode)
+                optional_print('\tType: %s' % package_type['pkgsType'], mode=print_all_packages)
+                optional_print('\tName: %s' % package['name'], mode=print_all_packages)
+                optional_print('\tVers: %s' % package['version'], mode=print_all_packages)
+                optional_print('\tCVEs: %s' % package['cveCount'], mode=print_all_packages)
+                optional_print(mode=print_all_packages)
                 if args.package_type in [package_type['pkgsType'], 'all']:
                     if search_package_name and (search_package_name == package['name']):
                            if search_package_version:

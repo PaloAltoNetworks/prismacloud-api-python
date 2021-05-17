@@ -61,7 +61,7 @@ print(' done.')
 print()
 
 # Threaded Queries.
-result = pc_api.export_policies_with_saved_searches(policy_list_current)
+result = pc_api.get_policies_with_saved_searches(policy_list_current)
 
 export_file_data['policy_object_original'] = result['policies']
 export_file_data['search_object_original'] = result['searches']
