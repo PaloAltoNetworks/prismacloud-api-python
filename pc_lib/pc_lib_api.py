@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+from .pc_lib_api_compute import PrismaCloudAPICompute
 from .pc_lib_api_extended import PrismaCloudAPIExtended
 from .pc_lib_utility import PrismaCloudUtility
 
@@ -24,7 +25,7 @@ class CallCounter:
         self.counter += 1
         return self.method(*args, **kwargs)
 
-class PrismaCloudAPI(PrismaCloudAPIExtended):
+class PrismaCloudAPI(PrismaCloudAPICompute, PrismaCloudAPIExtended):
     def __init__(self):
         self.api                = None
         self.api_compute        = None
@@ -88,7 +89,7 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
         else:
             PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
 
-    # RedLock API.
+    # RedLock API. See pc_lib_api_compute for Compute API methods.
 
     def execute(self, action, endpoint, query_params=None, body_params=None, force=False):
         if not self.token:
@@ -125,65 +126,6 @@ class PrismaCloudAPI(PrismaCloudAPIExtended):
             else:
                 PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
         return result
-
-    # TwistLock API.
-
-    def execute_compute(self, action, endpoint, query_params=None, body_params=None, force=False, paginated=False):
-        if not self.token:
-            self.login()
-        # Endpoints that have the potential to return large numbers of results return a 'Total-Count' response header.
-        offset = 0
-        limit = 50
-        total = 0
-        results = []
-        while offset == 0 or offset < total:
-            if int(time.time() - self.token_timer) > self.token_limit:
-                self.extend_token()
-            requ_action = action
-            if paginated:
-                requ_url = 'https://%s/%s&limit=%s&offset=%s' % (self.api_compute, endpoint, limit, offset)
-            else:
-                requ_url = 'https://%s/%s' % (self.api_compute, endpoint)
-            requ_headers = {'Content-Type': 'application/json'}
-            if self.token:
-                requ_headers['x-redlock-auth'] = self.token
-            requ_params = query_params
-            requ_data = json.dumps(body_params)
-            api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=requ_params, data=requ_data, verify=self.ca_bundle)
-            if api_response.status_code in self.retry_status_codes:
-                for retry_number in range(1, self.retry_limit):
-                    time.sleep(self.retry_pause)
-                    api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=query_params, data=requ_data, verify=self.ca_bundle)
-                    if api_response.ok:
-                        break # retry loop
-            if api_response.ok:
-                try:
-                    result = json.loads(api_response.content)
-                except ValueError:
-                    if api_response.content == '':
-                        return None
-                    else:
-                        self.logger.error('API: (%s) responded with an error: (%s), with query %s and body params: %s' % (requ_url, api_response.status_code, query_params, body_params))
-                        return None
-                if 'Total-Count' in api_response.headers:
-                    results.extend(result)
-                    total = int(api_response.headers['Total-Count'])
-                else:
-                    return result
-            else:
-                if force:
-                    self.logger.error('API: (%s) responded with an error: (%s), with query %s and body params: %s' % (requ_url, api_response.status_code, query_params, body_params))
-                    return None
-                else:
-                    PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
-            offset += limit
-        return results
-
-    # The Compute API setting is optional.
-
-    def validate_api_compute(self):
-        if not self.api_compute:
-            PrismaCloudUtility.error_and_exit(self, 500, 'Please specify a Prisma Cloud Compute Base URL.')
 
     # Output counted errors.
 

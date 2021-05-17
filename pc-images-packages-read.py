@@ -88,7 +88,7 @@ ci_images_with_package       = []
 """
 
 print('Testing Compute API Access ...', end='')
-intelligence = pc_api.execute_compute('GET', 'api/v1/statuses/intelligence')
+intelligence = pc_api.statuses_intelligence()
 print(' done.')
 print()
 
@@ -96,14 +96,11 @@ if search_package_name:
     print('Searching for Package: (%s) Version: (%s)' % (search_package_name, search_package_version))
     print()
 
-# Monitor > Vulnerabilities > Images > Deployed
+# Monitor > Vulnerabilities/Compliance > Images > Deployed
 if args.mode in ['deployed', 'all']:
     print('Getting Deployed Images ...')
     deployed_images = {}
-    if args.image_id:
-        images = pc_api.execute_compute('GET', 'api/v1/images?id=%s&filterBaseImage=true' % args.image_id, paginated=True)
-    else:
-        images = pc_api.execute_compute('GET', 'api/v1/images?filterBaseImage=true', paginated=True)
+    images = pc_api.images_list_read(args.image_id)
     for image in images:
         image_id = image['id']
         # TODO: Verify instances array length.
@@ -136,14 +133,11 @@ if args.mode in ['deployed', 'all']:
     print('Done.')
     print()
 
-# Monitor > Vulnerabilities > Images > CI
+# Monitor > Vulnerabilities/Compliance > Images > CI
 if args.mode in ['ci', 'all']:
     print('Getting CI Images ...')
     ci_images = {}
-    if args.image_id:
-        images = pc_api.execute_compute('GET', 'api/v1/scans?imageID=%s&filterBaseImage=true' % args.image_id)
-    else:
-        images = pc_api.execute_compute('GET', 'api/v1/scans?filterBaseImage=true')
+    images = pc_api.scans_list_read(args.image_id)
     for image in images:
         image_id = image['entityInfo']['id']
         if image['entityInfo']['instances']:
@@ -179,21 +173,22 @@ if args.mode in ['ci', 'all']:
     print()
 
 if args.package_id:
-    print()
-    if deployed_images_with_package:
-        print('Package: (%s) Version: (%s) found in these Deployed Images:' % (search_package_name, search_package_version))
+    if args.mode in ['deployed', 'all']:
         print()
-        for image in deployed_images_with_package:
-            print('\t%s' % image)
-    else:
-        print('Package: (%s) Version: (%s) not found in any Deployed Images' % (search_package_name, search_package_version))
-
-    print()
-    if ci_images_with_package:
-        print('Package: (%s) Version: (%s) found in these CI Images:' % (search_package_name, search_package_version))
+        if deployed_images_with_package:
+            print('Package: (%s) Version: (%s) found in these Deployed Images:' % (search_package_name, search_package_version))
+            print()
+            for image in deployed_images_with_package:
+                print('\t%s' % image)
+        else:
+            print('Package: (%s) Version: (%s) not found in any Deployed Images' % (search_package_name, search_package_version))
+    if args.mode in ['ci', 'all']:
         print()
-        for image in ci_images_with_package:
-            print('\t%s' % image)
-    else:
-        print('Package: (%s) Version: (%s) not found in any CI Images' % (search_package_name, search_package_version))
+        if ci_images_with_package:
+            print('Package: (%s) Version: (%s) found in these CI Images:' % (search_package_name, search_package_version))
+            print()
+            for image in ci_images_with_package:
+                print('\t%s' % image)
+        else:
+            print('Package: (%s) Version: (%s) not found in any CI Images' % (search_package_name, search_package_version))
     
