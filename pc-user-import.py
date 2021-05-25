@@ -53,7 +53,7 @@ users_to_import = []
 for user_to_import in user_list_to_import:
     user_duplicate = False
     # Remove duplicates from the import file list.
-    for user_to_import_inner in user_list_to_import_inner:
+    for user_to_import_inner in user_list_to_import:
         if user_to_import['email'].lower() == user_to_import_inner['email'].lower():
             users_duplicate_file_count = users_duplicate_file_count + 1
             user_duplicate = True

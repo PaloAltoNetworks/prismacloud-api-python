@@ -1,15 +1,15 @@
 from __future__ import print_function
 
-try:
-    input = raw_input
-except NameError:
-    pass
-
 import argparse
 import csv
 import json
 import os
 import sys
+
+try:
+    input = raw_input
+except NameError:
+    pass
 
 # --Description-- #
 
@@ -23,7 +23,7 @@ class PrismaCloudUtility(object):
     DEFAULT_SETTINGS_FILE_VERSION = 4
 
     # Default command line arguments.
-    
+
     def get_arg_parser(self):
         get_arg_parser = argparse.ArgumentParser()
         get_arg_parser.add_argument(
@@ -60,9 +60,9 @@ class PrismaCloudUtility(object):
             action='store_true',
             help='(Optional) - Do not prompt for verification.')
         return get_arg_parser
-    
+
     # Get settings from command-line or settings file.
-    
+
     def get_settings(self, args):
         settings = {}
         if args.username is None and args.password is None and args.api is None:
@@ -80,9 +80,9 @@ class PrismaCloudUtility(object):
             settings['api_compute'] = self.normalize_api_compute_base(args.api_compute)
             settings['ca_bundle']   = args.ca_bundle
         return settings
-    
+
     # Read settings.
-    
+
     def read_settings_file(self, settings_file_name=None):
         settings_file_name = self.user_or_default_settings_file(settings_file_name)
         if not os.path.isfile(settings_file_name):
@@ -93,9 +93,9 @@ class PrismaCloudUtility(object):
         if settings['settings_file_version'] != self.DEFAULT_SETTINGS_FILE_VERSION:
             self.error_and_exit(500, 'The settings file appears to be out-of-date. Please rerun pc-configure.py, and/or download the latest version of these scripts.')
         return settings
-    
+
     # Write settings.
-    
+
     def write_settings_file(self, args):
         settings_file_name = self.user_or_default_settings_file(args.config_file)
         settings = {}
@@ -106,11 +106,11 @@ class PrismaCloudUtility(object):
         settings['api_compute'] = self.normalize_api_compute_base(args.api_compute)
         settings['ca_bundle']   = args.ca_bundle
         self.write_json_file(settings_file_name, settings, pretty=True)
-    
+
     # Return user-specified settings file, or the default settings file.
-    
+
     def user_or_default_settings_file(self, settings_file_name=None):
-        if settings_file_name == None:
+        if settings_file_name is None:
             settings_file_name = self.DEFAULT_SETTINGS_FILE_NAME
             # Using the default file name, in the same directory as the script.
             settings_file_name_and_path = os.path.join(os.getcwd(), settings_file_name)
@@ -127,9 +127,9 @@ class PrismaCloudUtility(object):
                 # Use the specified file name, in the same directory as the script.
                 settings_file_name_and_path = os.path.join(os.getcwd(), settings_file_name)
         return settings_file_name_and_path
-    
+
     # Normalize API/UI Base URL.
-    
+
     def normalize_api_base(self, api):
         if not api:
             return None
@@ -151,9 +151,9 @@ class PrismaCloudUtility(object):
         api_compute = api_compute.replace('https://', '')
         api_compute = api_compute.rstrip('/')
         return api_compute
-    
+
     # Double-check action.
-    
+
     def prompt_for_verification_to_continue(self, args):
         if not args.yes:
             print()
@@ -163,9 +163,9 @@ class PrismaCloudUtility(object):
             print()
             if verification_response not in continue_response:
                 self.error_and_exit(400, 'Exiting ...')
-        
+
     # Load a CSV file into a Dictionary (binary).
-    
+
     def read_csv_file(self, file_name):
         csv_list = []
         with open(file_name, 'rb') as csv_file:
@@ -173,9 +173,9 @@ class PrismaCloudUtility(object):
             for row in file_reader:
                 csv_list.append(row)
         return csv_list
-    
+
     # Load a CSV file into Dictionary (text).
-    
+
     def read_csv_file_text(self, file_name):
         csv_list = []
         with open(file_name, 'r') as csv_file:
@@ -183,36 +183,36 @@ class PrismaCloudUtility(object):
             for row in file_reader:
                 csv_list.append(row)
         return csv_list
-        
+
     # Read JSON file into Dictionary.
-    
+
     def read_json_file(self, file_name):
         json_data = None
         file_name_and_path = os.path.join(os.getcwd(), file_name)
         try:
-            with open(file_name_and_path, 'r') as f:
-                json_data = json.load(f)
+            with open(file_name_and_path, 'r') as json_file:
+                json_data = json.load(json_file)
         except Exception as ex:
             self.error_and_exit(500, 'Failed to read JSON file.', ex)
         return json_data
 
     # Write Dictionary to JSON file.
-    
+
     def write_json_file(self, file_name, data_to_write, pretty=False):
         file_name_and_path = os.path.join(os.getcwd(), file_name)
         try:
             if pretty:
                 pretty_data_to_write = json.dumps(data_to_write, indent=4, separators=(', ', ': '))
-                with open(file_name_and_path, 'w') as f:
-                    f.write(pretty_data_to_write)
+                with open(file_name_and_path, 'w') as json_file:
+                    json_file.write(pretty_data_to_write)
             else:
-                with open(file_name_and_path, 'w') as f:
-                    json.dump(data_to_write, f)
+                with open(file_name_and_path, 'w') as json_file:
+                    json.dump(data_to_write, json_file)
         except Exception as ex:
             self.error_and_exit(500, 'Failed to write JSON file.', ex)
 
     # Search list for a field with a certain value and return another field value from that object.
-    
+
     def search_list_value(self, list_to_search, field_to_search, field_to_return, search_value):
         item_to_return = None
         for source_item in list_to_search:
@@ -221,9 +221,9 @@ class PrismaCloudUtility(object):
                     item_to_return = source_item[field_to_return]
                     break
         return item_to_return
-    
+
     # Search list for a field with a certain value and return another field value from that object (case insensitive).
-    
+
     def search_list_value_lower(self, list_to_search, field_to_search, field_to_return, search_value):
         item_to_return = None
         search_value = search_value.lower()
@@ -233,9 +233,9 @@ class PrismaCloudUtility(object):
                     item_to_return = source_item[field_to_return]
                     break
         return item_to_return
-    
+
     # Search list for a field with a certain value and return the entire object.
-    
+
     def search_list_object(self, list_to_search, field_to_search, search_value):
         object_to_return = None
         for source_item in list_to_search:
@@ -244,9 +244,9 @@ class PrismaCloudUtility(object):
                     object_to_return = source_item
                     break
         return object_to_return
-    
+
     # Search list for a field with a certain value and return the entire object (case insensitive).
-    
+
     def search_list_object_lower(self, list_to_search, field_to_search, search_value):
         object_to_return = None
         search_value = search_value.lower()
@@ -256,9 +256,9 @@ class PrismaCloudUtility(object):
                     object_to_return = source_item
                     break
         return object_to_return
-    
+
     # Search list for a field with a certain value and return a list of all objects that match.
-    
+
     def search_list_list(self, list_to_search, field_to_search, search_value):
         object_list_to_return = []
         for source_item in list_to_search:
@@ -267,9 +267,9 @@ class PrismaCloudUtility(object):
                     object_list_to_return.append(source_item)
                     break
         return object_list_to_return
-    
+
     # Search list for a field with a certain value and return a list of all objects that match (case insensitive).
-    
+
     def search_list_list_lower(self, list_to_search, field_to_search, search_value):
         object_list_to_return = []
         search_value = search_value.lower()
@@ -281,7 +281,7 @@ class PrismaCloudUtility(object):
         return object_list_to_return
 
     # Exit handler (Error).
-    
+
     def error_and_exit(self, error_code, error_message=None, system_message=None):
         print()
         print()
@@ -292,8 +292,8 @@ class PrismaCloudUtility(object):
             print(system_message)
         print()
         sys.exit(1)
-    
+
     # Exit handler (Success).
-    
+
     def success_exit(self):
         sys.exit(0)

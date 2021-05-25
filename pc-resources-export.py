@@ -1,7 +1,5 @@
 from pc_lib import pc_api, pc_utility
 
-import json
-
 # --Configuration-- #
 
 parser = pc_utility.get_arg_parser()

@@ -1,13 +1,14 @@
 from __future__ import print_function
 
+import json
+import logging
+import time
+
+import requests
+
 from .pc_lib_api_compute import PrismaCloudAPICompute
 from .pc_lib_api_extended import PrismaCloudAPIExtended
 from .pc_lib_utility import PrismaCloudUtility
-
-import json
-import logging
-import requests
-import time
 
 # --Description-- #
 
@@ -40,6 +41,7 @@ class PrismaCloudAPI(PrismaCloudAPICompute, PrismaCloudAPIExtended):
         self.retry_status_codes = [401, 429, 500, 502, 503, 504]
         self.max_workers        = 16
         self.error_log          = 'error.log'
+        self.logger             = None
 
     def configure(self, settings):
         # Required.
@@ -77,7 +79,7 @@ class PrismaCloudAPI(PrismaCloudAPICompute, PrismaCloudAPIExtended):
         requ_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
         api_response = requests.request(requ_action, requ_url, headers=requ_headers, verify=self.ca_bundle)
         if api_response.status_code in self.retry_status_codes:
-            for retry_number in range(1, self.retry_limit):
+            for _ in range(1, self.retry_limit):
                 time.sleep(self.retry_pause)
                 api_response = requests.request(requ_action, requ_url, headers=requ_headers, verify=self.ca_bundle)
                 if api_response.ok:
@@ -105,7 +107,7 @@ class PrismaCloudAPI(PrismaCloudAPICompute, PrismaCloudAPIExtended):
         requ_data = json.dumps(body_params)
         api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=requ_params, data=requ_data, verify=self.ca_bundle)
         if api_response.status_code in self.retry_status_codes:
-            for retry_number in range(1, self.retry_limit):
+            for _ in range(1, self.retry_limit):
                 time.sleep(self.retry_pause)
                 api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=query_params, data=requ_data, verify=self.ca_bundle)
                 if api_response.ok:
@@ -114,17 +116,14 @@ class PrismaCloudAPI(PrismaCloudAPICompute, PrismaCloudAPIExtended):
             try:
                 result = json.loads(api_response.content)
             except ValueError:
-                if api_response.content == '':
-                   return None
-                else:
-                   self.logger.error('API: (%s) responded with an error: (%s), with query %s and body params: %s' % (requ_url, api_response.status_code, query_params, body_params))
-                   return None
+                if api_response.content:
+                    self.logger.error('API: (%s) responded with an error: (%s), with query %s and body params: %s' % (requ_url, api_response.status_code, query_params, body_params))
+                return None
         else:
             if force:
                 self.logger.error('API: (%s) responded with an error: (%s), with query %s and body params: %s' % (requ_url, api_response.status_code, query_params, body_params))
                 return None
-            else:
-                PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
+            PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
         return result
 
     # Output counted errors.
@@ -230,8 +229,7 @@ class PrismaCloudAPI(PrismaCloudAPICompute, PrismaCloudAPIExtended):
     def saved_search_create(self, type_of_search, saved_search_to_add):
         if type_of_search == 'network':
             return self.execute('POST', 'search', body_params=saved_search_to_add)
-        else:
-            return self.execute('POST', 'search/%s' % type_of_search, body_params=saved_search_to_add)
+        return self.execute('POST', 'search/%s' % type_of_search, body_params=saved_search_to_add)
 
     def saved_search_read(self, saved_search_id, message=None):
         self.progress(message)

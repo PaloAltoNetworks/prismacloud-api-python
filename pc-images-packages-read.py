@@ -1,8 +1,6 @@
 from __future__ import print_function
 from pc_lib import pc_api, pc_utility
 
-import json
-
 # --Configuration-- #
 
 parser = pc_utility.get_arg_parser()
@@ -32,13 +30,13 @@ search_package_name    = None
 search_package_version = None
 
 if args.package_id:
-   print_all_packages = False
-   if ':' in args.package_id:
-       [search_package_name, search_package_version] = args.package_id.split(':')
-   else:
-       search_package_name = args.package_id
+    print_all_packages = False
+    if ':' in args.package_id:
+        [search_package_name, search_package_version] = args.package_id.split(':')
+    else:
+        search_package_name = args.package_id
 else:
-   print_all_packages = True
+    print_all_packages = True
 
 # --Helpers-- #
 
@@ -77,9 +75,7 @@ ci_images_with_package       = []
 		"license": "GPL-3+",
 		"layerTime": 1557275612
 	}],
-"""
 
-"""
 "pkgsType": [
     "binary",
     "gem",
@@ -131,11 +127,11 @@ if args.mode in ['deployed', 'all']:
                 optional_print(mode=print_all_packages)
                 if args.package_type in [package_type['pkgsType'], 'all']:
                     if search_package_name and (search_package_name == package['name']):
-                           if search_package_version:
-                               if search_package_version == package['version']:
-                                   deployed_images_with_package.append(deployed_images[image]['instance'])
-                           else:
-                               deployed_images_with_package.append(deployed_images[image]['instance'])
+                        if search_package_version:
+                            if search_package_version == package['version']:
+                                deployed_images_with_package.append(deployed_images[image]['instance'])
+                            else:
+                                deployed_images_with_package.append(deployed_images[image]['instance'])
     print('Done.')
     print()
 
@@ -170,11 +166,11 @@ if args.mode in ['ci', 'all']:
                 optional_print(mode=print_all_packages)
                 if args.package_type in [package_type['pkgsType'], 'all']:
                     if search_package_name and (search_package_name == package['name']):
-                           if search_package_version:
-                               if search_package_version == package['version']:
-                                   ci_images_with_package.append(deployed_images[image]['instance'])
-                           else:
-                               ci_images_with_package.append(deployed_images[image]['instance'])
+                        if search_package_version:
+                            if search_package_version == package['version']:
+                                ci_images_with_package.append(deployed_images[image]['instance'])
+                            else:
+                                ci_images_with_package.append(deployed_images[image]['instance'])
     print('Done.')
     print()
 

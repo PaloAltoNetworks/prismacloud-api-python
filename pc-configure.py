@@ -1,5 +1,5 @@
 from __future__ import print_function
-from pc_lib import pc_api, pc_utility
+from pc_lib import pc_utility
 
 # --Configuration-- #
 
@@ -10,9 +10,9 @@ args = parser.parse_args()
 
 print('Configuration File:')
 if args.config_file is None:
-	print(pc_utility.DEFAULT_SETTINGS_FILE_NAME)
+    print(pc_utility.DEFAULT_SETTINGS_FILE_NAME)
 else:
-	print(args.config_file)
+    print(args.config_file)
 print()
 
 if args.username is not None and args.password is not None and args.api is not None:

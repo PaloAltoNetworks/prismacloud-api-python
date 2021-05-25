@@ -4,6 +4,7 @@ from pc_lib import pc_api, pc_utility
 import json
 import requests
 import time
+import os
 
 # TODO: Do not update policy.rule.name when policy.systemDefault == True ?
 
@@ -184,7 +185,7 @@ if args.policy:
                     found = True
                     break
             if not found:
-                pc_utility.error_and_exit(500, 'Failed to validate the new Section: %s for Requirement: %s' % (section_to_map, compliance_requirement_new['id']))
+                pc_utility.error_and_exit(500, 'Failed to validate the new Section: %s for Requirement: %s' % (compliance_section_new['id'], compliance_requirement_new['id']))
     print(' done.')
     print()
 
@@ -226,7 +227,7 @@ if args.policy:
                 break
         if not found:
             if 'cloudType' in policy_updated:
-                item = '%s %s' % (policy_updated['policyId'], policy_updated['cloudType'], policy_updated['name'])
+                item = '%s %s %s' % (policy_updated['policyId'], policy_updated['cloudType'], policy_updated['name'])
             else:
                 item = '%s %s' % (policy_updated['policyId'], policy_updated['name'])
             policy_validate_error_list.append(item)
@@ -265,7 +266,7 @@ if args.policy:
                     compliance_metadata_to_merge.append(compliance_metadata_updated)
                     break
         if len(compliance_metadata_to_merge) == 0:
-            pc_utility.error_and_exit(500, 'Cannot find any Compliance metadata for Policy object %s' % compliance_metadata_original)
+            pc_utility.error_and_exit(500, 'Cannot find any Compliance metadata for Policy object %s' % policy_updated_validated['policyId'])
         policy_current['complianceMetadata'].extend(compliance_metadata_to_merge)
         if args.label:
             policy_current['labels'].append(args.import_compliance_standard_name)

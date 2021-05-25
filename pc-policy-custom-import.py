@@ -2,7 +2,6 @@ from __future__ import print_function
 from pc_lib import pc_api, pc_utility
 
 import json
-import random
 import requests
 import time
 
@@ -64,7 +63,7 @@ print()
 print('API - Importing Custom Policies ...')
 try:
     custom_policy_id_map = json.load(open(CUSTOM_POLICY_ID_MAP_FILE, 'r'))
-except:
+except ValueError:
     custom_policy_id_map = {}
 
 for policy_id, policy_object in policy_object_original.items():
@@ -74,7 +73,7 @@ for policy_id, policy_object in policy_object_original.items():
             duplicate_found = True
             break
     if duplicate_found:
-        print('Skipping Duplicate (by name) Policy: %' % policy_object['name'])
+        print('Skipping Duplicate (by name) Policy: %s' % policy_object['name'])
     else:
         if not args.maintain_status:
             policy_object['enabled'] = False
@@ -99,9 +98,6 @@ for policy_id, policy_object in policy_object_original.items():
                             new_search = pc_api.saved_search_create(search_object['searchType'], body_data)
                             policy_object['rule']['criteria'] = new_search['id']
                             search_object.pop('id', None)
-                            # TODO: Validate need for timestamp and random string:
-                            # alph = [i for i in 'abcdefghijklmnopqrstuvwxyz0123456789']
-                            # ''.join([random.choice(alph) for _ in range(4)])
                             search_object['name'] = '%s _Imported_%s' % (policy_object['name'], int(time.time()))
                             if not search_object['description']:
                                 search_object['description'] = 'Imported'

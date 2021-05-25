@@ -32,7 +32,10 @@ pc_api.configure(settings)
 # --Main-- #
 
 # Transform the status argument for use with Python and the API.
-specified_policy_status = True if args.status.lower() == 'enable' else False
+if args.status.lower() == 'enable':
+    specified_policy_status = True
+else:
+    specified_policy_status = False
 specified_policy_status_string = str(specified_policy_status).lower()
 
 policy_list_to_update = []
@@ -45,7 +48,7 @@ if args.policy_type is not None:
     print()
     for policy in policy_list:
         if policy['enabled'] is not specified_policy_status:
-            if policy_type == 'all' or policy['policyType'] == policy_type:
+            if policy_type in ('all', policy['policyType']):
                 policy_list_to_update.append(policy)
 
 if args.compliance_standard is not None:

@@ -43,7 +43,7 @@ if policy_id is None:
 
 print()
 print('Policy from Policy list:')
-print(json.dumps(policy))
+print(policy_id)
 print()
 
 print('API - Getting the Policy ...', end='')
