@@ -19,10 +19,15 @@ parser.add_argument(
     type=str,
     help='(Optional) - New Last Name for the specified User.')
 parser.add_argument(
-    '-r',
-    '--role',
+    '-rn',
+    '--role_name',
     type=str,
-    help='(Optional) - New Role for the specified User.')
+    help='(Optional) - New Role to assign for the specified User.')
+parser.add_argument(
+    '--access_keys_allowed',
+    choices=['true', 'false', None],
+    type=str,
+    help='(Optional) - Whether Access Keys are allowed for the specified User.')
 args = parser.parse_args()
 
 # --Initialize-- #
@@ -38,17 +43,22 @@ user = pc_api.user_read(args.user_email.lower())
 print(' done.')
 print()
 
-if args.role is not None:
+update_needed = False
+
+if args.role_name is not None:
     print('API - Getting the Roles list ...', end='')
-    role_list = pc_api.user_role_list_read()
+    user_role_list = pc_api.user_role_list_read()
     print(' done.')
     print()
-    update_needed = False
-    for role in role_list:
-        if role['name'].lower() == args.role.lower():
-            user['roleId'] = role['id']
+    user_role_id = None
+    for user_role in user_role_list:
+        if user_role['name'].lower() == args.role_name.lower():
+            user_role_id = user_role['id']
             update_needed = True
             break
+    if user_role_id is None:
+        pc_utility.error_and_exit(400, 'Role not found. Please verify the Role name.')
+    user['roleId'] = user_role_id
 
 if args.firstname is not None:
     update_needed = True
@@ -57,6 +67,10 @@ if args.firstname is not None:
 if args.lastname is not None:
     update_needed = True
     user['lastName'] = args.lastname
+
+if args.access_keys_allowed is not None:
+    update_needed = True
+    user['accessKeysAllowed'] = args.access_keys_allowed
 
 if update_needed:
     print('API - Updating the User ...', end='')

@@ -20,7 +20,7 @@ pc_api.configure(settings)
 
 # Import.
 
-import_file_data = pc_utility.read_csv_file(args.import_file_name)
+import_file_data = pc_utility.read_csv_file_text(args.import_file_name)
 
 cloud_accounts_to_import = []
 for cloud_account in import_file_data:
@@ -58,7 +58,7 @@ print()
 # Import the account list into Prisma Cloud
 print('API - Creating Cloud Accounts ...')
 cloud_type = 'azure'
-for new_cloud_account in cloud_accounts_to_import:
-    print('Adding Cloud Account: %s' % new_cloud_account['cloudAccount']['name'])
-    pc_api.cloud_accounts_create(cloud_type, new_cloud_account)
+for cloud_account_to_import in cloud_accounts_to_import:
+    print('Adding Cloud Account: %s' % cloud_account_to_import['cloudAccount']['name'])
+    pc_api.cloud_accounts_create(cloud_type, cloud_account_to_import)
 print('Done.')

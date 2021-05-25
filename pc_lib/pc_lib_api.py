@@ -322,27 +322,23 @@ class PrismaCloudAPI(PrismaCloudAPICompute, PrismaCloudAPIExtended):
     [x] CREATE
     [x] READ
     [x] UPDATE
-    [ ] DELETE
-    Additional:
-    [x] LIST (v2)
+    [x] DELETE
     """
 
     def user_list_read(self):
-        return self.execute('GET', 'user')
-
-    def user_list_get_v2(self):
         return self.execute('GET', 'v2/user')
 
-    def user_create(self, user_to_add):
-        return self.execute('POST', 'user', body_params=user_to_add)
+    def user_create(self, user):
+        return self.execute('POST', 'v2/user', body_params=user)
 
-    def user_read(self, user_email):
-        return self.execute('GET', 'user/%s' % user_email)
+    def user_read(self, user_id):
+        return self.execute('GET', 'v2/user/%s' % user_id)
 
-    # TODO: Use this model for other updates?
+    def user_update(self, user):
+        return self.execute('PUT', 'v2/user/%s' % user['email'], body_params=user)
 
-    def user_update(self, user_to_update):
-        return self.execute('PUT', 'user/%s' % user_to_update['email'], body_params=user_to_update)
+    def user_delete(self, user_id):
+        return self.execute('DELETE', 'user/%s' % user_id)
 
     """
     User Roles
