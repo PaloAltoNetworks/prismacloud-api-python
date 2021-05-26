@@ -1,10 +1,12 @@
 from __future__ import print_function
-from pc_lib import pc_api, pc_utility
 
 import json
-import requests
 import time
 import os
+
+import requests
+
+from pc_lib import pc_api, pc_utility
 
 # TODO: Do not update policy.rule.name when policy.systemDefault == True ?
 

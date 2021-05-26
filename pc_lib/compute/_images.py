@@ -1,4 +1,4 @@
-class Images_PrismaCloudAPICompute_Mixin:
+class ImagesPrismaCloudAPIComputeMixin:
 
    # Images (Monitor > Vulnerabilities/Compliance > Images > Deployed)
 

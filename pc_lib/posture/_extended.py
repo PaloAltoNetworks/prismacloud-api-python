@@ -2,7 +2,7 @@ import concurrent.futures
 
 # TODO: Rename this class ...
 
-class Extended_PrismaCloudAPI_Mixin():
+class ExtendedPrismaCloudAPIMixin():
 
     def get_policies_with_saved_searches(self, policy_list_current):
         result = {'policies': {}, 'searches': {}}

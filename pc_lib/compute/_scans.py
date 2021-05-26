@@ -1,4 +1,4 @@
-class Scans_PrismaCloudAPICompute_Mixin:
+class ScansPrismaCloudAPIComputeMixin:
 
     # Scans (Monitor > Vulnerabilities/Compliance > Images > CI)
 

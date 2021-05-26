@@ -1,6 +1,6 @@
 # TODO: Split into multiple files, one per endpoint ...
 
-class Endpoints_PrismaCloudAPI_Mixin():
+class EndpointsPrismaCloudAPIMixin():
 
     # --API Endpoints-- #
 

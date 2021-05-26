@@ -12,7 +12,7 @@ import requests
 
 # --Class Methods-- #
 
-class PrismaCloudAPICompute_Mixin():
+class PrismaCloudAPIComputeMixin():
 
     def execute_compute(self, action, endpoint, query_params=None, body_params=None, force=False, paginated=False):
         if not self.token:

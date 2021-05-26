@@ -1,7 +1,9 @@
-from OpenSSL import crypto, SSL
 import argparse
-import certifi
 import socket
+
+import certifi
+
+from OpenSSL import crypto, SSL
 
 # --Description-- #
 

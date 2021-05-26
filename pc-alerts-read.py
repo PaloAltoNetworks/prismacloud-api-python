@@ -1,7 +1,8 @@
 from __future__ import print_function
-from pc_lib import pc_api, pc_utility
 
 import json
+
+from pc_lib import pc_api, pc_utility
 
 # --Configuration-- #
 

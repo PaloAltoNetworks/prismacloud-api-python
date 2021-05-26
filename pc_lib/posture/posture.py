@@ -12,7 +12,7 @@ import requests
 
 # --Class Methods-- #
 
-class PrismaCloudAPI_Mixin():
+class PrismaCloudAPIMixin():
 
     def login(self):
         requ_url = 'https://%s/login' % self.api
