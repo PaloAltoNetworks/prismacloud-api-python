@@ -99,16 +99,16 @@ if search_package_name:
     print()
 
 # Monitor > Vulnerabilities/Compliance > Images > Deployed
+deployed_images = {}
 if args.mode in ['deployed', 'all']:
     print('Getting Deployed Images ...')
-    deployed_images = {}
     images = pc_api.images_list_read(args.image_id)
     for image in images:
-        image_id = image['id']
+        image_id = image['_id']
         # TODO: Verify instances array length.
         image_ii = '%s %s' % (image['instances'][0]['image'], image['instances'][0]['host'])
         deployed_images[image_id] = {
-            'id':        image['id'],
+            'id':        image['_id'],
             'instance':  image_ii,
             'instances': image['instances'],
             'packages':  image['packages']}
@@ -118,6 +118,8 @@ if args.mode in ['deployed', 'all']:
         optional_print('ID: %s' % image, mode=print_all_packages)
         optional_print('Instance: %s' % deployed_images[image]['instance'], mode=print_all_packages)
         optional_print(mode=print_all_packages)
+        if not deployed_images[image]['packages']:
+            continue
         for package_type in deployed_images[image]['packages']:
             for package in package_type['pkgs']:
                 optional_print('\tType: %s' % package_type['pkgsType'], mode=print_all_packages)
@@ -136,9 +138,9 @@ if args.mode in ['deployed', 'all']:
     print()
 
 # Monitor > Vulnerabilities/Compliance > Images > CI
+ci_images = {}
 if args.mode in ['ci', 'all']:
     print('Getting CI Images ...')
-    ci_images = {}
     images = pc_api.scans_list_read(args.image_id)
     for image in images:
         image_id = image['entityInfo']['id']
@@ -157,6 +159,8 @@ if args.mode in ['ci', 'all']:
         optional_print('ID: %s' % image, mode=print_all_packages)
         optional_print('Instance: %s' % ci_images[image]['instance'], mode=print_all_packages)
         optional_print(mode=print_all_packages)
+        if not ci_images[image]['packages']:
+            continue
         for package_type in ci_images[image]['packages']:
             for package in package_type['pkgs']:
                 optional_print('\tType: %s' % package_type['pkgsType'], mode=print_all_packages)

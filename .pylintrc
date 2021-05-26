@@ -5,6 +5,12 @@
 #
 jobs=1
 
+[DESIGN]
+
+# Minimum number of public methods for a class (see R0903).
+#
+min-public-methods=1
+
 [MESSAGES CONTROL]
 
 # Disable the message, report, category or checker with the given id(s).
@@ -21,8 +27,9 @@ jobs=1
 # If you want to run only the classes checker, but have no Warning level messages displayed,
 # use "--disable=all --enable=classes --disable=W".
 #
-disable=line-too-long
-
+disable=line-too-long,
+    missing-function-docstring,
+    pointless-string-statement,
 
 [REPORTS]
 

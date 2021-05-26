@@ -1,14 +1,8 @@
 import concurrent.futures
 
-# --Description-- #
+# TODO: Rename this class ...
 
-# Prisma Cloud API Extended library.
-
-# --Class Methods-- #
-
-class PrismaCloudAPIExtended():
-
-    # --Main-- #
+class Extended_PrismaCloudAPI_Mixin():
 
     def get_policies_with_saved_searches(self, policy_list_current):
         result = {'policies': {}, 'searches': {}}
@@ -55,8 +49,8 @@ class PrismaCloudAPIExtended():
         futures = []
         for cloud_account_resource in cloud_account_resource_list:
             self.progress('Scheduling Resource Request: %s' % cloud_account_resource['rrn'])
-            thread_progress = 'Getting Resource: %s' % resource['rrn']
-            futures.append(thread_pool_executor.submit(self.resource_read, body_params={'rrn': resource['rrn']}, force=True, message=thread_progress))
+            thread_progress = 'Getting Resource: %s' % cloud_account_resource['rrn']
+            futures.append(thread_pool_executor.submit(self.resource_read, body_params={'rrn': cloud_account_resource['rrn']}, force=True, message=thread_progress))
         concurrent.futures.wait(futures)
         for future in concurrent.futures.as_completed(futures):
             resource = future.result()

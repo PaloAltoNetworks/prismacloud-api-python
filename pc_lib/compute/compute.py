@@ -1,19 +1,18 @@
+from __future__ import print_function
+
 import json
+import sys
 import time
 
 import requests
 
-from .pc_lib_utility import PrismaCloudUtility
-
 # --Description-- #
 
-# Prisma Cloud API (Compute) library.
+# Prisma Cloud (Compute) API library.
 
 # --Class Methods-- #
 
-class PrismaCloudAPICompute():
-
-    # TwistLock API. See pc_lib_api for RedLock API methods.
+class PrismaCloudAPICompute_Mixin():
 
     def execute_compute(self, action, endpoint, query_params=None, body_params=None, force=False, paginated=False):
         if not self.token:
@@ -59,7 +58,7 @@ class PrismaCloudAPICompute():
                 if force:
                     self.logger.error('API: (%s) responded with an error: (%s), with query %s and body params: %s' % (requ_url, api_response.status_code, query_params, body_params))
                     return None
-                PrismaCloudUtility.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
+                self.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
             offset += limit
         return results
 
@@ -67,55 +66,18 @@ class PrismaCloudAPICompute():
 
     def validate_api_compute(self):
         if not self.api_compute:
-            PrismaCloudUtility.error_and_exit(self, 500, 'Please specify a Prisma Cloud Compute Base URL.')
+            self.error_and_exit(self, 500, 'Please specify a Prisma Cloud Compute Base URL.')
 
-    # --API Endpoints-- #
+    # Exit handler (Error).
 
-    def statuses_intelligence(self):
-        return self.execute_compute('GET', 'api/v1/statuses/intelligence')
-
-    """
-    Note: Eventually, all objects covered should have full CRUD capability, ie, to create, read, update, and delete (and list).
-
-    Template
-
-    [ ] LIST
-    [ ] CREATE
-    [ ] READ
-    [ ] UPDATE
-    [ ] DELETE
-    """
-
-    """
-    Images (Monitor > Vulnerabilities/Compliance > Images > Deployed)
-
-    [x] LIST
-    [ ] CREATE
-    [ ] READ
-    [ ] UPDATE
-    [ ] DELETE
-    """
-
-    def images_list_read(self, image_id=None):
-        if image_id:
-            images = self.execute_compute('GET', 'api/v1/images?id=%s&filterBaseImage=true' % image_id)
-        else:
-            images = self.execute_compute('GET', 'api/v1/images?filterBaseImage=true', paginated=True)
-        return images
-
-    """
-    Scans (Monitor > Vulnerabilities/Compliance > Images > CI)
-
-    [x] LIST
-    [ ] CREATE
-    [ ] READ
-    [ ] UPDATE
-    [ ] DELETE
-    """
-
-    def scans_list_read(self, image_id=None):
-        if image_id:
-            images = self.execute_compute('GET', 'api/v1/scans?imageID=%s&filterBaseImage=true' % image_id)
-        else:
-            images = self.execute_compute('GET', 'api/v1/scans?filterBaseImage=true', paginated=True)
-        return images
+    @classmethod
+    def error_and_exit(cls, error_code, error_message=None, system_message=None):
+        print()
+        print()
+        print('Status Code: %s' % error_code)
+        if error_message is not None:
+            print(error_message)
+        if system_message is not None:
+            print(system_message)
+        print()
+        sys.exit(1)

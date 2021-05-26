@@ -7,6 +7,7 @@ import os
 import sys
 
 try:
+     # pylint: disable=redefined-builtin
     input = raw_input
 except NameError:
     pass
@@ -17,7 +18,7 @@ except NameError:
 
 # --Helper Methods-- #
 
-class PrismaCloudUtility(object):
+class PrismaCloudUtility():
 
     DEFAULT_SETTINGS_FILE_NAME    = 'pc-settings.conf'
     DEFAULT_SETTINGS_FILE_VERSION = 4
@@ -130,7 +131,8 @@ class PrismaCloudUtility(object):
 
     # Normalize API/UI Base URL.
 
-    def normalize_api_base(self, api):
+    @classmethod
+    def normalize_api_base(cls, api):
         if not api:
             return None
         api = api.lower()
@@ -143,7 +145,8 @@ class PrismaCloudUtility(object):
 
     # Normalize Compute API/UI Base URL.
 
-    def normalize_api_compute_base(self, api_compute):
+    @classmethod
+    def normalize_api_compute_base(cls, api_compute):
         if not api_compute:
             return None
         api_compute = api_compute.lower()
@@ -166,7 +169,8 @@ class PrismaCloudUtility(object):
 
     # Load a CSV file into a Dictionary (binary).
 
-    def read_csv_file(self, file_name):
+    @classmethod
+    def read_csv_file(cls, file_name):
         csv_list = []
         with open(file_name, 'rb') as csv_file:
             file_reader = csv.DictReader(csv_file)
@@ -176,7 +180,8 @@ class PrismaCloudUtility(object):
 
     # Load a CSV file into Dictionary (text).
 
-    def read_csv_file_text(self, file_name):
+    @classmethod
+    def read_csv_file_text(cls, file_name):
         csv_list = []
         with open(file_name, 'r') as csv_file:
             file_reader = csv.DictReader(csv_file)
@@ -213,7 +218,8 @@ class PrismaCloudUtility(object):
 
     # Search list for a field with a certain value and return another field value from that object.
 
-    def search_list_value(self, list_to_search, field_to_search, field_to_return, search_value):
+    @classmethod
+    def search_list_value(cls, list_to_search, field_to_search, field_to_return, search_value):
         item_to_return = None
         for source_item in list_to_search:
             if field_to_search in source_item:
@@ -224,7 +230,8 @@ class PrismaCloudUtility(object):
 
     # Search list for a field with a certain value and return another field value from that object (case insensitive).
 
-    def search_list_value_lower(self, list_to_search, field_to_search, field_to_return, search_value):
+    @classmethod
+    def search_list_value_lower(cls, list_to_search, field_to_search, field_to_return, search_value):
         item_to_return = None
         search_value = search_value.lower()
         for source_item in list_to_search:
@@ -236,7 +243,8 @@ class PrismaCloudUtility(object):
 
     # Search list for a field with a certain value and return the entire object.
 
-    def search_list_object(self, list_to_search, field_to_search, search_value):
+    @classmethod
+    def search_list_object(cls, list_to_search, field_to_search, search_value):
         object_to_return = None
         for source_item in list_to_search:
             if field_to_search in source_item:
@@ -247,7 +255,8 @@ class PrismaCloudUtility(object):
 
     # Search list for a field with a certain value and return the entire object (case insensitive).
 
-    def search_list_object_lower(self, list_to_search, field_to_search, search_value):
+    @classmethod
+    def search_list_object_lower(cls, list_to_search, field_to_search, search_value):
         object_to_return = None
         search_value = search_value.lower()
         for source_item in list_to_search:
@@ -259,7 +268,8 @@ class PrismaCloudUtility(object):
 
     # Search list for a field with a certain value and return a list of all objects that match.
 
-    def search_list_list(self, list_to_search, field_to_search, search_value):
+    @classmethod
+    def search_list_list(cls, list_to_search, field_to_search, search_value):
         object_list_to_return = []
         for source_item in list_to_search:
             if field_to_search in source_item:
@@ -270,7 +280,8 @@ class PrismaCloudUtility(object):
 
     # Search list for a field with a certain value and return a list of all objects that match (case insensitive).
 
-    def search_list_list_lower(self, list_to_search, field_to_search, search_value):
+    @classmethod
+    def search_list_list_lower(cls, list_to_search, field_to_search, search_value):
         object_list_to_return = []
         search_value = search_value.lower()
         for source_item in list_to_search:
@@ -282,7 +293,8 @@ class PrismaCloudUtility(object):
 
     # Exit handler (Error).
 
-    def error_and_exit(self, error_code, error_message=None, system_message=None):
+    @classmethod
+    def error_and_exit(cls, error_code, error_message=None, system_message=None):
         print()
         print()
         print('Status Code: %s' % error_code)
@@ -295,5 +307,6 @@ class PrismaCloudUtility(object):
 
     # Exit handler (Success).
 
-    def success_exit(self):
+    @classmethod
+    def success_exit(cls):
         sys.exit(0)
