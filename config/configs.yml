@@ -1,4 +1,4 @@
-# Backward compatibility with SDK Version 1.0.
+# Legacy SDK Version 1.0.
 
 prisma_cloud:
   username: "<Prisma Cloud Access Key>"

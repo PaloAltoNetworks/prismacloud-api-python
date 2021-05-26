@@ -1,7 +1,7 @@
-# Backward compatibility with SDK Version 1.0.
+# Legacy SDK Version 1.0.
 
-from .lib.config_helper import ConfigHelper
-from .lib.redlock_sdk import RLSession
+from .legacy.config_helper import ConfigHelper
+from .legacy.redlock_sdk import RLSession
 
 # SDK Version 2.0.
 

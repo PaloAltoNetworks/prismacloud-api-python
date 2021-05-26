@@ -1,5 +1,7 @@
-import yaml
+# Legacy SDK Version 1.0.
+
 import os
+import yaml
 
 class ConfigHelper(object):
     def __init__(self):
@@ -10,9 +12,10 @@ class ConfigHelper(object):
         self.rl_api_base  = config['prisma_cloud']['api_base']
         self.rl_ca_bundle = config['prisma_cloud']['ca_bundle']
         self.rl_file_name = config['prisma_cloud']['filename']
+        return None
 
     @classmethod
-    def read_yml(self, f='configs.yml', d=None):
+    def read_yml(cls, f='configs.yml', d=None):
         if not d:
             d = os.path.join(os.getcwd(), 'config')
         yaml_file = '%s/%s' % (d, f)
@@ -20,7 +23,7 @@ class ConfigHelper(object):
             return yaml.safe_load(stream)
 
     @classmethod
-    def write_yml(self, config=None, f='configs.yml', d=None):
+    def write_yml(cls, config=None, f='configs.yml', d=None):
         if not config:
             config = {'prisma_cloud': {}}
             config['prisma_cloud']['username']      = ''
@@ -35,4 +38,3 @@ class ConfigHelper(object):
         with open(yaml_file, 'w') as stream:
             yaml.dump(config, stream)
         return None
-

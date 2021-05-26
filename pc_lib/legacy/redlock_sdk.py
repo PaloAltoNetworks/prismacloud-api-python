@@ -1,8 +1,11 @@
+# Legacy SDK Version 1.0.
+
+import json
+import time
+
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-import json
 import requests
-import time
 
 class RLSession(object):
     # Maximum number of retries, for any reason.
@@ -11,6 +14,7 @@ class RLSession(object):
     retry_statuses = [429, 500, 502, 503, 504]
     # Also retry for authentication failure (401) ... defined within try_wrapper().
 
+    # pylint: disable=too-few-public-methods
     def __init__(self, username, password, customer_name, api_base, ca_bundle):
         self.api_id       = username
         self.api_pass     = password
@@ -49,7 +53,7 @@ class RLSession(object):
 
     def authenticate_client(self):
         success = False
-        prefix = 'https://'  + self.api_base_url
+        prefix = 'https://' + self.api_base_url
         endpoint = prefix + '/login'
         body = {'username': self.api_id, 'password': self.api_pass, 'customerName': self.cust_name}
         max_tries = 5
@@ -61,10 +65,13 @@ class RLSession(object):
                 self.auth_token = token
                 success = True
                 break
-            else:
-                time.sleep(1)
+            time.sleep(1)
         self.client.headers.update(self.build_header())
         return success
+
+    def build_endpoint_prefix(self):
+        prefix = 'https://' + self.api_base_url
+        return prefix
 
     def build_header(self):
         return {'x-redlock-auth': self.auth_token, 'Content-Type': 'application/json'}
@@ -78,6 +85,7 @@ class RLSession(object):
         success, response, exception = self.try_wrapper(verb, url, params, reqbody)
         if success:
             return response
+        # pylint: disable=raising-bad-type
         raise exception
 
     def try_wrapper(self, verb, url, params, reqbody):
@@ -104,5 +112,23 @@ class RLSession(object):
             response = client_method(url, params=params)
         else:
             response = client_method(url, data=json.dumps(reqbody))
-        success, exception = utility.parse_status(url, response.status_code, response.text)
+        success, exception = self.parse_status(url, response.status_code, response.text)
         return [success, response, exception]
+
+    @classmethod
+    def parse_status(cls, url, resp_code, resp_text):
+        success = True
+        exception = None
+        if resp_code not in [200, 201, 202, 204]:
+            success = False
+            bad_statuses = {
+                400: '%s Validation Error: %s' % (resp_code, resp_text),
+                401: '%s Authentication Error: %s' % (resp_code, resp_text),
+                404: '%s Resource Existence Error: %s URL: %s' % (resp_code, resp_text, url),
+                403: '%s Authorization Error: %s' % (resp_code, resp_text),
+                422: '%s Validation Error: %s' % (resp_code, resp_text),
+                429: '%s RateLimit Error: %s' % (resp_code, resp_text)}
+            if resp_code in bad_statuses:
+                return [success, bad_statuses[resp_code]]
+            return [success, '%s Error: %s' % (resp_code, resp_text)]
+        return [success, exception]
