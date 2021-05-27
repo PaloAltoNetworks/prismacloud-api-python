@@ -1,3 +1,5 @@
+""" Prisma Cloud CSPM API Class """
+
 import sys
 
 from .posture import PrismaCloudAPIMixin
@@ -9,4 +11,4 @@ mixin_classes = [getattr(sys.modules[__name__], x) for x in mixin_classes_as_str
 
 # pylint: disable=too-few-public-methods
 class PrismaCloudAPIPosture(*mixin_classes):
-    pass
+    """ Prisma Cloud CSPM API Class """

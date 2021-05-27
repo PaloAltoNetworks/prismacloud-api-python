@@ -1,3 +1,5 @@
+""" Prisma Cloud Utility Class """
+
 from __future__ import print_function
 
 import argparse
@@ -7,7 +9,7 @@ import os
 import sys
 
 try:
-     # pylint: disable=redefined-builtin
+    # pylint: disable=redefined-builtin
     input = raw_input
 except NameError:
     pass
@@ -19,6 +21,7 @@ except NameError:
 # --Helper Methods-- #
 
 class PrismaCloudUtility():
+    """ Prisma Cloud Utility Class """
 
     DEFAULT_SETTINGS_FILE_NAME    = 'pc-settings.conf'
     DEFAULT_SETTINGS_FILE_VERSION = 4
@@ -197,6 +200,7 @@ class PrismaCloudUtility():
         try:
             with open(file_name_and_path, 'r') as json_file:
                 json_data = json.load(json_file)
+        # pylint: disable=broad-except
         except Exception as ex:
             self.error_and_exit(500, 'Failed to read JSON file.', ex)
         return json_data
@@ -213,6 +217,7 @@ class PrismaCloudUtility():
             else:
                 with open(file_name_and_path, 'w') as json_file:
                     json.dump(data_to_write, json_file)
+        # pylint: disable=broad-except
         except Exception as ex:
             self.error_and_exit(500, 'Failed to write JSON file.', ex)
 

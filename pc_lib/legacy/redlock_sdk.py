@@ -1,4 +1,4 @@
-# Legacy SDK Version 1.0.
+""" Legacy SDK Version 1.0: Requests """
 
 import json
 import time
@@ -7,14 +7,17 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import requests
 
-class RLSession(object):
+# pylint: disable=too-many-instance-attributes
+class RLSession():
+    """ Legacy SDK Version 1.0: Requests """
+
     # Maximum number of retries, for any reason.
     max_retries = 5
     # Always retry on these statuses, within the requests session.
     retry_statuses = [429, 500, 502, 503, 504]
     # Also retry for authentication failure (401) ... defined within try_wrapper().
 
-    # pylint: disable=too-few-public-methods
+    # pylint: disable=too-many-arguments,useless-return
     def __init__(self, username, password, customer_name, api_base, ca_bundle):
         self.api_id       = username
         self.api_pass     = password
@@ -25,6 +28,7 @@ class RLSession(object):
         self.build_client()
         return None
 
+    # pylint: disable=useless-return
     def build_client(self):
         self.client = requests.Session()
         # GlobalProtect generates 'ignore self signed certificate in certificate chain' errors.
@@ -107,6 +111,7 @@ class RLSession(object):
             success, response, exception = self.get_response(verb_mapping[verb], verb, url, params, reqbody)
         return [success, response, exception]
 
+    # pylint: disable=too-many-arguments
     def get_response(self, client_method, verb, url, params, reqbody):
         if verb in ['get', 'delete']:
             response = client_method(url, params=params)

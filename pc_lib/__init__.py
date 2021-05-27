@@ -1,3 +1,5 @@
+""" Prisma Cloud API Class """
+
 # Legacy SDK Version 1.0.
 
 from .legacy.config_helper import ConfigHelper

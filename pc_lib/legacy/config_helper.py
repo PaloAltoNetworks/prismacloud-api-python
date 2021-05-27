@@ -1,9 +1,12 @@
-# Legacy SDK Version 1.0.
+""" Legacy SDK Version 1.0: Configuration """
 
 import os
 import yaml
 
-class ConfigHelper(object):
+class ConfigHelper():
+    """ Legacy SDK Version 1.0: Configuration """
+
+    # pylint: disable=useless-return
     def __init__(self):
         config = self.read_yml()
         self.rl_user      = config['prisma_cloud']['username']
@@ -23,6 +26,7 @@ class ConfigHelper(object):
             return yaml.safe_load(stream)
 
     @classmethod
+    # pylint: disable=useless-return
     def write_yml(cls, config=None, f='configs.yml', d=None):
         if not config:
             config = {'prisma_cloud': {}}

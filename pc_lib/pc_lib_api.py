@@ -1,3 +1,5 @@
+""" Prisma Cloud API Class """
+
 import logging
 
 from .posture import PrismaCloudAPIPosture
@@ -7,11 +9,9 @@ from .compute import PrismaCloudAPICompute
 
 # Prisma Cloud API library.
 
-# --Class Methods-- #
-
 # pylint: disable=too-few-public-methods
 class CallCounter:
-    # Decorator to determine number of calls for a method.
+    """ Decorator to determine number of calls for a method """
     def __init__(self, method):
         self.method = method
         self.counter = 0
@@ -22,6 +22,7 @@ class CallCounter:
 
 # pylint: disable=too-many-instance-attributes
 class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute):
+    """ Prisma Cloud API Class """
     # pylint: disable=super-init-not-called
     def __init__(self):
         self.api                = None

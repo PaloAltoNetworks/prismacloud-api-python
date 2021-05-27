@@ -27,9 +27,13 @@ min-public-methods=1
 # If you want to run only the classes checker, but have no Warning level messages displayed,
 # use "--disable=all --enable=classes --disable=W".
 #
-disable=line-too-long,
+disable=duplicate-code,
+    fixme,
+    invalid-name,
+    line-too-long,
     missing-function-docstring,
     pointless-string-statement,
+    simplifiable-if-statement
 
 [REPORTS]
 

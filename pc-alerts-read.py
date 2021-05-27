@@ -1,3 +1,5 @@
+""" Get a list of Alerts """
+
 from __future__ import print_function
 
 import json

@@ -1,3 +1,5 @@
+""" Import Azure Accounts from a CSV file """
+
 from __future__ import print_function
 from pc_lib import pc_api, pc_utility
 
@@ -57,8 +59,7 @@ print()
 
 # Import the account list into Prisma Cloud
 print('API - Creating Cloud Accounts ...')
-cloud_type = 'azure'
 for cloud_account_to_import in cloud_accounts_to_import:
     print('Adding Cloud Account: %s' % cloud_account_to_import['cloudAccount']['name'])
-    pc_api.cloud_accounts_create(cloud_type, cloud_account_to_import)
+    pc_api.cloud_accounts_create('azure', cloud_account_to_import)
 print('Done.')

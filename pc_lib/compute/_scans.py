@@ -1,6 +1,9 @@
-class ScansPrismaCloudAPIComputeMixin:
+""" Prisma Cloud Compute API Scans Endpoints Class """
 
-    # Scans (Monitor > Vulnerabilities/Compliance > Images > CI)
+# Scans (Monitor > Vulnerabilities/Compliance > Images > CI)
+
+class ScansPrismaCloudAPIComputeMixin:
+    """ Prisma Cloud Compute API Scans Endpoints Class """
 
     def scans_list_read(self, image_id=None):
         if image_id:

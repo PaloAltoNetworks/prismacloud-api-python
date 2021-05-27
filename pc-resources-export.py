@@ -1,3 +1,5 @@
+""" Get Resources """
+
 from pc_lib import pc_api, pc_utility
 
 # --Configuration-- #

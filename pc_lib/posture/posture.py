@@ -1,3 +1,5 @@
+""" Requests and Output """
+
 from __future__ import print_function
 
 import json
@@ -6,13 +8,8 @@ import time
 
 import requests
 
-# --Description-- #
-
-# Prisma Cloud API library.
-
-# --Class Methods-- #
-
 class PrismaCloudAPIMixin():
+    """ Requests and Output """
 
     def login(self):
         requ_url = 'https://%s/login' % self.api
@@ -45,6 +42,7 @@ class PrismaCloudAPIMixin():
         else:
             self.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
 
+    # pylint: disable=too-many-arguments
     def execute(self, action, endpoint, query_params=None, body_params=None, force=False):
         if not self.token:
             self.login()

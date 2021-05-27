@@ -1,13 +1,17 @@
+""" Prisma Cloud API Endpoints Aggregation Class """
+
 import concurrent.futures
 
 # TODO: Rename this class ...
 
 class ExtendedPrismaCloudAPIMixin():
+    """ Prisma Cloud API Endpoints Aggregation Class """
 
     def get_policies_with_saved_searches(self, policy_list_current):
         result = {'policies': {}, 'searches': {}}
         if not policy_list_current:
             return result
+        # pylint: disable=consider-using-with
         thread_pool_executor = concurrent.futures.ThreadPoolExecutor(self.max_workers)
         self.progress('API - Getting the Custom Policies ...')
         futures = []
@@ -44,6 +48,7 @@ class ExtendedPrismaCloudAPIMixin():
         result = []
         if not cloud_account_resource_list:
             return result
+        # pylint: disable=consider-using-with
         thread_pool_executor = concurrent.futures.ThreadPoolExecutor(self.max_workers)
         self.progress('API - Getting the Resources ...')
         futures = []

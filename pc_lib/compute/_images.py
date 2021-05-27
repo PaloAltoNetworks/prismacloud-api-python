@@ -1,6 +1,9 @@
-class ImagesPrismaCloudAPIComputeMixin:
+""" Prisma Cloud Compute API Images Endpoints Class """
 
-   # Images (Monitor > Vulnerabilities/Compliance > Images > Deployed)
+# Images (Monitor > Vulnerabilities/Compliance > Images > Deployed)
+
+class ImagesPrismaCloudAPIComputeMixin:
+    """ Prisma Cloud Compute API Images Endpoints Class """
 
     def images_list_read(self, image_id=None):
         if image_id:

@@ -1,3 +1,5 @@
+""" Standalone Example: Add a Cloud Account """
+
 from __future__ import print_function
 import json
 import requests
@@ -29,7 +31,7 @@ PRISMA_CLOUD_MONITOR_MODE                          = 'MONITOR_AND_PROTECT'
 
 # Set the API
 headers = {'Content-Type': 'application/json'}
-api_url = 'https://api3.prismacloud.io/login'
+api_url = 'https://api.prismacloud.io/login'
 action  = 'POST'
 
 # Set the POST
@@ -48,7 +50,7 @@ token = response_data['token']
 ## Example of the Add Cloud Account API
 
 headers = {'Content-Type': 'application/json', 'x-redlock-auth': token}
-api_url = 'https://api3.prismacloud.io/cloud/' + CLOUD_TYPE
+api_url = 'https://api.prismacloud.io/cloud/' + CLOUD_TYPE
 action  = 'POST'
 
 # Set the POST

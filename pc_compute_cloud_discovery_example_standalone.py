@@ -1,3 +1,5 @@
+""" Standalone Example: Enable Cloud Discovery """
+
 from __future__ import print_function
 import json
 import requests
@@ -24,7 +26,7 @@ AWS_SECRET_KEY = 'aws-secret-key-here'
 PRISMA_CLOUD_CREDENTIAL_FRIENDLY_NAME = 'unique-descriptive-name-for-this-credential'
 
 # Console URL for your Prisma Cloud Compute Instance.
-PRISMA_CLOUD_COMPUTE_CONSOLE_URL = 'replace-this-example-us-east1.cloud.twistlock.com/us-1-5555121212'
+PRISMA_CLOUD_COMPUTE_CONSOLE_URL = 'prisma-cloud-compute-console-url-here'
 
 # API and Version URL suffix.
 PRISMA_CLOUD_COMPUTE_CONSOLE_API_VERSION = '/api/v1'

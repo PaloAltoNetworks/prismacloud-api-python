@@ -1,8 +1,10 @@
+""" Prisma Cloud API Endpoints Class """
+
 # TODO: Split into multiple files, one per endpoint ...
 
+# pylint: disable=too-many-public-methods
 class EndpointsPrismaCloudAPIMixin():
-
-    # --API Endpoints-- #
+    """ Prisma Cloud API Endpoints Class """
 
     def current_user(self):
         return self.execute('GET', 'user/me')

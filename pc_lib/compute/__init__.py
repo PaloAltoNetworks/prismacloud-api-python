@@ -1,3 +1,5 @@
+""" Prisma Cloud CWP API Class """
+
 import sys
 
 from .compute import PrismaCloudAPIComputeMixin
@@ -10,4 +12,4 @@ mixin_classes = [getattr(sys.modules[__name__], x) for x in mixin_classes_as_str
 
 # pylint: disable=too-few-public-methods
 class PrismaCloudAPICompute(*mixin_classes):
-    pass
+    """ Prisma Cloud CWP API Class """

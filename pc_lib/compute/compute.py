@@ -1,3 +1,5 @@
+""" Requests and Output """
+
 from __future__ import print_function
 
 import json
@@ -6,14 +8,10 @@ import time
 
 import requests
 
-# --Description-- #
-
-# Prisma Cloud (Compute) API library.
-
-# --Class Methods-- #
-
 class PrismaCloudAPIComputeMixin():
+    """ Requests and Output """
 
+    # pylint: disable=too-many-arguments,too-many-branches,too-many-locals
     def execute_compute(self, action, endpoint, query_params=None, body_params=None, force=False, paginated=False):
         if not self.token:
             self.login()
