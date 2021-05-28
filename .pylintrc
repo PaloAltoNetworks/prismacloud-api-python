@@ -3,13 +3,25 @@
 # Use multiple processes to speed up Pylint.
 # Specifying 0 will auto-detect the number of processors available to use.
 #
-jobs=1
+jobs=2
+
+[BASIC]
+
+# Regular expression matching correct constant names. Overrides const-naming-style.
+#
+const-rgx=(([A-Z_][A-Z0-9_]*)|([a-z_][a-z0-9_]*)|(__.*__))$
 
 [DESIGN]
 
 # Minimum number of public methods for a class (see R0903).
 #
 min-public-methods=1
+
+[FORMAT]
+
+# Maximum number of characters on a single line.
+#
+max-line-length=255
 
 [MESSAGES CONTROL]
 
@@ -27,13 +39,11 @@ min-public-methods=1
 # If you want to run only the classes checker, but have no Warning level messages displayed,
 # use "--disable=all --enable=classes --disable=W".
 #
-disable=duplicate-code,
+disable=
+    duplicate-code,
     fixme,
-    invalid-name,
-    line-too-long,
     missing-function-docstring,
-    pointless-string-statement,
-    simplifiable-if-statement
+    pointless-string-statement
 
 [REPORTS]
 

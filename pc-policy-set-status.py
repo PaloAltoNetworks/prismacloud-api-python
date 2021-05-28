@@ -34,10 +34,7 @@ pc_api.configure(settings)
 # --Main-- #
 
 # Transform the status argument for use with Python and the API.
-if args.status.lower() == 'enable':
-    specified_policy_status = True
-else:
-    specified_policy_status = False
+specified_policy_status = bool(args.status.lower() == 'enable')
 specified_policy_status_string = str(specified_policy_status).lower()
 
 policy_list_to_update = []

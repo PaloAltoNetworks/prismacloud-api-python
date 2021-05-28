@@ -18,6 +18,7 @@ class ConfigHelper():
         return None
 
     @classmethod
+    # pylint: disable=invalid-name
     def read_yml(cls, f='configs.yml', d=None):
         if not d:
             d = os.path.join(os.getcwd(), 'config')
@@ -26,7 +27,7 @@ class ConfigHelper():
             return yaml.safe_load(stream)
 
     @classmethod
-    # pylint: disable=useless-return
+    # pylint: disable=invalid-name,useless-return
     def write_yml(cls, config=None, f='configs.yml', d=None):
         if not config:
             config = {'prisma_cloud': {}}

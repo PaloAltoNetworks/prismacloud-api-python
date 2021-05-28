@@ -114,7 +114,7 @@ for policy_id, policy_object in policy_object_original.items():
             print('Importing: %s' % policy_object['name'])
             new_policy = pc_api.policy_create(policy_object)
             new_policy_id = new_policy['policyId']
-        except requests.exceptions.HTTPError as e:
+        except requests.exceptions.HTTPError as ex:
             print('Error importing: %s' + policy_object['name'])
             print('Possibly, the cloud provider for this Policy is not supported in the destination (esp: api.prismacloud.cn).')
         if new_policy_id is not None:

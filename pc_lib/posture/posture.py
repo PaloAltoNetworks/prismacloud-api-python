@@ -76,7 +76,7 @@ class PrismaCloudAPIMixin():
             self.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
         return result
 
-   # Exit handler (Error).
+    # Exit handler (Error).
 
     @classmethod
     def error_and_exit(cls, error_code, error_message=None, system_message=None):
