@@ -4,7 +4,7 @@ A library of scripts using Prisma Cloud APIs.
 
 ## Changes
 
-Version: 4.0 renames the scripts to .
+Version: 4.0 renames the scripts to adhere to Python module name conventions.
 
 Version: 3.0 implements changes to command-line parameters; specify `-h / --help` for documentation of each script's parameters.
 
