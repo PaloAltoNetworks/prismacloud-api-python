@@ -67,7 +67,7 @@ print()
 print('API - Importing Custom Policies ...')
 try:
     custom_policy_id_map = json.load(open(CUSTOM_POLICY_ID_MAP_FILE, 'r'))
-except ValueError:
+except (ValueError, FileNotFoundError):
     custom_policy_id_map = {}
 
 for policy_id, policy_object in policy_object_original.items():
@@ -100,13 +100,14 @@ for policy_id, policy_object in policy_object_original.items():
                         if search_object['id'] == search_id_to_match:
                             body_data = {'query': search_object['query'], 'saved': False, 'timeRange': {'type':'relative', 'value': {'unit': 'hour', 'amount': 24}}}
                             new_search = pc_api.saved_search_create(search_object['searchType'], body_data)
+
                             policy_object['rule']['criteria'] = new_search['id']
                             search_object.pop('id', None)
                             search_object['name'] = '%s _Imported_%s' % (policy_object['name'], int(time.time()))
                             if not search_object['description']:
                                 search_object['description'] = 'Imported'
                             search_object['saved'] = True
-                            pc_api.saved_search_create(new_search['id'], search_object)
+                            # pc_api.saved_search_create(new_search['id'], search_object)
         new_policy_id = None
         if not args.maintain_status:
             policy_object['enabled'] = False
