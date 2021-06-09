@@ -367,9 +367,9 @@ class EndpointsPrismaCloudAPIMixin():
     Alert Rules
 
     [x] LIST
-    [ ] CREATE
-    [ ] READ
-    [ ] UPDATE
+    [x] CREATE
+    [x] READ
+    [x] UPDATE
     [x] DELETE
     Additional:
     [x] LIST (v2)
@@ -378,8 +378,17 @@ class EndpointsPrismaCloudAPIMixin():
     def alert_rule_list_read(self):
         return self.execute('GET', 'v2/alert/rule')
 
+    def alert_rule_create(self, alert_rule):
+        return self.execute('POST', 'alert/rule', body_params=alert_rule)
+
+    def alert_rule_read(self, alert_rule_id):
+        return self.execute('GET', 'alert/rule/%s' % alert_rule_id)
+
     def alert_rule_delete(self, alert_rule_id):
         return self.execute('DELETE', 'alert/rule/%s' % alert_rule_id)
+
+    def alert_rule_update(self, alert_rule_id, alert_rule_update):
+        return self.execute('PUT', 'alert/rule/%s' % alert_rule_id, body_params=alert_rule_update)
 
     """
     Integrations
