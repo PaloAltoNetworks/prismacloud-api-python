@@ -95,6 +95,8 @@ class EndpointsPrismaCloudAPIMixin():
     def saved_search_create(self, type_of_search, saved_search_to_add):
         if type_of_search == 'network':
             return self.execute('POST', 'search', body_params=saved_search_to_add)
+        elif type_of_search == 'audit_event':
+            return self.execute('POST', 'search/event', body_params=saved_search_to_add)
         return self.execute('POST', 'search/%s' % type_of_search, body_params=saved_search_to_add)
 
     def saved_search_read(self, saved_search_id, message=None):
