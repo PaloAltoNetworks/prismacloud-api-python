@@ -162,7 +162,7 @@ class PrismaCloudUtility():
 
     def prompt_for_verification_to_continue(self, args):
         # Only prompt if an interactive shell is detected
-        if os.isatty(os.stdout.fileno()):
+        if os.isatty(sys.stdout.fileno()):
             if not args.yes:
                 print()
                 print('Ready to execute commands against your Prisma Cloud tenant ...')
