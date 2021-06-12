@@ -25,17 +25,22 @@ parser.add_argument(
     help='(Optional) URI Parameters for HTTP request')
 
 parser.add_argument(
-    '--import_file_name',
+    '--request_body',
     type=str,
     help='(Optional) Import file name for file containing the HTTP request body data.')
+
+parser.add_argument(
+    '--response_file',
+    type=str,
+    help='(Optional) Export file name for file containing the HTTP response body data.')
 
 args = parser.parse_args()
 
 if not args.uri_params:
-  args.uri_params = ''
+  args.uri_params = None
 
-if not args.import_file_name:
-  args.import_file_name = ''
+if not args.request_body:
+  args.request_body = None
 
 # --Initialize-- #
 
@@ -44,40 +49,45 @@ pc_api.configure(settings)
 
 # --Main-- #
 
-if args.import_file_name == '':
-    import_file_data = None
-    if args.uri_params == '':
+if args.request_body == None:
+    request_body_data = None
+    if args.uri_params == None:
         print('API - Executing HTTP request "%s %s"' % (args.http_method, args.uri_path), file=stderr)
     else:
         print('API - Executing HTTP request "%s %s&%s"' % (args.http_method, args.uri_path, args.uri_params), file=stderr)
 else:
     # Import the data file
-    print('API - Importing file data from file %s' % args.import_file_name, file=stderr)
+    print('API - Importing file data from file %s' % args.request_body, file=stderr)
     try:
-        import_file_data = pc_utility.read_json_file(args.import_file_name)
-        print('API - Import of file data %s completed' % args.import_file_name, file=stderr)
+        request_body_data = pc_utility.read_json_file(args.request_body)
+        print('API - Import of file data %s completed' % args.request_body, file=stderr)
         if args.uri_params == '':
-            print('API - Executing HTTP request "%s %s" with request body:\n%s' % (args.http_method, args.uri_path, import_file_data), file=stderr) 
+            print('API - Executing HTTP request "%s %s" with request body:\n%s' % (args.http_method, args.uri_path, request_body_data), file=stderr) 
         else:
-            print('API - Executing HTTP request "%s %s&%s" with request body:\n%s' %  (args.http_method, args.uri_path, args.uri_params, import_file_data), file=stderr)
+            print('API - Executing HTTP request "%s %s&%s" with request body:\n%s' %  (args.http_method, args.uri_path, args.uri_params, request_body_data), file=stderr)
     except:
-        print('API - Failed to import file %s' % args.import_file_name, file=stderr)
-        exit(1)
+        print('API - Failed to import file %s' % args.request_body, file=stderr)
+        exit(2)
 
 # HUGE WARNING: NO VALIDATION HERE IN THIS EXAMPLE (so that it fits the broadest set of use-cases)
 
 # Prompt for warning if interactive
 if isatty(stdout.fileno()):
-  pc_utility.prompt_for_verification_to_continue(args)
+    pc_utility.prompt_for_verification_to_continue(args)
 
 # Make the HTTP request
 
 try:
-    response=pc_api.execute(args.http_method,args.uri_path,query_params=args.uri_params,body_params=import_file_data)
-    print('API - HTTP request response is:', file=stderr)
-    print(json_dumps(response), file=stdout)
+    response=pc_api.execute(args.http_method,args.uri_path,query_params=args.uri_params,body_params=request_body_data)
+    if args.response_file == None:
+      print('API - HTTP request response is:', file=stderr)
+      print(json_dumps(response), file=stdout)
+    else:
+      print('API - HTTP request response stored in file %s' % args.response_file, file=stderr)
+      pc_utility.write_json_file(args.response_file, response, pretty=True)
 except:
     print('API - HTTP request failed', file=stderr)
-    exit(2)
+    exit(1)
+
 
 
