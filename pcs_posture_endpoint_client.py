@@ -34,6 +34,11 @@ parser.add_argument(
     type=str,
     help='(Optional) Export file name for file containing the HTTP response body data.')
 
+parser.add_argument(
+    '--pretty',
+    action='store_true',
+    help='(Optional) Specify pretty JSON output.')
+
 args = parser.parse_args()
 
 if not args.uri_params:
@@ -41,6 +46,9 @@ if not args.uri_params:
 
 if not args.request_body:
   args.request_body = None
+
+if not args.pretty:
+  args.pretty = False
 
 # --Initialize-- #
 
@@ -73,7 +81,7 @@ else:
 
 # Prompt for warning if interactive
 if isatty(stdout.fileno()):
-    pc_utility.prompt_for_verification_to_continue(args)
+  pc_utility.prompt_for_verification_to_continue(args)
 
 # Make the HTTP request
 
@@ -81,13 +89,15 @@ try:
     response=pc_api.execute(args.http_method,args.uri_path,query_params=args.uri_params,body_params=request_body_data)
     if args.response_file == None:
       print('API - HTTP request response is:', file=stderr)
-      print(json_dumps(response), file=stdout)
+      if args.pretty:
+          print(json_dumps(response, indent=4, separators=(', ', ': ')), file=stdout)
+      else:
+          print(json_dumps(response), file=stdout)
     else:
       print('API - HTTP request response stored in file %s' % args.response_file, file=stderr)
-      pc_utility.write_json_file(args.response_file, response, pretty=True)
+      pc_utility.write_json_file(args.response_file, response, pretty=bool(args.pretty))
 except:
     print('API - HTTP request failed', file=stderr)
     exit(1)
-
 
 
