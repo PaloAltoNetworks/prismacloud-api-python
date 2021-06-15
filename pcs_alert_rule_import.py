@@ -49,7 +49,7 @@ parser.add_argument(
 parser.add_argument(
     'import_file_name',
     type=str,
-    help='Import file name for the AlertRules.'
+    help='Import file name for Alert Rules.'
     )
 args = parser.parse_args()
 
@@ -83,7 +83,7 @@ if args.alert_rule:
     for alert_rule_original in alert_rule_list_original:
         if alert_rule_original['name'] == args.alert_rule:
             alert_rule_export = True
-    if alert_rule_export == False:
+    if not alert_rule_export:
         pc_utility.error_and_exit(400, 'Alert Rule not found in the import file. Please verify the import file and it\'s contents.')
 
 # Alert Rules
@@ -107,14 +107,16 @@ if args.update_existing:
     print('API - Adding/Updating Alert Rules ...')
 else:
     print('API - Adding Alert Rules ...')
+
 added = 0
 updated = 0
 skipped = 0
+
 for alert_rule_original in alert_rule_list_original:
     print(f'{alert_rule_original["name"]} ... ', end='')
     alert_rule_method = 'create'
     alert_rule_update_id = None
-    # See if an alert rule with the same name already exists
+    # See if an Alert Rule with the same name already exists
     for alert_rule in alert_rule_list:
         if alert_rule['name'] == alert_rule_original['name']:
             if args.update_existing:
@@ -124,13 +126,13 @@ for alert_rule_original in alert_rule_list_original:
                 alert_rule_method = 'skip'
             else:
                 pc_utility.error_and_exit(400, 'Alert Rule already exists. Please verify the new Alert Rule name, or delete the existing AlertRule.')
-    # Add/update alert rule
+    # Add/update Alert Rule
     if alert_rule_method == 'skip':
         skipped += 1
         print(' skipped.')
         continue
 
-    # Verify policies
+    # Verify Policies
     new_policies_list = []
     for policy_original in alert_rule_original['policies']:
         # First see if there is mapping in PolicyIdMap
@@ -148,8 +150,7 @@ for alert_rule_original in alert_rule_list_original:
             if not args.skip_missing_policies:
                 pc_utility.error_and_exit(400, f'Policy not found in new tenant ({new_policy_id}). You might need to export Policies from the old tenant and import them to the new tenant first.')
             continue
-        else:
-            new_policies_list.append(new_policy_id)
+        new_policies_list.append(new_policy_id)
     alert_rule_original['policies'] = new_policies_list
 
     # Verify Account Groups
@@ -160,28 +161,25 @@ for alert_rule_original in alert_rule_list_original:
             if account_group_new['name'] == "Default Account Group":
                 default_account_group_new = account_group_new['id']
         if not default_account_group_new:
-            pc_utility.error_and_exit(400, f'Could not find Default Account Group')
+            pc_utility.error_and_exit(400, 'Could not find Default Account Group')
         new_account_group_list = [default_account_group_new]
     else:
         for account_group_original in alert_rule_original['target']['accountGroups']:
-            match_found = False
+            account_group_found = False
             for account_group_new in account_groups_new_list:
                 if account_group_original == account_group_new['id']:
-                    match_found = True
-            if not match_found:
+                    account_group_found = True
+            if not account_group_found:
                 if args.skip_missing_account_groups:
                     continue
-                else:
-                    pc_utility.error_and_exit(400, f'Account Group not found in new tenant ({account_group_new["id"]}). You might need to export Account Groups from the old tenant and import them to the new tenant first.')
+                pc_utility.error_and_exit(400, f'Account Group not found in new tenant ({account_group_new["id"]}). You might need to export Account Groups from the old tenant and import them to the new tenant first.')
             else:
                 new_account_group_list.append(account_group_new['id'])
-    
     alert_rule_original['target']['accountGroups'] = new_account_group_list
 
     # Skip Notifications
     if args.skip_notifications:
         alert_rule_original['notificationChannels'] = []
-
     if alert_rule_method == 'create':
         del alert_rule_original['policyScanConfigId']
         pc_api.alert_rule_create(alert_rule_original)
@@ -192,4 +190,5 @@ for alert_rule_original in alert_rule_list_original:
         updated += 1
         print(' updated.')
 print()
+print('Import Complete.')
 print(f'Summary: {added} added, {updated} updated, {skipped} skipped.')

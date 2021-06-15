@@ -14,7 +14,7 @@ parser.add_argument(
 parser.add_argument(
     'compliance_standard_name',
     type=str,
-    help='Name of the Compliance standard to add policies from'
+    help='Name of the Compliance Standard to add Policies from'
 )
 args = parser.parse_args()
 
@@ -46,7 +46,7 @@ print(' done.')
 print()
 
 # Update Alert Rule
-print('API - Updating Alert Rule with new poliicy list ...', end='')
+print('API - Updating Alert Rule with new Policy list ...', end='')
 alert_rule_original['policies'] = alert_rule_original.get('policies', []) + compliance_policy_ids
 pc_api.alert_rule_update(alert_rule_original['policyScanConfigId'], alert_rule_original)
 print(' done.')

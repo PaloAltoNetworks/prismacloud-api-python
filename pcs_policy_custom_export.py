@@ -1,4 +1,4 @@
-""" Export custom Policies """
+""" Export Custom Policies """
 
 from __future__ import print_function
 from pc_lib import pc_api, pc_utility
