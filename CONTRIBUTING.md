@@ -25,6 +25,7 @@ Here are a few resources on how to contribute to open source for the first time.
 - Validate your code using `pylint` as per below, and test your changes
 - We might offer feedback or request modifications before merging
 
+
 ```
 pylint *.py pc_lib/*.py pc_lib/*/*.py
 ```
