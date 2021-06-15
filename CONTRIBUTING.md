@@ -26,5 +26,5 @@ Here are a few resources on how to contribute to open source for the first time.
 - We might offer feedback or request modifications before merging
 
 ```
-pylint *py pc_lib/*py pc_lib/legacy/*py pc_lib/posture/*py pc_lib/compute/*py
+pylint *.py pc_lib/*.py pc_lib/*/*.py
 ```
