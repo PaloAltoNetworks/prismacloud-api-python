@@ -182,3 +182,29 @@ Example:
 ```
 python pcs_cloud_account_import_azure.py prisma_cloud_account_import_azure_template.csv
 ```
+
+**pcs_posture_endpoint_client.py**
+
+This is a generic tool for prototyping with the posture API. It sends output to stdout (and optionally to file) and errors/info sent to stderr so that it works in a pipeline which makes it 'jq' friendly.
+
+Please note this tool is not intended as a replacement for better well-formed scripts and functions.
+
+Example 1: GET request
+
+```
+python pcs_posture_endpoint_client.py GET /v2/policy
+```
+
+Example 2: POST request
+
+```
+cat > body.json <<EOF
+{ "name": "test standard", "description":"blah" }
+EOF
+python pcs_posture_endpoint_client POST /compliance --request_body body.json
+```
+
+**pcs_compute_endpoint_client.py**
+
+This is identical to pcs_posture_endpoint_client.py except it polls the compute API not the posture API.
+

@@ -161,14 +161,16 @@ class PrismaCloudUtility():
     # Double-check action.
 
     def prompt_for_verification_to_continue(self, args):
-        if not args.yes:
-            print()
-            print('Ready to execute commands against your Prisma Cloud tenant ...')
-            verification_response = str(input('Would you like to continue (y or yes)? '))
-            continue_response = {'yes', 'y'}
-            print()
-            if verification_response not in continue_response:
-                self.error_and_exit(400, 'Exiting ...')
+        # Only prompt if an interactive shell is detected
+        if os.isatty(sys.stdout.fileno()):
+            if not args.yes:
+                print()
+                print('Ready to execute commands against your Prisma Cloud tenant ...')
+                verification_response = str(input('Would you like to continue (y or yes)? '))
+                continue_response = {'yes', 'y'}
+                print()
+                if verification_response not in continue_response:
+                    self.error_and_exit(400, 'Exiting ...')
 
     # Load a CSV file into a Dictionary (binary).
 

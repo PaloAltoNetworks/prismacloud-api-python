@@ -250,7 +250,7 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('POST', 'access_keys', body_params=access_key_to_add)
 
     def access_key_read(self, access_key_id):
-        return self.execute('GET', 'access_keys' % access_key_id)
+        return self.execute('GET', 'access_keys/%s' % access_key_id)
 
     def access_key_update(self, access_key_id, access_key_update):
         return self.execute('PUT', 'access_keys/%s' % access_key_id, body_params=access_key_update)
