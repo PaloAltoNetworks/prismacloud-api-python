@@ -2,7 +2,6 @@
 
 from sys import exit as sys_exit, stderr, stdout
 from json import dumps as json_dumps
-from os import isatty
 from pc_lib import pc_api, pc_utility
 
 # --Configuration-- #
@@ -81,8 +80,7 @@ else:
 # HUGE WARNING: NO VALIDATION HERE IN THIS EXAMPLE (so that it fits the broadest set of use-cases)
 
 # Prompt for warning if interactive
-if isatty(stdout.fileno()):
-    pc_utility.prompt_for_verification_to_continue(args)
+pc_utility.prompt_for_verification_to_continue(args)
 
 # Make the HTTP request
 
