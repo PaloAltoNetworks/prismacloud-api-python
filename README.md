@@ -187,6 +187,8 @@ python pcs_cloud_account_import_azure.py prisma_cloud_account_import_azure_templ
 
 This is a generic tool for prototyping with the posture API. It sends output to stdout (and optionally to file) and errors/info sent to stderr so that it works in a pipeline which makes it 'jq' friendly.
 
+Please note this tool is not intended as a replacement for better well-formed scripts and functions.
+
 Example 1: GET request
 
 ```
