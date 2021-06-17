@@ -40,9 +40,10 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+# For readability: these arguments default to class 'NoneType' and <class 'bool'> (default False)
+
 if not args.uri_params:
     args.uri_params = None
-
 
 if not args.request_body:
     args.request_body = None
