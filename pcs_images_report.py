@@ -55,8 +55,6 @@ print('Image Name\tContainers\tContainers\tHosts\tVulnerability Count')
 
 images = pc_api.images_list_read()
 for image in images:
-    if image['instances'][0]['image'] != 'argoproj/argocd:v1.8.7':
-        continue
     if DEBUG_MODE:
         print(json.dumps(image, indent=4))
     image_id = image['_id']
