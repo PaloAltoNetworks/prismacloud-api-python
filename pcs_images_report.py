@@ -31,16 +31,6 @@ pc_api.validate_api_compute()
 
 # --Main-- #
 
-"""
-"instances": [{
-	"image": "k8s.gcr.io/etcd:3.4.3-0",
-    "host": "demo",
-    "registry": "k8s.gcr.io"
-    "repo": "etcd",
-    "tag": "3.4.3-0",
-	}],
-"""
-
 print('Testing Compute API Access ...', end='')
 intelligence = pc_api.statuses_intelligence()
 print(' done.')
