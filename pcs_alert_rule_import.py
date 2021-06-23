@@ -134,10 +134,10 @@ for alert_rule_original in alert_rule_list_original:
 
     # Verify Policies
     new_policies_list = []
-    for policy_original in alert_rule_original['policies']:
+    for policy_original_id in alert_rule_original['policies']:
         # First see if there is mapping in PolicyIdMap
-        old_policy_id = policy_original
-        if policy_original in custom_policy_id_map:
+        old_policy_id = policy_original_id
+        if policy_original_id in custom_policy_id_map:
             new_policy_id = custom_policy_id_map[old_policy_id]
         else:
             new_policy_id = old_policy_id
@@ -148,7 +148,7 @@ for alert_rule_original in alert_rule_list_original:
                 break
         if not policy_found:
             if not args.skip_missing_policies:
-                pc_utility.error_and_exit(400, f'Policy not found in new tenant ({new_policy_id}). You might need to export Policies from the old tenant and import them to the new tenant first.')
+                pc_utility.error_and_exit(400, f'Policy not found in new tenant ({new_policy_id}). You might need to export custom Policies from the old tenant and import them to the new tenant first.')
             continue
         new_policies_list.append(new_policy_id)
     alert_rule_original['policies'] = new_policies_list
@@ -159,22 +159,22 @@ for alert_rule_original in alert_rule_list_original:
     if args.use_default_account_group:
         for account_group_new in account_groups_new_list:
             if account_group_new['name'] == "Default Account Group":
-                default_account_group_new = account_group_new['id']
+                default_account_group_new_id = account_group_new['id']
         if not default_account_group_new:
             pc_utility.error_and_exit(400, 'Could not find Default Account Group')
-        new_account_group_list = [default_account_group_new]
+        new_account_group_list = [default_account_group_new_id]
     else:
-        for account_group_original in alert_rule_original['target']['accountGroups']:
+        for account_group_original_id in alert_rule_original['target']['accountGroups']:
             account_group_found = False
             for account_group_new in account_groups_new_list:
-                if account_group_original == account_group_new['id']:
+                if account_group_original_id == account_group_new['id']:
                     account_group_found = True
+                    break
             if not account_group_found:
-                if args.skip_missing_account_groups:
-                    continue
-                pc_utility.error_and_exit(400, f'Account Group not found in new tenant ({account_group_new["id"]}). You might need to export Account Groups from the old tenant and import them to the new tenant first.')
-            else:
-                new_account_group_list.append(account_group_new['id'])
+                if not args.skip_missing_account_groups:
+                    pc_utility.error_and_exit(400, f'Account Group not found in new tenant ({account_group_original_id}). You might need to export Account Groups from the old tenant and import them to the new tenant first.')
+                continue
+            new_account_group_list.append(account_group_original_id)
     alert_rule_original['target']['accountGroups'] = new_account_group_list
 
     # Skip Notifications

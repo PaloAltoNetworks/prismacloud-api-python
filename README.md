@@ -185,7 +185,8 @@ python pcs_cloud_account_import_azure.py prisma_cloud_account_import_azure_templ
 
 **pcs_posture_endpoint_client.py**
 
-This is a generic tool for prototyping with the posture API. It sends output to stdout (and optionally to file) and errors/info sent to stderr so that it works in a pipeline which makes it 'jq' friendly.
+This is a generic tool for prototyping with the Cloud Security Posture API.
+It sends output to stdout (and optionally to file) and errors/info sent to stderr so that it works in a pipeline which makes it 'jq' friendly.
 
 Please note this tool is not intended as a replacement for better well-formed scripts and functions.
 
@@ -204,7 +205,14 @@ EOF
 python pcs_posture_endpoint_client POST /compliance --request_body body.json
 ```
 
+Reference: https://prisma.pan.dev/api/cloud/cspm/cspm-api
+
 **pcs_compute_endpoint_client.py**
 
-This is identical to pcs_posture_endpoint_client.py except it polls the compute API not the posture API.
+This is identical to `pcs_posture_endpoint_client.py`,
+except it uses the Cloud Workload Protection API rather than the Cloud Security Posture API.
+
+Reference: https://prisma.pan.dev/api/cloud/cwpp
+ 
+
 
