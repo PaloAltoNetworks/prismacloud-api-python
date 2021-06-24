@@ -47,27 +47,29 @@ containers = pc_api.containers_list_read()
 print(' done.')
 print()
 
-#containers_dictionary = {}
-#for container in containers:
-#   containers_dictionary[container['_id']] = container
-   
+images_dictionary = {}
 for image in images:
-    if image['instances'][0]['image'] != 'argoproj/argocd:v1.8.7':
-        continue
     if DEBUG_MODE:
         print(json.dumps(image, indent=4))
     image_id = image['_id']
-    image_name = image['instances'][0]['image']
-    if image['vulnerabilities']:
-        vulnerabilities = image['vulnerabilities']
-    else:
-        vulnerabilities = []
-    for container in containers:
-        if DEBUG_MODE:
-            print(json.dumps(container, indent=4))
-        if 'imageID' in container['info'] and container['info']['imageID'] == image_id:
-            image_name = container['info']['imageName']
-            vulnerabilities_by_container.append({'name': container['info']['name'], 'host': container['hostname'], 'image': image_name, 'vulnerabilities': vulnerabilities})
+    images_dictionary[image_id] = image
+   
+for container in containers:
+    if DEBUG_MODE:
+        print(json.dumps(container, indent=4))
+    #if 'imageName' in container['info'] and container['info']['imageName'] != 'argoproj/argocd:v1.8.7':
+    #    continue
+    if 'imageID' in container['info']:
+        image_id   = container['info']['imageID']
+        image_name = container['info']['imageName']
+        if image_id in images_dictionary:
+            if 'vulnerabilities' in images_dictionary[image_id] and images_dictionary[image_id]['vulnerabilities']:
+                vulnerabilities = images_dictionary[image_id]['vulnerabilities']
+            else:
+                vulnerabilities = []
+        else:
+            vulnerabilities = []
+        vulnerabilities_by_container.append({'name': container['info']['name'], 'host': container['hostname'], 'image': image_name, 'vulnerabilities': vulnerabilities})
 
 print('Container Name\tHost Name\tImage Name\tVulnerability Count')
 for container in vulnerabilities_by_container:
