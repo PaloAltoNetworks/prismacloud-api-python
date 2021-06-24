@@ -1,4 +1,4 @@
-""" Get a list of Packages in CI, Deployed, or all Images """
+""" Get Vulnerabilities in Containers (Deployed Images) """
 
 from __future__ import print_function
 from pc_lib import pc_api, pc_utility
@@ -38,7 +38,7 @@ print()
 
 # Monitor > Vulnerabilities/Compliance > Images > Deployed
 
-print('Getting Deployed Images ...')
+print('Getting Vulnerabilities in Containers (Deployed Images) ...')
 print()
 
 print('Image Name\tContainers\tContainers\tHosts\tVulnerability Count')
