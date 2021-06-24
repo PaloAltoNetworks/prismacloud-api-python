@@ -48,8 +48,9 @@ class PrismaCloudAPIComputeMixin():
                         self.logger.error('API: (%s) responded with an error: (%s), with query %s and body params: %s' % (requ_url, api_response.status_code, query_params, body_params))
                     return None
                 if 'Total-Count' in api_response.headers:
-                    results.extend(result)
-                    total = int(api_response.headers['Total-Count'])
+                    if int(api_response.headers['Total-Count']) > 0:
+                        results.extend(result)
+                        total = int(api_response.headers['Total-Count'])
                 else:
                     return result
             else:

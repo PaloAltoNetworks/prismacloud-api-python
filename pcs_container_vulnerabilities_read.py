@@ -1,6 +1,5 @@
 """ Get Vulnerabilities in Containers (Deployed Images) """
 
-from __future__ import print_function
 from pc_lib import pc_api, pc_utility
 
 import json
@@ -36,35 +35,41 @@ intelligence = pc_api.statuses_intelligence()
 print(' done.')
 print()
 
-# Monitor > Vulnerabilities/Compliance > Images > Deployed
+vulnerabilities_by_container = []
 
-print('Getting Vulnerabilities in Containers (Deployed Images) ...')
+print('Getting Deployed Images (please wait) ...', end='')
+images = pc_api.images_list_read()
+print(' done.')
 print()
 
-print('Image Name\tContainers\tContainers\tHosts\tVulnerability Count')
+print('Getting Containers (please wait) ...', end='')
+containers = pc_api.containers_list_read()
+print(' done.')
+print()
 
-images = pc_api.images_list_read()
+#containers_dictionary = {}
+#for container in containers:
+#   containers_dictionary[container['_id']] = container
+   
 for image in images:
+    if image['instances'][0]['image'] != 'argoproj/argocd:v1.8.7':
+        continue
     if DEBUG_MODE:
         print(json.dumps(image, indent=4))
     image_id = image['_id']
-    vulnerabilities = image['vulnerabilities']
-
-    containers = pc_api.containers_list_read(image_id)
-    container_names = []
-    container_host_names = []
+    image_name = image['instances'][0]['image']
+    if image['vulnerabilities']:
+        vulnerabilities = image['vulnerabilities']
+    else:
+        vulnerabilities = []
     for container in containers:
         if DEBUG_MODE:
             print(json.dumps(container, indent=4))
-        image_name = container['info']['imageName']
-        container_names.append(container['info']['name'])
-        container_host_names.append(container['hostname'])
+        if 'imageID' in container['info'] and container['info']['imageID'] == image_id:
+            image_name = container['info']['imageName']
+            vulnerabilities_by_container.append({'name': container['info']['name'], 'host': container['hostname'], 'image': image_name, 'vulnerabilities': vulnerabilities})
 
-    container_names.sort()
-    container_host_names.sort()
-
-    print('%s\t%s\t%s\t%s' % (image_name, container_names, container_host_names, len(vulnerabilities)))
-
-print()
-print('Done.')
+print('Container Name\tHost Name\tImage Name\tVulnerability Count')
+for container in vulnerabilities_by_container:
+    print('%s\t%s\t%s\t%s' % (container['name'], container['host'], container['image'], len(container['vulnerabilities'])))
 print()
