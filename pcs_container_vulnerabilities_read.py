@@ -57,8 +57,6 @@ for image in images:
 for container in containers:
     if DEBUG_MODE:
         print(json.dumps(container, indent=4))
-    #if 'imageName' in container['info'] and container['info']['imageName'] != 'argoproj/argocd:v1.8.7':
-    #    continue
     if 'imageID' in container['info']:
         image_id   = container['info']['imageID']
         image_name = container['info']['imageName']
