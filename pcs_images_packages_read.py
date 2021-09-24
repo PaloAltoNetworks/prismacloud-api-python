@@ -25,7 +25,7 @@ parser.add_argument(
 parser.add_argument(
     '--package_id',
     type=str,
-    help='(Optional) - ID of the Package (name:version).')
+    help='(Optional) - ID of the Package (name:version) with version being optional.')
 args = parser.parse_args()
 
 search_package_name    = None
@@ -122,22 +122,25 @@ if args.mode in ['deployed', 'all']:
         optional_print(mode=print_all_packages)
         if not deployed_images[image]['packages']:
             continue
-        for package_type in deployed_images[image]['packages']:
-            for package in package_type['pkgs']:
-                optional_print('\tType: %s' % package_type['pkgsType'], mode=print_all_packages)
+        for packages in deployed_images[image]['packages']:
+            for package in packages['pkgs']:
+                optional_print('\tType: %s' % packages['pkgsType'], mode=print_all_packages)
                 optional_print('\tName: %s' % package['name'], mode=print_all_packages)
                 optional_print('\tVers: %s' % package['version'], mode=print_all_packages)
                 if 'path' in package:
                     optional_print('\tPath: %s' % package['path'], mode=print_all_packages)
+                    package_path = package['path']
+                else:
+                    package_path = ''
                 optional_print('\tCVEs: %s' % package['cveCount'], mode=print_all_packages)
                 optional_print(mode=print_all_packages)
-                if args.package_type in [package_type['pkgsType'], 'all']:
+                if args.package_type in [packages['pkgsType'], 'all']:
                     if search_package_name and (search_package_name == package['name']):
                         if search_package_version:
                             if search_package_version == package['version']:
-                                deployed_images_with_package.append(deployed_images[image]['instance'])
-                            else:
-                                deployed_images_with_package.append(deployed_images[image]['instance'])
+                                deployed_images_with_package.append("%s: %s %s %s %s" % (deployed_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
+                        else:
+                            deployed_images_with_package.append("%s: %s %s %s %s" % (deployed_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
     print('Done.')
     print()
 
@@ -165,22 +168,25 @@ if args.mode in ['ci', 'all']:
         optional_print(mode=print_all_packages)
         if not ci_images[image]['packages']:
             continue
-        for package_type in ci_images[image]['packages']:
-            for package in package_type['pkgs']:
-                optional_print('\tType: %s' % package_type['pkgsType'], mode=print_all_packages)
+        for packages in ci_images[image]['packages']:
+            for package in packages['pkgs']:
+                optional_print('\tType: %s' % packages['pkgsType'], mode=print_all_packages)
                 optional_print('\tName: %s' % package['name'], mode=print_all_packages)
                 optional_print('\tVers: %s' % package['version'], mode=print_all_packages)
                 if 'path' in package:
                     optional_print('\tPath: %s' % package['path'], mode=print_all_packages)
+                    package_path = package['path']
+                else:
+                    package_path = ''
                 optional_print('\tCVEs: %s' % package['cveCount'], mode=print_all_packages)
                 optional_print(mode=print_all_packages)
-                if args.package_type in [package_type['pkgsType'], 'all']:
+                if args.package_type in [packages['pkgsType'], 'all']:
                     if search_package_name and (search_package_name == package['name']):
                         if search_package_version:
                             if search_package_version == package['version']:
-                                ci_images_with_package.append(deployed_images[image]['instance'])
-                            else:
-                                ci_images_with_package.append(deployed_images[image]['instance'])
+                                ci_images_with_package.append("%s: %s %s %s %s" % (ci_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
+                        else:
+                            ci_images_with_package.append("%s: %s %s %s %s" % (ci_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
     print('Done.')
     print()
 
