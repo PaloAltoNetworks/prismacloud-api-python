@@ -127,6 +127,8 @@ if args.mode in ['deployed', 'all']:
                 optional_print('\tType: %s' % package_type['pkgsType'], mode=print_all_packages)
                 optional_print('\tName: %s' % package['name'], mode=print_all_packages)
                 optional_print('\tVers: %s' % package['version'], mode=print_all_packages)
+                if 'path' in package:
+                    optional_print('\tPath: %s' % package['path'], mode=print_all_packages)
                 optional_print('\tCVEs: %s' % package['cveCount'], mode=print_all_packages)
                 optional_print(mode=print_all_packages)
                 if args.package_type in [package_type['pkgsType'], 'all']:
@@ -168,6 +170,8 @@ if args.mode in ['ci', 'all']:
                 optional_print('\tType: %s' % package_type['pkgsType'], mode=print_all_packages)
                 optional_print('\tName: %s' % package['name'], mode=print_all_packages)
                 optional_print('\tVers: %s' % package['version'], mode=print_all_packages)
+                if 'path' in package:
+                    optional_print('\tPath: %s' % package['path'], mode=print_all_packages)
                 optional_print('\tCVEs: %s' % package['cveCount'], mode=print_all_packages)
                 optional_print(mode=print_all_packages)
                 if args.package_type in [package_type['pkgsType'], 'all']:
