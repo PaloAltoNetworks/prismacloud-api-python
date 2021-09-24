@@ -11,10 +11,23 @@ import requests
 class PrismaCloudAPIComputeMixin():
     """ Requests and Output """
 
-    # pylint: disable=too-many-arguments,too-many-branches,too-many-locals
+    def login_compute(self):
+        self.login('https://%s/api/v1/authenticate' % self.api_compute)
+
+    def extend_login_compute(self):
+        self.login_compute()
+
+    # pylint: disable=too-many-arguments,too-many-branches,too-many-locals,too-many-statements
     def execute_compute(self, action, endpoint, query_params=None, body_params=None, force=False, paginated=False):
         if not self.token:
-            self.login()
+            if self.api:
+                # Authenticate via CSPM.
+                self.login()
+            elif self.api_compute:
+                # Authenticate via CWP.
+                self.login_compute()
+            else:
+                self.error_and_exit(418, "Specify API or Compute API to Authenticate")
         # Endpoints that have the potential to return large numbers of results return a 'Total-Count' response header.
         offset = 0
         limit = 50
@@ -22,7 +35,14 @@ class PrismaCloudAPIComputeMixin():
         results = []
         while offset == 0 or offset < total:
             if int(time.time() - self.token_timer) > self.token_limit:
-                self.extend_token()
+                if self.api:
+                    # Extend CSPM authentication.
+                    self.extend_login()
+                elif self.api_compute:
+                    # Authenticate via CWP.
+                    self.extend_login_compute()
+                else:
+                    self.error_and_exit(418, "Specify a Prisma Cloud API/UI Base URL or Prisma Cloud Compute API Base URL")
             requ_action = action
             if paginated:
                 requ_url = 'https://%s/%s&limit=%s&offset=%s' % (self.api_compute, endpoint, limit, offset)
@@ -30,7 +50,12 @@ class PrismaCloudAPIComputeMixin():
                 requ_url = 'https://%s/%s' % (self.api_compute, endpoint)
             requ_headers = {'Content-Type': 'application/json'}
             if self.token:
-                requ_headers['x-redlock-auth'] = self.token
+                if self.api:
+                    # Authenticate via CSPM
+                    requ_headers['x-redlock-auth'] = self.token
+                else:
+                    # Authenticate via CWP
+                    requ_headers['Authorization'] = "Bearer %s" % self.token
             requ_params = query_params
             requ_data = json.dumps(body_params)
             api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=requ_params, data=requ_data, verify=self.ca_bundle)
@@ -57,7 +82,7 @@ class PrismaCloudAPIComputeMixin():
                 if force:
                     self.logger.error('API: (%s) responded with an error: (%s), with query %s and body params: %s' % (requ_url, api_response.status_code, query_params, body_params))
                     return None
-                self.error_and_exit(self, api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
+                self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
             offset += limit
         return results
 
@@ -65,7 +90,7 @@ class PrismaCloudAPIComputeMixin():
 
     def validate_api_compute(self):
         if not self.api_compute:
-            self.error_and_exit(self, 500, 'Please specify a Prisma Cloud Compute Base URL.')
+            self.error_and_exit(500, 'Please specify a Prisma Cloud Compute Base URL.')
 
     # Exit handler (Error).
 

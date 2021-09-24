@@ -32,7 +32,7 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute):
         self.ca_bundle          = None
         self.token              = None
         self.token_timer        = 0
-        self.token_limit        = 540
+        self.token_limit        = 540 # aka 9 minutes
         self.retry_limit        = 3
         self.retry_pause        = 5
         self.retry_status_codes = [401, 429, 500, 502, 503, 504]
