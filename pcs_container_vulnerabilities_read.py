@@ -1,8 +1,8 @@
 """ Get Vulnerabilities in Containers (Deployed Images) """
 
-from pc_lib import pc_api, pc_utility
-
 import json
+
+from pc_lib import pc_api, pc_utility
 
 # --Configuration-- #
 
@@ -53,7 +53,7 @@ for image in images:
         print(json.dumps(image, indent=4))
     image_id = image['_id']
     images_dictionary[image_id] = image
-   
+
 for container in containers:
     if DEBUG_MODE:
         print(json.dumps(container, indent=4))
