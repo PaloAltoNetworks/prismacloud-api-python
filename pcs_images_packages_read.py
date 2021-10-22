@@ -107,8 +107,10 @@ if args.mode in ['deployed', 'all']:
     images = pc_api.images_list_read(args.image_id)
     for image in images:
         image_id = image['_id']
-        # TODO: Verify instances array length.
-        image_ii = '%s %s' % (image['instances'][0]['image'], image['instances'][0]['host'])
+        try:
+            image_ii = '%s %s' % (image['instances'][0]['image'], image['instances'][0]['host'])
+        except Exception:
+            image_ii = ''
         deployed_images[image_id] = {
             'id':        image['_id'],
             'instance':  image_ii,
