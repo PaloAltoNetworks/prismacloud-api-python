@@ -5,6 +5,7 @@ import sys
 from .compute     import PrismaCloudAPIComputeMixin
 from ._containers import ContainersPrismaCloudAPIComputeMixin
 from ._images     import ImagesPrismaCloudAPIComputeMixin
+from ._registry   import RegistryPrismaCloudAPIComputeMixin
 from ._scans      import ScansPrismaCloudAPIComputeMixin
 from ._status     import StatusPrismaCloudAPIComputeMixin
 
