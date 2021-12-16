@@ -20,6 +20,11 @@ pc_arg_parser.add_argument(
         type=str,
         help='(Optional) - Prisma Cloud API/UI Base URL')
 pc_arg_parser.add_argument(
+        '--api_port',
+        default=443,
+        type=int,
+        help='(Optional) - Prisma Cloud API/UI Port.')
+pc_arg_parser.add_argument(
         '--ca_bundle',
         default='globalprotect_certifi.txt',
         type=str,
@@ -29,7 +34,7 @@ args = pc_arg_parser.parse_args()
 src_ca_file = certifi.where()
 dst_ca_file = args.ca_bundle
 host_name = args.api
-port = 443
+port = args.api_port
 panw_subjects = [
     '/C=US/ST=CA/O=paloalto networks/OU=IT/CN=decrypt.paloaltonetworks.com',
     '/DC=local/DC=paloaltonetworks/CN=Palo Alto Networks Inc Domain CA',
@@ -68,4 +73,4 @@ with open(dst_ca_file, 'w') as custom_ca_file:
     conn.close()
 
 print('Custom CA (bundle) file saved as: %s' % dst_ca_file)
-print("Use it with these scripts by specifying '--ca_bundle %s'" % dst_ca_file)
+print("Use it with these scripts by specifying '--ca_bundle %s' on the command line or in your config file" % dst_ca_file)
