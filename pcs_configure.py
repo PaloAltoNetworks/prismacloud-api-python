@@ -17,7 +17,7 @@ else:
     print(args.config_file)
 print()
 
-if args.username is not None and args.password is not None and args.api is not None:
+if (args.username is not None and args.password is not None) and (args.api is not None or args.api_compute is not None):
     pc_utility.write_settings_file(args)
     print('Settings saved.')
 elif args.username is None and args.password is None and args.api is None:
