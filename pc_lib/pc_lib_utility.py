@@ -90,12 +90,12 @@ class PrismaCloudUtility():
     def read_settings_file(self, settings_file_name=None):
         settings_file_name = self.user_or_default_settings_file(settings_file_name)
         if not os.path.isfile(settings_file_name):
-            self.error_and_exit(400, 'Cannot find the settings file. Please run pc-configure.py.')
+            self.error_and_exit(400, 'Cannot find the settings file. Please run pcs_configure.py.')
         settings = self.read_json_file(settings_file_name)
         if not settings:
-            self.error_and_exit(500, 'The settings file exists, but cannot be read. Please run pc-configure.py.')
+            self.error_and_exit(500, 'The settings file exists, but cannot be read. Please run pcs_configure.py.')
         if settings['settings_file_version'] != self.DEFAULT_SETTINGS_FILE_VERSION:
-            self.error_and_exit(500, 'The settings file appears to be out-of-date. Please rerun pc-configure.py, and/or download the latest version of these scripts.')
+            self.error_and_exit(500, 'The settings file appears to be out-of-date. Please rerun pcs_configure.py, and/or download the latest version of these scripts.')
         return settings
 
     # Write settings.
