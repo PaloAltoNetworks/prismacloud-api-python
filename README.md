@@ -71,7 +71,7 @@ Compute:
 
 The `--api_compute` parameter is required for scripts (such as `pcs_images_packages_read.py`) that use the Prisma Cloud Compute API.
 
-For On-Premise/Self Hosted Prisma Cloud Compute, `--username` is your Prisma Cloud Compute User, and `--password` is your Password or your active Bearer token.
+For On-Premise/Self Hosted Prisma Cloud Compute, `--username` is your Prisma Cloud Compute User, and `--password` is your Password or your active Bearer token. --api/apiBase should be "" (empty string).
 
 Settings are stored in a cleartext JSON file, by default in the same directory as the scripts themselves.
 You can specify an alternate configuration file using the `--config_file` parameter.
