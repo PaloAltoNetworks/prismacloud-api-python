@@ -4,12 +4,12 @@ Prisma Cloud utility scripts, and a Python SDK for Prisma Cloud APIs.
 
 ## Table of Contents
 
-1. [Support](#Support)
-1. [Setup](#Setup)
-1. [Configuration](#Configuration)
-1. [Script Usage](#Script-Usage)
-    1. [CSPM Scripts](#CSPM-Scripts)
-    1. [CWP Scripts](#CWP-Scripts)
+* [Support](#Support)
+* [Setup](#Setup)
+* [Configuration](#Configuration)
+* [Script Usage](#Script-Usage)
+    * [CSPM Scripts](#CSPM-Scripts)
+    * [CWP Scripts](#CWP-Scripts)
 
 ## Support
 
