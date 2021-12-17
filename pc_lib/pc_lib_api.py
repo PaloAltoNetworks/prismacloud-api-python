@@ -25,11 +25,12 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute):
     """ Prisma Cloud API Class """
     # pylint: disable=super-init-not-called
     def __init__(self):
-        self.api                = None
-        self.api_compute        = None
+        self.api                = ""
+        self.api_compute        = ""
         self.username           = None
         self.password           = None
-        self.ca_bundle          = None
+        self.ca_bundle          = ""
+        #
         self.token              = None
         self.token_timer        = 0
         self.token_limit        = 540 # aka 9 minutes
@@ -44,12 +45,12 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute):
         return 'PrismaCloudAPI:\n  API: %s\n  Compute API: %s\n  API Error Count: %s\n  API Token: %s' % (self.api, self.api_compute, self.logger.error.counter, self.token)
 
     def configure(self, settings):
-        # Required.
+        # Required. (One of these api/api_compute is required.)
         self.api         = settings['apiBase']
+        self.api_compute = settings['api_compute']
         self.username    = settings['username']
         self.password    = settings['password']
         # Optional.
-        self.api_compute = settings['api_compute']
         self.ca_bundle   = settings['ca_bundle']
         # Logging!
         self.logger = logging.getLogger(__name__)
