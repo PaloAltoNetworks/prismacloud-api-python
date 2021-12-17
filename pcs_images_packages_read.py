@@ -26,6 +26,15 @@ parser.add_argument(
     '--package_id',
     type=str,
     help='(Optional) - ID of the Package (name:version) with version being optional.')
+parser.add_argument(
+    '--search_package_substring',
+    type=bool,
+    choices=[True,False],
+    default=False,
+    help='(Optional) - True, package id will match if value is contained package name. False, package id must be exact. default'
+
+)
+
 args = parser.parse_args()
 
 search_package_name    = None
@@ -139,7 +148,7 @@ if args.mode in ['ci', 'all']:
                 optional_print('\tCVEs: %s' % package['cveCount'], mode=print_all_packages)
                 optional_print(mode=print_all_packages)
                 if args.package_type in [packages['pkgsType'], 'all']:
-                    if search_package_name and (search_package_name == package['name']):
+                    if search_package_name and (search_package_name == package['name'] or (args.search_package_substring and search_package_name in package['name'])):
                         if search_package_version:
                             if search_package_version == package['version']:
                                 ci_images_with_package.append("%s: %s %s %s %s" % (ci_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
@@ -185,7 +194,7 @@ if args.mode in ['registry', 'all']:
                 optional_print('\tCVEs: %s' % package['cveCount'], mode=print_all_packages)
                 optional_print(mode=print_all_packages)
                 if args.package_type in [packages['pkgsType'], 'all']:
-                    if search_package_name and (search_package_name == package['name']):
+                    if search_package_name and (search_package_name == package['name'] or (args.search_package_substring and search_package_name in package['name'])):
                         if search_package_version:
                             if search_package_version == package['version']:
                                 registry_images_with_package.append("%s: %s %s %s %s" % (registry_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
@@ -231,7 +240,7 @@ if args.mode in ['deployed', 'all']:
                 optional_print('\tCVEs: %s' % package['cveCount'], mode=print_all_packages)
                 optional_print(mode=print_all_packages)
                 if args.package_type in [packages['pkgsType'], 'all']:
-                    if search_package_name and (search_package_name == package['name']):
+                    if search_package_name and (search_package_name == package['name'] or (args.search_package_substring and search_package_name in package['name'])):
                         if search_package_version:
                             if search_package_version == package['version']:
                                 deployed_images_with_package.append("%s: %s %s %s %s" % (deployed_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
