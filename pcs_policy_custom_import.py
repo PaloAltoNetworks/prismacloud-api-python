@@ -98,16 +98,18 @@ for policy_id, policy_object in policy_object_original.items():
                 for search_object_id, search_object in search_object_original.items():
                     if 'id' in search_object:
                         if search_object['id'] == search_id_to_match:
-                            body_data = {'query': search_object['query'], 'saved': False, 'timeRange': {'type':'relative', 'value': {'unit': 'hour', 'amount': 24}}}
-                            new_search = pc_api.saved_search_create(search_object['searchType'], body_data)
-
+                            # Arbitrary timeRange, to perform a search, just to generate/return an new Search ID, required to save a search.
+                            # https://prisma.pan.dev/api/cloud/cspm/search-manager#operation/search-history-save
+                            search_to_perform = {'query': search_object['query'], 'saved': False, 'timeRange': {'type':'relative', 'value': {'unit': 'hour', 'amount': 24}}}
+                            new_search = pc_api.search_perform(search_object['searchType'], search_to_perform)
                             policy_object['rule']['criteria'] = new_search['id']
                             search_object.pop('id', None)
                             search_object['name'] = '%s _Imported_%s' % (policy_object['name'], int(time.time()))
                             if not search_object['description']:
                                 search_object['description'] = 'Imported'
                             search_object['saved'] = True
-                            # pc_api.saved_search_create(new_search['id'], search_object)
+                            pc_api.saved_search_create(new_search['id'], search_object)
+                            policy_object['rule']['criteria'] = new_search['id']
         new_policy_id = None
         if not args.maintain_status:
             policy_object['enabled'] = False

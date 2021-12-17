@@ -92,12 +92,21 @@ class EndpointsPrismaCloudAPIMixin():
     def saved_search_list_read(self):
         return self.execute('GET', 'search/history?filter=saved')
 
-    def saved_search_create(self, type_of_search, saved_search_to_add):
+    # Used to generate a Search ID for saved_search_create().
+    def search_perform(self, type_of_search, search_to_perform):
+        # https://prisma.pan.dev/api/cloud/cspm/search#operation/search-network
         if type_of_search == 'network':
-            return self.execute('POST', 'search', body_params=saved_search_to_add)
-        if type_of_search == 'audit_event':
-            return self.execute('POST', 'search/event', body_params=saved_search_to_add)
-        return self.execute('POST', 'search/%s' % type_of_search, body_params=saved_search_to_add)
+            return self.execute('POST', 'search', body_params=search_to_perform)
+        # https://prisma.pan.dev/api/cloud/cspm/search#operation/search-events
+        elif type_of_search == 'audit_event':
+            return self.execute('POST', 'search/event', body_params=search_to_perform)
+        # https://prisma.pan.dev/api/cloud/cspm/search#operation/search-config ... and others?
+        return self.execute('POST', 'search/%s' % type_of_search, body_params=search_to_perform)
+
+    def saved_search_create(self, saved_search_id, saved_search_to_add):
+        return self.execute('POST', 'search/history/%s' % saved_search_id, body_params=saved_search_to_add)
+
+    # saved_search_create updates if the saved_search_id already exists.
 
     def saved_search_read(self, saved_search_id, message=None):
         self.progress(message)
