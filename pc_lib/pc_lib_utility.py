@@ -42,15 +42,17 @@ class PrismaCloudUtility():
             help='(Required) - Prisma Cloud API Secret Key.')
         get_arg_parser.add_argument(
             '--api',
+            default="",
             type=str,
-            help='(Required) - Prisma Cloud API/UI Base URL')
+            help='(Optional) - Prisma Cloud API/UI Base URL')
         get_arg_parser.add_argument(
             '--api_compute',
             type=str,
+            default="",
             help='(Optional) Prisma Cloud Compute API Base URL (See Compute > Manage > System > Downloads: Path to Console).')
         get_arg_parser.add_argument(
             '--ca_bundle',
-            default=None,
+            default="",
             type=str,
             help='(Optional) - Custom CA (bundle) file')
         get_arg_parser.add_argument(
@@ -69,14 +71,14 @@ class PrismaCloudUtility():
 
     def get_settings(self, args):
         settings = {}
-        if args.username is None and args.password is None and args.api is None:
+        if args.username is None and args.password is None:
             settings = self.read_settings_file(args.config_file)
             if 'api_compute' not in settings:
-                settings['api_compute'] = None
+                settings['api_compute'] = ""
             if 'ca_bundle' not in settings:
-                settings['ca_bundle'] = None
-        elif args.username is None or args.password is None or args.api is None:
-            self.error_and_exit(400, 'Access Key (--username), Secret Key (--password), and API/UI Base URL (--api) are all required.')
+                settings['ca_bundle'] = ""
+        elif args.api == "" and args.api_compute == "":
+            self.error_and_exit(400, 'One of API (--api) or API Compute (--api_compute) are required.')
         else:
             settings['apiBase']     = self.normalize_api_base(args.api)
             settings['username']    = args.username
@@ -109,6 +111,8 @@ class PrismaCloudUtility():
         settings['password']    = args.password
         settings['api_compute'] = self.normalize_api_compute_base(args.api_compute)
         settings['ca_bundle']   = args.ca_bundle
+        if settings['ca_bundle'] == 'False':
+            settings['ca_bundle'] = False
         self.write_json_file(settings_file_name, settings, pretty=True)
 
     # Return user-specified settings file, or the default settings file.
@@ -137,7 +141,7 @@ class PrismaCloudUtility():
     @classmethod
     def normalize_api_base(cls, api):
         if not api:
-            return None
+            return ""
         api = api.lower()
         api = api.replace('app', 'api')
         api = api.replace('redlock', 'prismacloud')
@@ -151,7 +155,7 @@ class PrismaCloudUtility():
     @classmethod
     def normalize_api_compute_base(cls, api_compute):
         if not api_compute:
-            return None
+            return ""
         api_compute = api_compute.lower()
         api_compute = api_compute.replace('http://', '')
         api_compute = api_compute.replace('https://', '')
