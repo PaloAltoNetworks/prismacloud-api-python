@@ -1,6 +1,7 @@
 """ Get a list of Packages in CI, Deployed, or all Images """
 
 from __future__ import print_function
+from packaging import version
 from pc_lib import pc_api, pc_utility
 
 # --Configuration-- #
@@ -27,12 +28,23 @@ parser.add_argument(
     type=str,
     help='(Optional) - ID of the Package (name:version) with version being optional.')
 parser.add_argument(
-    '--search_package_substring',
+    '--exact_match_name',
     type=bool,
-    choices=[True,False],
+    choices=[True, False],
     default=False,
-    help='(Optional) - True, package id will match if value is contained package name. False, package id must be exact. default'
-
+    help='(Optional) - True, Package name must exactly match (Default). False, use substring matching of Package name.')
+parser.add_argument(
+    '--version_comparison',
+    type=str,
+    choices=['eq', 'gt', 'lt'],
+    default='eq',
+    help="(Optional) - Package version must be equal to (Default), greater than, or less than that specified in the 'package_id' parameter.")
+parser.add_argument(
+    '--output_to_csv',
+    type=bool,
+    choices=[True, False],
+    default=False,
+    help="(Optional) - Output results to CSV files."
 )
 
 args = parser.parse_args()
@@ -54,6 +66,31 @@ else:
 def optional_print(txt='', mode=True):
     if mode:
         print(txt)
+
+def package_name_matches(exact_match_name, search_package_name, package_name):
+    if not search_package_name or not package_name:
+        return False
+    if (exact_match_name and search_package_name == package_name) or (search_package_name in package_name):
+        return True
+    return False
+
+def package_version_matches(version_comparison, search_package_version, package_version):
+    if not search_package_version or not package_version:
+        return False
+    search_package_version = version.parse(search_package_version)
+    package_version = version.parse(package_version)
+    if version_comparison == 'eq' and search_package_version == package_version:
+        return True
+    if version_comparison == 'gt' and search_package_version < package_version:
+        return True
+    if version_comparison == 'lt' and search_package_version > package_version:
+        return True
+    return False
+
+def write_file(file_name, header, data):
+    with open(file_name, 'w') as data_file:
+        data_file.write('%s\n' % header)
+        data_file.write("\n".join(data))
 
 # --Initialize-- #
 
@@ -108,7 +145,7 @@ print(' done.')
 print()
 
 if search_package_name:
-    print('Searching for Package: (%s) Version: (%s)' % (search_package_name, search_package_version))
+    print('Searching for Package: (%s) Version: (%s) Exact Match Name: (%s) Version Comparison Operator: (%s)' % (search_package_name, search_package_version, args.exact_match_name, args.version_comparison))
     print()
 
 # Monitor > Vulnerabilities/Compliance > Images > CI
@@ -148,12 +185,12 @@ if args.mode in ['ci', 'all']:
                 optional_print('\tCVEs: %s' % package['cveCount'], mode=print_all_packages)
                 optional_print(mode=print_all_packages)
                 if args.package_type in [packages['pkgsType'], 'all']:
-                    if search_package_name and (search_package_name == package['name'] or (args.search_package_substring and search_package_name in package['name'])):
+                    if package_name_matches(args.exact_match_name, search_package_name, package['name']):
                         if search_package_version:
-                            if search_package_version == package['version']:
-                                ci_images_with_package.append("%s: %s %s %s %s" % (ci_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
+                            if package_version_matches(args.version_comparison, search_package_version, package['version']):
+                                ci_images_with_package.append("%s\t%s\t%s\t%s\t%s" % (ci_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
                         else:
-                            ci_images_with_package.append("%s: %s %s %s %s" % (ci_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
+                            ci_images_with_package.append("%s\t%s\t%s\t%s\t%s" % (ci_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
     print('Done.')
     print()
 
@@ -194,12 +231,12 @@ if args.mode in ['registry', 'all']:
                 optional_print('\tCVEs: %s' % package['cveCount'], mode=print_all_packages)
                 optional_print(mode=print_all_packages)
                 if args.package_type in [packages['pkgsType'], 'all']:
-                    if search_package_name and (search_package_name == package['name'] or (args.search_package_substring and search_package_name in package['name'])):
+                    if package_name_matches(args.exact_match_name, search_package_name, package['name']):
                         if search_package_version:
-                            if search_package_version == package['version']:
-                                registry_images_with_package.append("%s: %s %s %s %s" % (registry_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
+                            if package_version_matches(args.version_comparison, search_package_version, package['version']):
+                                registry_images_with_package.append("%s\t%s\t%s\t%s\t%s" % (registry_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
                         else:
-                            registry_images_with_package.append("%s: %s %s %s %s" % (registry_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
+                            registry_images_with_package.append("%s\t%s\t%s\t%s\t%s" % (registry_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
     print('Done.')
     print()
 
@@ -240,40 +277,54 @@ if args.mode in ['deployed', 'all']:
                 optional_print('\tCVEs: %s' % package['cveCount'], mode=print_all_packages)
                 optional_print(mode=print_all_packages)
                 if args.package_type in [packages['pkgsType'], 'all']:
-                    if search_package_name and (search_package_name == package['name'] or (args.search_package_substring and search_package_name in package['name'])):
+                    if package_name_matches(args.exact_match_name, search_package_name, package['name']):
                         if search_package_version:
-                            if search_package_version == package['version']:
-                                deployed_images_with_package.append("%s: %s %s %s %s" % (deployed_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
+                            if package_version_matches(args.version_comparison, search_package_version, package['version']):
+                                deployed_images_with_package.append("%s\t%s\t%s\t%s\t%s" % (deployed_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
                         else:
-                            deployed_images_with_package.append("%s: %s %s %s %s" % (deployed_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
+                            deployed_images_with_package.append("%s\t%s\t%s\t%s\t%s" % (deployed_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
     print('Done.')
     print()
+
+header = 'Instance\tPackage Type\tPackage Name\tPackage Version\tPackage Path'
 
 if args.package_id:
     if args.mode in ['ci', 'all']:
         print()
         if ci_images_with_package:
-            print('Package: (%s) Version: (%s) found in these CI Images:' % (search_package_name, search_package_version))
+            print('Package found in these CI Images:')
             print()
             for image in ci_images_with_package:
                 print('\t%s' % image)
+            if args.output_to_csv:
+                write_file('ci.csv', header, ci_images_with_package)
+                print()
+                print('Output to ci.csv')
         else:
-            print('Package: (%s) Version: (%s) not found in any CI Images' % (search_package_name, search_package_version))
+            print('Package not found in any CI Images')
     if args.mode in ['registry', 'all']:
         print()
         if registry_images_with_package:
-            print('Package: (%s) Version: (%s) found in these Registry Images:' % (search_package_name, search_package_version))
+            print('Package found in these Registry Images:')
             print()
             for image in registry_images_with_package:
                 print('\t%s' % image)
+            if args.output_to_csv:
+                write_file('registry.csv', header, registry_images_with_package)
+                print()
+                print('Output to registry.csv')
         else:
-            print('Package: (%s) Version: (%s) not found in any Registry Images' % (search_package_name, search_package_version))
+            print('Package not found in any Registry Images')
     if args.mode in ['deployed', 'all']:
         print()
         if deployed_images_with_package:
-            print('Package: (%s) Version: (%s) found in these Deployed Images:' % (search_package_name, search_package_version))
+            print('Package found in these Deployed Images:')
             print()
             for image in deployed_images_with_package:
                 print('\t%s' % image)
+            if args.output_to_csv:
+                write_file('deployed.csv', header, deployed_images_with_package)
+                print()
+                print('Output to deployed.csv')
         else:
-            print('Package: (%s) Version: (%s) not found in any Deployed Images' % (search_package_name, search_package_version))
+            print('Package not found in any Deployed Images')
