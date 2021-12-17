@@ -1,4 +1,4 @@
-""" Get a list of Packages in CI, Deployed, or all Images """
+""" Get a list of Packages in CI, Registry, Deployed, or all Images """
 
 from __future__ import print_function
 from packaging import version
@@ -26,7 +26,7 @@ parser.add_argument(
 parser.add_argument(
     '--package_id',
     type=str,
-    help='(Optional) - ID of the Package (name:version) with version being optional.')
+    help='(Optional) - ID of the Package (format: name:version) with :version being optional. Example: zipp:3.6.0')
 parser.add_argument(
     '--exact_match_name',
     type=bool,
@@ -38,28 +38,25 @@ parser.add_argument(
     type=str,
     choices=['eq', 'gt', 'lt'],
     default='eq',
-    help="(Optional) - Package version must be equal to (Default), greater than, or less than that specified in the 'package_id' parameter.")
+    help="(Optional) - Package version must be equal (Default), greater than, or less than the version specified in the 'package_id' parameter.")
 parser.add_argument(
     '--output_to_csv',
     type=bool,
     choices=[True, False],
     default=False,
-    help="(Optional) - Output results to CSV files."
+    help="(Optional) - Output results to CSV files ('ci.csv', 'registry.csv', 'deployed.csv')."
 )
 
 args = parser.parse_args()
-
 search_package_name    = None
 search_package_version = None
-
+print_all_packages = True
 if args.package_id:
     print_all_packages = False
     if ':' in args.package_id:
         [search_package_name, search_package_version] = args.package_id.split(':')
     else:
         search_package_name = args.package_id
-else:
-    print_all_packages = True
 
 # --Helpers-- #
 
@@ -67,23 +64,24 @@ def optional_print(txt='', mode=True):
     if mode:
         print(txt)
 
-def package_name_matches(exact_match_name, search_package_name, package_name):
-    if not search_package_name or not package_name:
+def package_name_matches(exact_match_name, search_name, package_name):
+    if not search_name or not package_name:
         return False
-    if (exact_match_name and search_package_name == package_name) or (search_package_name in package_name):
+    if (exact_match_name and search_name == package_name) or (search_name in package_name):
         return True
     return False
 
-def package_version_matches(version_comparison, search_package_version, package_version):
-    if not search_package_version or not package_version:
+def package_version_matches(version_comparison, search_version, package_version):
+    if not search_version or not package_version:
         return False
-    search_package_version = version.parse(search_package_version)
-    package_version = version.parse(package_version)
-    if version_comparison == 'eq' and search_package_version == package_version:
+    search_semver = version.parse(search_version)
+    package_semver = version.parse(package_version)
+    # In the future, use match/case provided by Python 3.10.
+    if version_comparison == 'eq' and search_semver == package_semver:
         return True
-    if version_comparison == 'gt' and search_package_version < package_version:
+    if version_comparison == 'gt' and search_semver < package_semver:
         return True
-    if version_comparison == 'lt' and search_package_version > package_version:
+    if version_comparison == 'lt' and search_semver > package_semver:
         return True
     return False
 
@@ -107,6 +105,10 @@ get_deployed_images = True
 ci_images_with_package       = []
 registry_images_with_package = []
 deployed_images_with_package = []
+
+csv_header = 'Instance\tPackage Type\tPackage Name\tPackage Version\tPackage Path'
+
+# Example response from the API.
 
 """
 "instances": [{
@@ -156,9 +158,12 @@ if args.mode in ['ci', 'all']:
     for image in images:
         image_id = image['entityInfo']['id']
         if image['entityInfo']['instances']:
-            image_ii = '%s %s' % (image['entityInfo']['instances'][0]['image'], image['entityInfo']['instances'][0]['host'])
+            try:
+                image_ii = '%s %s' % (image['entityInfo']['instances'][0]['image'], image['entityInfo']['instances'][0]['host'])
+            except KeyError:
+                image_ii = ''
         else:
-            image_ii = None
+            image_ii = ''
         ci_images[image_id] = {
             'id':        image['entityInfo']['id'],
             'instance':  image_ii,
@@ -203,7 +208,7 @@ if args.mode in ['registry', 'all']:
         image_id = image['_id']
         try:
             image_ii = '%s %s' % (image['instances'][0]['image'], image['instances'][0]['host'])
-        except Exception:
+        except KeyError:
             image_ii = ''
         registry_images[image_id] = {
             'id':        image['_id'],
@@ -249,7 +254,7 @@ if args.mode in ['deployed', 'all']:
         image_id = image['_id']
         try:
             image_ii = '%s %s' % (image['instances'][0]['image'], image['instances'][0]['host'])
-        except Exception:
+        except KeyError:
             image_ii = ''
         deployed_images[image_id] = {
             'id':        image['_id'],
@@ -286,8 +291,6 @@ if args.mode in ['deployed', 'all']:
     print('Done.')
     print()
 
-header = 'Instance\tPackage Type\tPackage Name\tPackage Version\tPackage Path'
-
 if args.package_id:
     if args.mode in ['ci', 'all']:
         print()
@@ -297,7 +300,7 @@ if args.package_id:
             for image in ci_images_with_package:
                 print('\t%s' % image)
             if args.output_to_csv:
-                write_file('ci.csv', header, ci_images_with_package)
+                write_file('ci.csv', csv_header, ci_images_with_package)
                 print()
                 print('Output to ci.csv')
         else:
@@ -310,7 +313,7 @@ if args.package_id:
             for image in registry_images_with_package:
                 print('\t%s' % image)
             if args.output_to_csv:
-                write_file('registry.csv', header, registry_images_with_package)
+                write_file('registry.csv', csv_header, registry_images_with_package)
                 print()
                 print('Output to registry.csv')
         else:
@@ -323,7 +326,7 @@ if args.package_id:
             for image in deployed_images_with_package:
                 print('\t%s' % image)
             if args.output_to_csv:
-                write_file('deployed.csv', header, deployed_images_with_package)
+                write_file('deployed.csv', csv_header, deployed_images_with_package)
                 print()
                 print('Output to deployed.csv')
         else:
