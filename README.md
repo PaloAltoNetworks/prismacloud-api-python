@@ -79,8 +79,8 @@ You can specify an alternate configuration file using the `--config_file` parame
 Examples:
 
 ```
-python pcs_configure.py --username "Example Access Key" --Password "Example Secret Key" --api "app.prismacloud.io"
-python pcs_configure.py --username "Example Access Key" --Password "Example Secret Key" --api "app.prismacloud.io" --config_file ~/example-pc-settings.conf
+python pcs_configure.py --username "Example Access Key" --password "Example Secret Key" --api "app.prismacloud.io"
+python pcs_configure.py --username "Example Access Key" --password "Example Secret Key" --api "app.prismacloud.io" --config_file ~/example-pc-settings.conf
 ```
 
 Run `pcs_configure.py` specifying nothing, other than the optional (`--config_file`), to view your current configuration.
