@@ -18,8 +18,8 @@ Nevertheless, the maintainers will make a best-effort to address issues, and (of
 
 ## Setup
 
-These scripts are written and tested in Python 3.x, but should be compatible with Python 2.x.
-If you need to install Python, you can get more information at [Python's Home Page](https://www.python.org/) ... and you will also need [PIP](https://pypi.python.org/pypi/pip). 
+These scripts are written and tested in Python 3.x.
+If you need to install Python 3, you can get more information at [Python's Home Page](https://www.python.org/) ... and you will also need [PIP](https://pypi.python.org/pypi/pip). 
 
 These scripts require the Python packages documented in requirements.txt.
 To check and install these packages, execute:
@@ -65,11 +65,11 @@ https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin/manage-
 ### Examples:
 
 ```
-python pcs_configure.py --username "Example Access Key" --password "Example Secret Key" --api "app.prismacloud.io"
+python3 pcs_configure.py --username "Example Access Key" --password "Example Secret Key" --api "app.prismacloud.io"
 
-python pcs_configure.py --username "Example Access Key" --password "Example Secret Key" --api "app.prismacloud.io" --config_file ~/example-pc-settings.conf
+python3 pcs_configure.py --username "Example Access Key" --password "Example Secret Key" --api "app.prismacloud.io" --config_file ~/example-pc-settings.conf
 
-python pcs_configure.py --username "Example Username" --password "Example Password" --api_compute "onpremise.example.com"
+python3 pcs_configure.py --username "Example Username" --password "Example Password" --api_compute "onpremise.example.com"
 ```
 
 Run `pcs_configure.py` specifying nothing (other than the optional `--config_file`) to output your current configuration file.
@@ -89,7 +89,7 @@ This is primarily used to set up a new environment with every Policy enabled, or
 Example:
 
 ```
-python pcs_policy_set_status.py --policy_type config enable
+python3 pcs_policy_set_status.py --policy_type config enable
 ```
 
 Use this script to enable Policies that are associated with a specific Compliance Standard (or Compliance Standards).
@@ -97,9 +97,9 @@ Use this script to enable Policies that are associated with a specific Complianc
 Example:
 
 ```
-python pcs_policy_status.py --policy_type all disable
+python3 pcs_policy_status.py --policy_type all disable
 
-python pcs_policy_status.py --compliance_standard "GDPR" enable
+python3 pcs_policy_status.py --compliance_standard "GDPR" enable
 ```
 
 #### pcs_user_import.py
@@ -110,7 +110,7 @@ It will check for duplicates before importing.
 Example:
 
 ```
-python pcs_user_import.py "example-import-users.csv" "Example Prisma Cloud Role to assign to the imported Users"
+python3 pcs_user_import.py "example-import-users.csv" "Example Prisma Cloud Role to assign to the imported Users"
 ```
 
 #### pcs_policy_custom_export.py
@@ -120,7 +120,7 @@ Use this script to export custom Policies to a file, for backup ... or to import
 Example:
 
 ```
-python pcs_policy_custom_export.py "example-custom-policies.json"
+python3 pcs_policy_custom_export.py "example-custom-policies.json"
 ```
 
 #### pcs_policy_custom_import.py
@@ -132,7 +132,7 @@ It will check for duplicates before importing.
 Example:
 
 ```
-python pcs_policy_custom_import.py "example-custom-policies.json"
+python3 pcs_policy_custom_import.py "example-custom-policies.json"
 ```
 
 #### pcs_compliance_export.py
@@ -142,7 +142,7 @@ Use this script to export an existing Compliance Standard (and its Requirements 
 Example:
 
 ```
-python pcs_compliance_export.py "GDPR" "example-compliance-standard.json"
+python3 pcs_compliance_export.py "GDPR" "example-compliance-standard.json"
 ```
 
 #### pcs_compliance_import.py
@@ -155,7 +155,7 @@ It will check for duplicates before importing.
 Example:
 
 ```
-python pcs_compliance_import.py "example-compliance-standard.json" "GDPR Imported" --policy
+python3 pcs_compliance_import.py "example-compliance-standard.json" "GDPR Imported" --policy
 ```
 
 
@@ -168,9 +168,9 @@ Use this script to inspect the packages in all of the container images (or one i
 Example:
 
 ```
-python pcs_images_packages_read.py
+python3 pcs_images_packages_read.py
 
-python pcs_images_packages_read.py --image_id "sha256:c004737361182d3cd7f38e6d9ce4a44f2a349b8dc996834e2cba0defcd0cb522"
+python3 pcs_images_packages_read.py --image_id "sha256:c004737361182d3cd7f38e6d9ce4a44f2a349b8dc996834e2cba0defcd0cb522"
 ```
 
 An alternate usage is to specify a package via `--package_id` to search for containers with a specific package, and optionally a version.
@@ -178,9 +178,9 @@ An alternate usage is to specify a package via `--package_id` to search for cont
 Example:
 
 ```
-python pcs_images_packages_read.py --package_type jar --package_id log4j
+python3 pcs_images_packages_read.py --package_type jar --package_id log4j
 
-python pcs_images_packages_read.py --package_type jar --package_id log4j:2.14.1 --version_comparison lt --output_to_csv True
+python3 pcs_images_packages_read.py --package_type jar --package_id log4j:2.14.1 --version_comparison lt --output_to_csv True
 ```
 
 
@@ -194,7 +194,7 @@ Note: This is still a work in progress: the basic import framework is running, b
 Example:
 
 ```
-python pcs_cloud_account_import_azure.py prisma_cloud_account_import_azure_template.csv
+python3 pcs_cloud_account_import_azure.py prisma_cloud_account_import_azure_template.csv
 ```
 
 #### pcs_posture_endpoint_client.py
@@ -206,7 +206,7 @@ Please note this tool is not intended as a replacement for better well-formed sc
 Example 1: GET request
 
 ```
-python pcs_posture_endpoint_client.py GET /v2/policy
+python3 pcs_posture_endpoint_client.py GET /v2/policy
 ```
 
 Example 2: POST request
@@ -215,7 +215,7 @@ Example 2: POST request
 cat > body.json <<EOF
 { "name": "test standard", "description":"blah" }
 EOF
-python pcs_posture_endpoint_client POST /compliance --request_body body.json
+python3 pcs_posture_endpoint_client POST /compliance --request_body body.json
 ```
 
 #### pcs_compute_endpoint_client.py
