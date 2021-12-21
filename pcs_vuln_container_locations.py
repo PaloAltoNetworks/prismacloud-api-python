@@ -2,7 +2,6 @@
 
 from __future__ import print_function
 from pc_lib import pc_api, pc_utility
-import json
 
 # --Configuration-- #
 
@@ -55,7 +54,7 @@ optional_print(str(len(images))+' images total')
 for image in images:
     image_id = image['_id']
     vulns = image['vulnerabilities']
-    if (not vulns):
+    if not vulns:
  #       optional_print('No vulns for '+image_id)
         continue
     keep = False
@@ -64,7 +63,7 @@ for image in images:
             keep = True
             optional_print('Image '+image_id+' is vulnerable to '+args.cve)
             break
-    if (not keep):
+    if not keep:
 #        optional_print('Excluding '+image_id)
         continue
     optional_print('Locations for '+image['_id'])
@@ -75,4 +74,3 @@ for image in images:
         else:
             optional_print(container['info']['imageName']+': no cluster info. Falling back to hostname: '+ container['hostname'])
     optional_print()
-

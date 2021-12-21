@@ -4,6 +4,7 @@
 # Specifying 0 will auto-detect the number of processors available to use.
 #
 jobs=2
+fail-under=9.0
 
 [BASIC]
 
@@ -40,10 +41,14 @@ max-line-length=255
 # use "--disable=all --enable=classes --disable=W".
 #
 disable=
+    consider-using-dict-items,
+    consider-using-f-string,
+    consider-using-with,
     duplicate-code,
     fixme,
     missing-function-docstring,
-    pointless-string-statement
+    pointless-string-statement,
+    unspecified-encoding
 
 [REPORTS]
 
