@@ -56,7 +56,9 @@ class PrismaCloudUtility():
             type=str,
             help='(Optional) - Custom CA (bundle) file')
         get_arg_parser.add_argument(
+            '-c',
             '--config_file',
+            '--conf_file',
             default=None,
             type=str,
             help='(Optional) - Prisma Cloud API configuration settings file (by default: %s).' % self.DEFAULT_SETTINGS_FILE_NAME)
