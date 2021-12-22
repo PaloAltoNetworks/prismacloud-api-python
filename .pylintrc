@@ -18,8 +18,9 @@ const-rgx=(([A-Z_][A-Z0-9_]*)|([a-z_][a-z0-9_]*)|(__.*__))$
 #
 min-public-methods=1
 max-args=8
-max-nested-blocks=8
 max-branches=21
+max-nested-blocks=8
+max-statements=64
 
 [FORMAT]
 
