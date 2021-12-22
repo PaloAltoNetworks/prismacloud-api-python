@@ -94,6 +94,9 @@ if args.mode in ['deployed', 'all']:
             continue
         print('Locations for vulnerable Deployed Image ID: %s ' % image_id)
         containers = pc_api.containers_list_read(image_id)
+        if not containers:
+            print('\tNo containers found for this image')
+            continue
         for container in containers:
             print('\tImage Name: %s' % container['info']['imageName'])
             if 'cluster' in container['info']:
