@@ -9,21 +9,21 @@ parser = pc_utility.get_arg_parser()
 parser.add_argument(
     '--cve',
     type=str,
-    help='(Optional) - CVE to filter on.')
+    required=True,
+    help='(Required) - ID of the CVE.')
 parser.add_argument(
     '--image_id',
     type=str,
     help='(Optional) - ID of the Image (sha256:...).')
+parser.add_argument(
+    '--mode',
+    type=str,
+    choices=['registry', 'deployed', 'all'],
+    default='all',
+    help='(Optional) - Report on Registry, Deployed, or all Images.')
 args = parser.parse_args()
 
-search_package_name    = None
-search_package_version = None
-
 # --Helpers-- #
-
-def optional_print(txt='', mode=True):
-    if mode:
-        print(txt)
 
 # --Initialize-- #
 
@@ -33,44 +33,71 @@ pc_api.validate_api_compute()
 
 # --Main-- #
 
-get_ci_images       = True
-get_registry_images = True
-get_deployed_images = True
-
-ci_images_with_package       = []
-registry_images_with_package = []
-deployed_images_with_package = []
-
 print('Testing Compute API Access ...', end='')
 intelligence = pc_api.statuses_intelligence()
 print(' done.')
 print()
 
+print('Searching for CVE: (%s) Limiting Search to Image ID: (%s)' % (args.cve, args.image_id))
+print()
+
+# Monitor > Vulnerabilities/Compliance > Images > Registries
+if args.mode in ['registry', 'all']:
+    registry_images = pc_api.registry_list_read(args.image_id)
+    print('Getting Registry Images ...', end='')
+    print(' done.')
+    print('Found %s Registry Images' % len(registry_images))
+    print()
+    for image in registry_images:
+        image_id = image['_id']
+        vulnerabilities = image['vulnerabilities']
+        if not vulnerabilities:
+            # print('No vulnerabilities for Image ID: %s' % image_id)
+            continue
+        vulnerable = False
+        for vulnerability in vulnerabilities:
+            if args.cve and vulnerability['cve'] == args.cve:
+                vulnerable = True
+                # print('Image ID: %s is vulnerable to CVE: %s' % (image_id, args.cve))
+                break
+        if not vulnerable:
+            # print('Excluding Image ID: %s is not vulnerable to CVE: %s' % (image_id, args.cve))
+            continue
+        print('Locations for vulnerable Registry Image ID: %s ' % image_id)
+        print('\tRegistry: %s' % image['repoTag']['registry'])
+        print('\tRepo: %s' % image['repoTag']['repo'])
+        print('\tTag: %s' % image['repoTag']['tag'])
+        print()
+    print()
+
 # Monitor > Vulnerabilities/Compliance > Images > Deployed
-deployed_images = {}
-print('Getting Deployed Images ...')
-images = pc_api.images_list_read(args.image_id)
-optional_print(str(len(images))+' images total')
-for image in images:
-    image_id = image['_id']
-    vulns = image['vulnerabilities']
-    if not vulns:
- #       optional_print('No vulns for '+image_id)
-        continue
-    keep = False
-    for vuln in vulns:
-        if vuln['cve'] == args.cve:
-            keep = True
-            optional_print('Image '+image_id+' is vulnerable to '+args.cve)
-            break
-    if not keep:
-#        optional_print('Excluding '+image_id)
-        continue
-    optional_print('Locations for '+image['_id'])
-    containers = pc_api.containers_list_read(image['id'])
-    for container in containers:
-        if 'cluster' in container['info']:
-            optional_print(container['info']['imageName']+': '+container['info']['cluster'])
-        else:
-            optional_print(container['info']['imageName']+': no cluster info. Falling back to hostname: '+ container['hostname'])
-    optional_print()
+if args.mode in ['deployed', 'all']:
+    print('Getting Deployed Images ...', end='')
+    deployed_images = pc_api.images_list_read(args.image_id)
+    print(' done.')
+    print('Found %s Deployed Images' % len(deployed_images))
+    print()
+    for image in deployed_images:
+        image_id = image['_id']
+        vulnerabilities = image['vulnerabilities']
+        if not vulnerabilities:
+            # print('No vulnerabilities for Image ID: %s' % image_id)
+            continue
+        vulnerable = False
+        for vulnerability in vulnerabilities:
+            if args.cve and vulnerability['cve'] == args.cve:
+                vulnerable = True
+                # print('Image ID: %s is vulnerable to CVE: %s' % (image_id, args.cve))
+                break
+        if not vulnerable:
+            # print('Excluding Image ID: %s is not vulnerable to CVE: %s' % (image_id, args.cve))
+            continue
+        print('Locations for vulnerable Deployed Image ID: %s ' % image_id)
+        containers = pc_api.containers_list_read(image_id)
+        for container in containers:
+            print('\tImage Name: %s' % container['info']['imageName'])
+            if 'cluster' in container['info']:
+                print('\tCluster:    %s' % container['info']['cluster'])
+            else:
+                print('\tHostname:   %s' % container['hostname'])
+        print()
