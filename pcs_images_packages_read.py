@@ -8,6 +8,10 @@ from pc_lib import pc_api, pc_utility
 
 parser = pc_utility.get_arg_parser()
 parser.add_argument(
+    '--image_id',
+    type=str,
+    help='(Optional) - ID of the Image (sha256:...).')
+parser.add_argument(
     '--mode',
     type=str,
     choices=['ci', 'registry', 'deployed', 'all'],
@@ -20,10 +24,6 @@ parser.add_argument(
     default='all',
     help='(Optional) - Report on one or all Package Types.')
 parser.add_argument(
-    '--image_id',
-    type=str,
-    help='(Optional) - ID of the Image (sha256:...).')
-parser.add_argument(
     '--package_id',
     type=str,
     help='(Optional) - ID of the Package (format: name:version) with :version being optional. Example: zipp:3.6.0')
@@ -34,7 +34,7 @@ parser.add_argument(
     default=False,
     help='(Optional) - True, Package name must exactly match (Default). False, use substring matching of Package name.')
 parser.add_argument(
-    '--version_comparison',
+    '--version_comparison', # version_comparison_operator
     type=str,
     choices=['eq', 'gt', 'lt'],
     default='eq',
@@ -50,13 +50,14 @@ parser.add_argument(
 args = parser.parse_args()
 search_package_name    = None
 search_package_version = None
-print_all_packages = True
 if args.package_id:
-    print_all_packages = False
     if ':' in args.package_id:
         [search_package_name, search_package_version] = args.package_id.split(':')
     else:
         search_package_name = args.package_id
+    search_all_packages = False
+else:
+    search_all_packages = True
 
 # --Helpers-- #
 
@@ -64,49 +65,93 @@ def optional_print(txt='', mode=True):
     if mode:
         print(txt)
 
-def package_name_matches(exact_match_name, search_name, package_name):
+def package_name_matches(comparison_exact, search_name, package_name):
     if not search_name or not package_name:
         return False
-    if (exact_match_name and search_name == package_name) or (search_name in package_name):
+    if (comparison_exact and search_name == package_name) or (search_name in package_name):
         return True
     return False
 
-def package_version_matches(version_comparison, search_version, package_version):
+def package_version_matches(comparison_operator, search_version, package_version):
     if not search_version or not package_version:
         return False
     search_semver = version.parse(search_version)
     package_semver = version.parse(package_version)
     # In the future, use match/case provided by Python 3.10.
-    if version_comparison == 'eq' and search_semver == package_semver:
+    if comparison_operator == 'eq' and search_semver == package_semver:
         return True
-    if version_comparison == 'gt' and search_semver < package_semver:
+    if comparison_operator == 'gt' and search_semver < package_semver:
         return True
-    if version_comparison == 'lt' and search_semver > package_semver:
+    if comparison_operator == 'lt' and search_semver > package_semver:
         return True
     return False
+
+# Write a header and an array of data to a CSV file.
 
 def write_file(file_name, header, data):
     with open(file_name, 'w') as data_file:
         data_file.write('%s\n' % header)
-        data_file.write("\n".join(data))
+        data_file.write('\n'.join(data))
 
-# --Initialize-- #
+# Parse response from the API.
 
-settings = pc_utility.get_settings(args)
-pc_api.configure(settings)
-pc_api.validate_api_compute()
-
-# --Main-- #
-
-get_ci_images       = True
-get_registry_images = True
-get_deployed_images = True
-
-ci_images_with_package       = []
-registry_images_with_package = []
-deployed_images_with_package = []
-
-csv_header = 'Instance\tPackage Type\tPackage Name\tPackage Version\tPackage Path'
+def parse_images(images, output_mode, search_package_type, search_exact_name, search_name, search_comparison_operator, search_version):
+    normalized_images = {}
+    images_with_package = []
+    for image in images:
+        image_id = image['_id']
+        if 'entityInfo' in image:
+            try:
+                image_ii = '%s %s' % (image['entityInfo']['instances'][0]['image'], image['entityInfo']['instances'][0]['host'])
+            except KeyError:
+                image_ii = ''
+            except TypeError:
+                image_ii = ''
+            normalized_images[image_id] = {
+                'id':        image_id,
+                'instance':  image_ii,
+                'instances': image['entityInfo']['instances'],
+                'packages':  image['entityInfo']['packages']}
+        else:
+            try:
+                image_ii = '%s %s' % (image['instances'][0]['image'], image['instances'][0]['host'])
+            except KeyError:
+                image_ii = ''
+            except TypeError:
+                image_ii = ''
+            normalized_images[image_id] = {
+                'id':        image_id,
+                'instance':  image_ii,
+                'instances': image['instances'],
+                'packages':  image['packages']}
+    optional_print(mode=search_all_packages)
+    for image in normalized_images:
+        optional_print('Image', mode=output_mode)
+        optional_print('ID: %s' % image, mode=output_mode)
+        optional_print('Instance: %s' % normalized_images[image]['instance'], mode=output_mode)
+        optional_print(mode=output_mode)
+        if not normalized_images[image]['packages']:
+            continue
+        for packages in normalized_images[image]['packages']:
+            for package in packages['pkgs']:
+                optional_print('\tType: %s' % packages['pkgsType'], mode=output_mode)
+                optional_print('\tName: %s' % package['name'], mode=output_mode)
+                optional_print('\tVers: %s' % package['version'], mode=output_mode)
+                if 'path' in package:
+                    optional_print('\tPath: %s' % package['path'], mode=output_mode)
+                    package_path = package['path']
+                else:
+                    package_path = ''
+                optional_print('\tCVEs: %s' % package['cveCount'], mode=output_mode)
+                optional_print(mode=output_mode)
+                if search_package_type in [packages['pkgsType'], 'all']:
+                    if package_name_matches(search_exact_name, search_name, package['name']):
+                        if search_version:
+                            if package_version_matches(search_comparison_operator, search_version, package['version']):
+                                images_with_package.append("%s\t%s\t%s\t%s\t%s" % (normalized_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
+                        else:
+                            images_with_package.append("%s\t%s\t%s\t%s\t%s" % (normalized_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
+    return images_with_package
 
 # Example response from the API.
 
@@ -141,164 +186,62 @@ csv_header = 'Instance\tPackage Type\tPackage Name\tPackage Version\tPackage Pat
 ]
 """
 
+# --Initialize-- #
+
+settings = pc_utility.get_settings(args)
+pc_api.configure(settings)
+pc_api.validate_api_compute()
+
+# --Main-- #
+
 print('Testing Compute API Access ...', end='')
 intelligence = pc_api.statuses_intelligence()
 print(' done.')
 print()
+
+ci_images_with_package       = []
+registry_images_with_package = []
+deployed_images_with_package = []
+
+csv_header = 'Instance\tPackage Type\tPackage Name\tPackage Version\tPackage Path'
 
 if search_package_name:
     print('Searching for Package: (%s) Version: (%s) Exact Match Name: (%s) Version Comparison Operator: (%s)' % (search_package_name, search_package_version, args.exact_match_name, args.version_comparison))
     print()
 
 # Monitor > Vulnerabilities/Compliance > Images > CI
-ci_images = {}
 if args.mode in ['ci', 'all']:
     print('Getting CI Images ...')
-    images = pc_api.scans_list_read(args.image_id)
-    for image in images:
-        image_id = image['entityInfo']['id']
-        if image['entityInfo']['instances']:
-            try:
-                image_ii = '%s %s' % (image['entityInfo']['instances'][0]['image'], image['entityInfo']['instances'][0]['host'])
-            except KeyError:
-                image_ii = ''
-        else:
-            image_ii = ''
-        ci_images[image_id] = {
-            'id':        image['entityInfo']['id'],
-            'instance':  image_ii,
-            'instances': image['entityInfo']['instances'],
-            'packages':  image['entityInfo']['packages']}
-    optional_print(mode=print_all_packages)
-    for image in ci_images:
-        optional_print('CI Image', mode=print_all_packages)
-        optional_print('ID: %s' % image, mode=print_all_packages)
-        optional_print('Instance: %s' % ci_images[image]['instance'], mode=print_all_packages)
-        optional_print(mode=print_all_packages)
-        if not ci_images[image]['packages']:
-            continue
-        for packages in ci_images[image]['packages']:
-            for package in packages['pkgs']:
-                optional_print('\tType: %s' % packages['pkgsType'], mode=print_all_packages)
-                optional_print('\tName: %s' % package['name'], mode=print_all_packages)
-                optional_print('\tVers: %s' % package['version'], mode=print_all_packages)
-                if 'path' in package:
-                    optional_print('\tPath: %s' % package['path'], mode=print_all_packages)
-                    package_path = package['path']
-                else:
-                    package_path = ''
-                optional_print('\tCVEs: %s' % package['cveCount'], mode=print_all_packages)
-                optional_print(mode=print_all_packages)
-                if args.package_type in [packages['pkgsType'], 'all']:
-                    if package_name_matches(args.exact_match_name, search_package_name, package['name']):
-                        if search_package_version:
-                            if package_version_matches(args.version_comparison, search_package_version, package['version']):
-                                ci_images_with_package.append("%s\t%s\t%s\t%s\t%s" % (ci_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
-                        else:
-                            ci_images_with_package.append("%s\t%s\t%s\t%s\t%s" % (ci_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
+    ci_images = pc_api.scans_list_read(args.image_id)
+    ci_images_with_package = parse_images(ci_images, search_all_packages, args.package_type, args.exact_match_name, search_package_name, args.version_comparison, search_package_version)
     print('Done.')
     print()
 
 # Monitor > Vulnerabilities/Compliance > Images > Registries
-registry_images = {}
 if args.mode in ['registry', 'all']:
     print('Getting Registry Images ...')
-    images = pc_api.registry_list_read(args.image_id)
-    for image in images:
-        image_id = image['_id']
-        try:
-            image_ii = '%s %s' % (image['instances'][0]['image'], image['instances'][0]['host'])
-        except KeyError:
-            image_ii = ''
-        registry_images[image_id] = {
-            'id':        image['_id'],
-            'instance':  image_ii,
-            'instances': image['instances'],
-            'packages':  image['packages']}
-    optional_print(mode=print_all_packages)
-    for image in registry_images:
-        optional_print('Registry Image', mode=print_all_packages)
-        optional_print('ID: %s' % image, mode=print_all_packages)
-        optional_print('Instance: %s' % registry_images[image]['instance'], mode=print_all_packages)
-        optional_print(mode=print_all_packages)
-        if not registry_images[image]['packages']:
-            continue
-        for packages in registry_images[image]['packages']:
-            for package in packages['pkgs']:
-                optional_print('\tType: %s' % packages['pkgsType'], mode=print_all_packages)
-                optional_print('\tName: %s' % package['name'], mode=print_all_packages)
-                optional_print('\tVers: %s' % package['version'], mode=print_all_packages)
-                if 'path' in package:
-                    optional_print('\tPath: %s' % package['path'], mode=print_all_packages)
-                    package_path = package['path']
-                else:
-                    package_path = ''
-                optional_print('\tCVEs: %s' % package['cveCount'], mode=print_all_packages)
-                optional_print(mode=print_all_packages)
-                if args.package_type in [packages['pkgsType'], 'all']:
-                    if package_name_matches(args.exact_match_name, search_package_name, package['name']):
-                        if search_package_version:
-                            if package_version_matches(args.version_comparison, search_package_version, package['version']):
-                                registry_images_with_package.append("%s\t%s\t%s\t%s\t%s" % (registry_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
-                        else:
-                            registry_images_with_package.append("%s\t%s\t%s\t%s\t%s" % (registry_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
+    registry_images = pc_api.registry_list_read(args.image_id)
+    registry_images_with_package = parse_images(registry_images, search_all_packages, args.package_type, args.exact_match_name, search_package_name, args.version_comparison, search_package_version)
     print('Done.')
     print()
 
 # Monitor > Vulnerabilities/Compliance > Images > Deployed
-deployed_images = {}
 if args.mode in ['deployed', 'all']:
     print('Getting Deployed Images ...')
-    images = pc_api.images_list_read(args.image_id)
-    for image in images:
-        image_id = image['_id']
-        try:
-            image_ii = '%s %s' % (image['instances'][0]['image'], image['instances'][0]['host'])
-        except KeyError:
-            image_ii = ''
-        deployed_images[image_id] = {
-            'id':        image['_id'],
-            'instance':  image_ii,
-            'instances': image['instances'],
-            'packages':  image['packages']}
-    optional_print(mode=print_all_packages)
-    for image in deployed_images:
-        optional_print('Deployed Image', mode=print_all_packages)
-        optional_print('ID: %s' % image, mode=print_all_packages)
-        optional_print('Instance: %s' % deployed_images[image]['instance'], mode=print_all_packages)
-        optional_print(mode=print_all_packages)
-        if not deployed_images[image]['packages']:
-            continue
-        for packages in deployed_images[image]['packages']:
-            for package in packages['pkgs']:
-                optional_print('\tType: %s' % packages['pkgsType'], mode=print_all_packages)
-                optional_print('\tName: %s' % package['name'], mode=print_all_packages)
-                optional_print('\tVers: %s' % package['version'], mode=print_all_packages)
-                if 'path' in package:
-                    optional_print('\tPath: %s' % package['path'], mode=print_all_packages)
-                    package_path = package['path']
-                else:
-                    package_path = ''
-                optional_print('\tCVEs: %s' % package['cveCount'], mode=print_all_packages)
-                optional_print(mode=print_all_packages)
-                if args.package_type in [packages['pkgsType'], 'all']:
-                    if package_name_matches(args.exact_match_name, search_package_name, package['name']):
-                        if search_package_version:
-                            if package_version_matches(args.version_comparison, search_package_version, package['version']):
-                                deployed_images_with_package.append("%s\t%s\t%s\t%s\t%s" % (deployed_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
-                        else:
-                            deployed_images_with_package.append("%s\t%s\t%s\t%s\t%s" % (deployed_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
+    deployed_images = pc_api.images_list_read(args.image_id)
+    deployed_images_with_package = parse_images(deployed_images, search_all_packages, args.package_type, args.exact_match_name, search_package_name, args.version_comparison, search_package_version)
     print('Done.')
     print()
 
-if args.package_id:
+# Output images with the specified package, when a package is specified.
+if search_package_name:
     if args.mode in ['ci', 'all']:
         print()
         if ci_images_with_package:
             print('Package found in these CI Images:')
             print()
-            for image in ci_images_with_package:
-                print('\t%s' % image)
+            for ci_image in ci_images_with_package:
+                print('\t%s' % ci_image)
             if args.output_to_csv:
                 write_file('ci.csv', csv_header, ci_images_with_package)
                 print()
@@ -310,8 +253,8 @@ if args.package_id:
         if registry_images_with_package:
             print('Package found in these Registry Images:')
             print()
-            for image in registry_images_with_package:
-                print('\t%s' % image)
+            for registry_image in registry_images_with_package:
+                print('\t%s' % registry_image)
             if args.output_to_csv:
                 write_file('registry.csv', csv_header, registry_images_with_package)
                 print()
@@ -323,8 +266,8 @@ if args.package_id:
         if deployed_images_with_package:
             print('Package found in these Deployed Images:')
             print()
-            for image in deployed_images_with_package:
-                print('\t%s' % image)
+            for deployed_image in deployed_images_with_package:
+                print('\t%s' % deployed_image)
             if args.output_to_csv:
                 write_file('deployed.csv', csv_header, deployed_images_with_package)
                 print()
