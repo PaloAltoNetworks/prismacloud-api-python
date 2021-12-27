@@ -4,6 +4,7 @@ import logging
 
 from .posture import PrismaCloudAPIPosture
 from .compute import PrismaCloudAPICompute
+from .pc_lib_utility import PrismaCloudUtility
 
 # --Description-- #
 
@@ -60,3 +61,10 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute):
         filehandler.setFormatter(formatter)
         self.logger.addHandler(filehandler)
         self.logger.error = CallCounter(self.logger.error)
+        self.auto_configure_compute()
+
+    def auto_configure_compute(self):
+        if self.api and not self.api_compute:
+            meta_info = self.meta_info()
+            if meta_info and 'twistlockUrl' in meta_info:
+                self.api_compute = PrismaCloudUtility.normalize_api_compute_base(meta_info['twistlockUrl'])
