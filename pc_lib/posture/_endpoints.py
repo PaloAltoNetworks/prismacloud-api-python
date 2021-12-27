@@ -457,3 +457,19 @@ class EndpointsPrismaCloudAPIMixin():
         #    # download ready
         #    pass
         #else:
+
+    """
+    Configuration
+
+    [ ] LIST
+    [ ] CREATE
+    [x] READ
+    [ ] UPDATE
+    [ ] DELETE
+    """
+
+    def compute_config(self):
+        return self.execute('GET', 'compute/config')
+
+    def meta_info(self):
+        return self.execute('GET', 'meta_info')
