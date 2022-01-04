@@ -113,8 +113,6 @@ class PrismaCloudUtility():
         settings['password']    = args.password
         settings['api_compute'] = self.normalize_api_compute_base(args.api_compute)
         settings['ca_bundle']   = args.ca_bundle
-        if settings['ca_bundle'] == 'False':
-            settings['ca_bundle'] = False
         self.write_json_file(settings_file_name, settings, pretty=True)
 
     # Return user-specified settings file, or the default settings file.
