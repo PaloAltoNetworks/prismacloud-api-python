@@ -1,6 +1,5 @@
 """ Prisma Cloud Compute API Images Endpoints Class """
 
-import json
 import urllib.parse
 
 # Credentials (Manage > Authentication > Credentials store)
@@ -12,14 +11,14 @@ class CredentialsPrismaCloudAPIComputeMixin:
     def credential_list_read(self):
         return self.execute_compute('GET', '/api/v1/credentials')
 
-    def credential_list_create(self, id, cloud_type, secret, description):
+    def credential_list_create(self, _id, cloud_type, secret, description):
         body = {
             'secret': secret,
             'serviceAccount': {},
             'type': cloud_type,
             'description': description,
             'skipVerify': False,
-            '_id': id
+            '_id': _id
         }
         return self.execute_compute(
             'POST', 'api/v1/credentials?project=Central+Console',

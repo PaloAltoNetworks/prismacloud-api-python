@@ -1,9 +1,10 @@
 """ Synchronize Azure Accounts from PC to PCC """
 
 from __future__ import print_function
-from pc_lib import pc_api, pc_utility
-from operator import itemgetter
 import json
+import sys
+from operator import itemgetter
+from pc_lib import pc_api, pc_utility
 
 # --Configuration-- #
 
@@ -28,15 +29,15 @@ args = parser.parse_args()
 # --Helpers-- #
 def read_service_key(service_key_file):
     try:
-        json_key = open(args.service_key, 'rb')
+        json_key = open(service_key_file, 'rb')
         print(' Success.')
     except OSError:
         print(' Error.')
-        print ('ERROR - Could not open/read file: %s' % args.service_key)
-        exit()
+        print ('ERROR - Could not open/read file: %s' % service_key_file)
+        sys.exit()
     with json_key:
         service_key = json.load(json_key)
-    return(service_key)
+    return service_key
 
 # --Initialize-- #
 
@@ -63,13 +64,13 @@ print(' Success.')
 # If successful, store service key as dictionary: service_key
 if args.service_key:
     print('INFO  - Opening Service Key File ...', end='')
-    service_key = read_service_key(args.service_key)
+    service_key_dict = read_service_key(args.service_key)
     print('INFO  - Validate Service Key ...', end='')
-    if service_key['tenantId'] != args.tenant:
+    if service_key_dict['tenantId'] != args.tenant:
         print(' Error.')
         print('ERROR - Service Key provided does not match requested '
               'tenant: %s' % args.tenant)
-        exit()
+        sys.exit()
     print(' Success.')
 
 # Build list of cloud accounts with account id's that match input args.tenant
@@ -85,12 +86,12 @@ tenant_name = list(map(itemgetter('name'), (
         )
     ))))
 print('INFO  - Validate tenant credential to be added to compute ...', end='')
-if (len(tenant_name) < 1):
+if len(tenant_name) < 1:
     print(' Error.')
     print('ERROR - Could not find tenant \"%s\" in Prisma Cloud Accounts.'
           % args.tenant)
-    exit()
-elif (len(tenant_name) > 1):
+    sys.exit()
+elif len(tenant_name) > 1:
     print(' Error.')
     print('ERROR - Too many Prisma Cloud Accounts matched tenant \"%s\".'
           % args.tenant)
@@ -106,10 +107,10 @@ print(' Success.')
 # var children = list of dict for all children cloud accounts
 cloud_account_names = []
 for child_account in children:
-    if (child_account['accountType'] == 'account'):
+    if child_account['accountType'] == 'account':
         cloud_account_names.append(child_account['name'])
 
-if (len(cloud_account_names) < 1):
+if len(cloud_account_names) < 1:
     print('INFO  - No children accounts in tenant to add to compute.')
 
 # Generate a list of Compute Credentials associated with tenant and store
@@ -148,10 +149,10 @@ for child in pc_api.cloud_accounts_children_list_read('azure', args.tenant):
     ):
         # for each child account being add, insert associated subscription
         # id into service_key
-        service_key['subscriptionId'] = child['accountId']
+        service_key_dict['subscriptionId'] = child['accountId']
         secret = {
             'encrypted': '',
-            'plain': json.dumps(service_key)
+            'plain': json.dumps(service_key_dict)
         }
         # Add credential
         if not args.dryrun:
