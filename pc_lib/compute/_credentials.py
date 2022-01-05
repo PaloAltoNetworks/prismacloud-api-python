@@ -11,15 +11,7 @@ class CredentialsPrismaCloudAPIComputeMixin:
     def credential_list_read(self):
         return self.execute_compute('GET', '/api/v1/credentials')
 
-    def credential_list_create(self, _id, cloud_type, secret, description):
-        body = {
-            'secret': secret,
-            'serviceAccount': {},
-            'type': cloud_type,
-            'description': description,
-            'skipVerify': False,
-            '_id': _id
-        }
+    def credential_list_create(self, body):
         return self.execute_compute(
             'POST', 'api/v1/credentials?project=Central+Console',
             body_params=body

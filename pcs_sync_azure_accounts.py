@@ -47,6 +47,9 @@ pc_api.validate_api_compute()
 
 # --Main-- #
 
+add_counter = 0
+del_counter = 0
+
 print('INFO  - Testing Compute API Access ...', end='')
 intelligence = pc_api.statuses_intelligence()
 print(' Success.')
@@ -138,6 +141,7 @@ for cred in tenant_creds:
             print(' Success')
         else:
             print('DRYRN - Removing credential \"%s\" from compute' % cred)
+        del_counter+=1
 
 # Iterate through the list of children accounts...
 for child in pc_api.cloud_accounts_children_list_read('azure', args.tenant):
@@ -154,17 +158,26 @@ for child in pc_api.cloud_accounts_children_list_read('azure', args.tenant):
             'encrypted': '',
             'plain': json.dumps(service_key_dict)
         }
+        # Build body for API
+        body = {
+            'secret': secret,
+            'serviceAccount': {},
+            'type': 'azure',
+            'description': 'Added by automation',
+            'skipVerify': False,
+            '_id': child['name']
+        }
+
         # Add credential
         if not args.dryrun:
             print('API   - Adding account \"%s\" to compute credentials ...'
                   % child['name'], end='')
-            pc_api.credential_list_create(
-                child['name'],
-                'azure',
-                secret,
-                'Added by automation'
-            )
+            pc_api.credential_list_create(body)
             print(' Success')
         else:
             print('DRYRN - Adding account \"%s\" to compute credentials'
                   % child['name'])
+        add_counter+=1
+
+print('Total Added   : %s' %add_counter)
+print('Total Deleted : %s' %del_counter)
