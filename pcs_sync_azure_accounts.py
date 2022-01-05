@@ -166,5 +166,5 @@ for child in pc_api.cloud_accounts_children_list_read('azure', args.tenant):
             )
             print(' Success')
         else:
-            print('DRYRUN - Adding account \"%s\" to compute credentials'
+            print('DRYRN - Adding account \"%s\" to compute credentials'
                   % child['name'])
