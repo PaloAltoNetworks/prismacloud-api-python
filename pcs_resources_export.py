@@ -9,7 +9,11 @@ parser.add_argument(
     '--cloud_account_name',
     type=str,
     help='Name of the Cloud Account to get Resources.')
-
+parser.add_argument(
+    '--concurrency',
+    type=int,
+    default=0,
+    help='(Optional) - Number of concurrent API calls. (1-16)')
 parser.add_argument(
     'export_file_name',
     type=str,
@@ -28,9 +32,16 @@ cloud_accounts_list = pc_api.cloud_accounts_list_read(query_params={'excludeAcco
 print(' done.')
 print()
 
+# Optionally filter the list of cloud accounts down to the one specified on the command line.
 if args.cloud_account_name:
     cloud_accounts_list = [next(item for item in cloud_accounts_list if item['name'] == args.cloud_account_name)]
 
+# Avoid API rate limits.
+if args.concurrency > 0 and args.concurrency <= 16:
+    pc_api.max_workers = args.concurrency
+print('Limiting concurrent API calls to: (%s)' % pc_api.max_workers)
+print()
+    
 resource_list = []
 
 for cloud_account in cloud_accounts_list:
