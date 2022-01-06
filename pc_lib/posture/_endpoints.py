@@ -277,6 +277,9 @@ class EndpointsPrismaCloudAPIMixin():
     def cloud_accounts_list_read(self, query_params=None):
         return self.execute('GET', 'cloud', query_params=query_params)
 
+    def cloud_accounts_children_list_read(self, cloud_account_type, cloud_account_id):
+        return self.execute('GET', '/cloud/%s/%s/project' % (cloud_account_type, cloud_account_id))
+
     def cloud_accounts_list_names_read(self, query_params=None):
         return self.execute('GET', 'cloud/name', query_params=query_params)
 
