@@ -41,7 +41,7 @@ if args.concurrency > 0 and args.concurrency <= 16:
     pc_api.max_workers = args.concurrency
 print('Limiting concurrent API calls to: (%s)' % pc_api.max_workers)
 print()
-    
+
 resource_list = []
 
 for cloud_account in cloud_accounts_list:
