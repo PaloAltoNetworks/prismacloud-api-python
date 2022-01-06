@@ -9,6 +9,11 @@ DEFAULT_POLICY_EXPORT_FILE_VERSION = 2
 
 parser = pc_utility.get_arg_parser()
 parser.add_argument(
+    '--concurrency',
+    type=int,
+    default=0,
+    help='(Optional) - Number of concurrent API calls. (1-16)')
+parser.add_argument(
     'export_file_name',
     type=str,
     help='Export file name for the Custom Policies.')
@@ -20,6 +25,12 @@ settings = pc_utility.get_settings(args)
 pc_api.configure(settings)
 
 # --Main-- #
+
+# Avoid API rate limits.
+if args.concurrency > 0 and args.concurrency <= 16:
+    pc_api.max_workers = args.concurrency
+print('Limiting concurrent API calls to: (%s)' % pc_api.max_workers)
+print()
 
 # Policy Custom Export
 
