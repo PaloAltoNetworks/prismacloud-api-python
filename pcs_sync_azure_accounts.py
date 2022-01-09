@@ -2,42 +2,163 @@
 
 from __future__ import print_function
 import json
-import sys
-from operator import itemgetter
 from pc_lib import pc_api, pc_utility
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # --Configuration-- #
 
 parser = pc_utility.get_arg_parser()
 parser.add_argument(
-    '--tenant',
+    '--tenantId',
     type=str,
     required=True,
     help='Account ID of Tenant to sync.')
 parser.add_argument(
+    '--clientSecret',
+    type=str,
+    required=True,
+    help='Client Secret of SPN Service Key.')
+parser.add_argument(
     '--dryrun',
     action='store_true',
     help='Set flag for dryrun mode')
-parser.add_argument(
-    '--service_key',
-    default=None,
-    type=str,
-    help='(Optional) - Path to file containing Tenant\'s AZ SP Service Key')
 args = parser.parse_args()
 
 
 # --Helpers-- #
-def read_service_key(service_key_file):
-    try:
-        json_key = open(service_key_file, 'rb')
-        print(' Success.')
-    except OSError:
-        print(' Error.')
-        print ('ERROR - Could not open/read file: %s' % service_key_file)
-        sys.exit()
-    with json_key:
-        service_key = json.load(json_key)
-    return service_key
+def build_service_key(client_id, client_secret, subscription_id, tenant_id):
+    return {
+        "clientId": client_id,
+        "clientSecret": client_secret,
+        "subscriptionId": subscription_id,
+        "tenantId": tenant_id,
+        "activeDirectoryEndpointUrl": "https://login.microsoftonline.com",
+        "resourceManagerEndpointUrl": "https://management.azure.com/",
+        "activeDirectoryGraphResourceId": "https://graph.windows.net/",
+        "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/",
+        "galleryEndpointUrl": "https://gallery.azure.com/",
+        "managementEndpointUrl": "https://management.core.windows.net/"
+    }
+
+# Recieves a list of dicts, with each disc representing a tenant child
+# The child can be an account or mgt group so we seperate and return
+# a list of only child account names
+def get_children_accounts(children_ld):
+    child_account_names = []
+    for child_account in children_ld:
+        if child_account['accountType'] == 'account':
+            child_account_names.append(child_account)
+            #child_account_names.append(child_account['name'])
+    return child_account_names
+
+# Receive a list of all current compute credentials and prisma cloud
+# account name. Create list of all credentials that include cloud
+# account name and also are of type azure and also have a description.
+# Return a list of matched "children" credentials as a list of
+# dictionaries.
+def get_tenant_children_creds(cred_list, cloud_account_name):
+    tenant_creds = []
+    for c_item in cred_list:
+        if (
+            ('description' in c_item) and
+            (cloud_account_name in c_item['_id']) and
+            (c_item['type'] == 'azure')
+        ):
+            tenant_creds.append(c_item)
+    return tenant_creds
+
+# Receive children_creds, a list of dicts including all compute credentials
+# that are attached to the cloud tenant being synchronized.
+# Receive children_accounts, a list of dicts including all cloud
+# children subscriptions that belong to the cloud tenant being
+# synchronized.
+def del_orphaned_credentials(children_creds, children_accounts):
+    counter=0
+    for compute_credential in children_creds:
+        if [account for account in children_accounts if account['name'] == compute_credential['_id']]:
+            pass
+        else:
+            print('INFO  - Removing credential \"%s\" from compute.'
+                  % compute_credential['_id'])
+            print('API   - Gathering any usage dependancies for \"%s\" ...' % compute_credential['_id'], end='')
+            usage_deps = pc_api.credential_list_usages_read(compute_credential['_id'])
+            print(' Success')
+            if not args.dryrun:
+                if usage_deps:
+                    print('Info  - %s Usage Dependancies for \"%s\".' % (len(usage_deps), compute_credential['_id']))
+                    for dependancy in usage_deps:
+                        print('INFO  - %s configured for %s.' % (dependancy['type'], compute_credential['_id']))
+                        remove_dep(dependancy['type'], compute_credential['_id'])
+                else:
+                    print('INFO  - No Usage Dependancies for \"%s\".' % compute_credential['_id'])
+                print('API   - Removing credential \"%s\" from compute ...'
+                      % compute_credential['_id'], end='')
+                pc_api.credential_list_delete(compute_credential['_id'])
+                print(' Success')
+            else:
+                print('DRYRN - Removing credential \"%s\" from compute.'
+                      % compute_credential['_id'])
+            counter+=1
+    return counter
+
+def remove_dep(dep_type, cred_id):
+    if dep_type == 'Cloud Scan':
+        print('API   - Removing %s for %s ...' % (dep_type, cred_id), end='')
+        scans=pc_api.policies_cloud_platforms_read()
+        scans['rules']=list(filter(lambda i: i['credentialId'] != cred_id, scans['rules']))
+        pc_api.policies_cloud_platforms_write({'rules' : scans['rules']})
+        print(' Success')
+    if dep_type == 'Serverless Scan':
+        print('API   - Removing %s for %s ...' % (dep_type, cred_id), end='')
+        scans=pc_api.settings_serverless_scan_read()
+        scans=list(filter(lambda i: i['credentialID'] != cred_id, scans))
+        pc_api.settings_serverless_scan_write(scans)
+        print(' Success')
+    if dep_type == 'Registry Scan':
+        print('API   - Removing %s for %s ...' % (dep_type, cred_id), end='')
+        scans=pc_api.settings_registry_read()
+        scans['specifications']=list(filter(lambda i: i['credentialID'] != cred_id, scans['specifications']))
+        pc_api.settings_registry_write({'specifications' : scans['specifications']})
+        print(' Success')
+    return 0
+
+
+def add_missing_credentials(children_creds, children_accounts, client_id):
+    counter=0
+    for cloud_account in children_accounts:
+        if [account for account in children_creds if account['_id'] == cloud_account['name']]:
+            pass
+        else:
+            print('INFO  - Adding Cloud account \"%s\" to Compute creds.'
+                  % cloud_account['name'])
+            secret_dict = build_service_key(
+                client_id,
+                args.clientSecret,
+                cloud_account['accountId'],
+                args.tenantId)
+            secret = {
+                'encrypted': '',
+                'plain': json.dumps(secret_dict)
+            }
+            body = {
+                'secret': secret,
+                'serviceAccount': {},
+                'type': 'azure',
+                'description': 'Added by automation',
+                'skipVerify': False,
+                '_id': cloud_account['name']
+            }
+            if not args.dryrun:
+                print('API   - Adding credential \"%s\" to compute ...'
+                      % cloud_account['name'], end='')
+                pc_api.credential_list_create(body)
+                print(' Success')
+            else:
+                print('DRYRN - Adding credential \"%s\" to compute'
+                      % cloud_account['name'])
+            counter+=1
+    return counter
 
 # --Initialize-- #
 
@@ -46,9 +167,6 @@ pc_api.configure(settings)
 pc_api.validate_api_compute()
 
 # --Main-- #
-
-add_counter = 0
-del_counter = 0
 
 print('INFO  - Testing Compute API Access ...', end='')
 intelligence = pc_api.statuses_intelligence()
@@ -62,122 +180,29 @@ print('API   - Getting the current list of Compute Credentials ...', end='')
 compute_credential_list = pc_api.credential_list_read()
 print(' Success.')
 
-# If args.service_key is defined, open file and compare tenant id
-# to args.tenant.
-# If successful, store service key as dictionary: service_key
-if args.service_key:
-    print('INFO  - Opening Service Key File ...', end='')
-    service_key_dict = read_service_key(args.service_key)
-    print('INFO  - Validate Service Key ...', end='')
-    if service_key_dict['tenantId'] != args.tenant:
-        print(' Error.')
-        print('ERROR - Service Key provided does not match requested '
-              'tenant: %s' % args.tenant)
-        sys.exit()
-    print(' Success.')
-
-# Build list of cloud accounts with account id's that match input args.tenant
-# There should be only one match.  If not, the account wasn't on-boarded or
-# there is an error with the data.
-tenant_name = list(map(itemgetter('name'), (
-    list(
-        filter(
-            lambda item: (
-                (item['accountId'] == args.tenant) and
-                (item['accountType'] == 'tenant')
-            ), cloud_accounts_list
-        )
-    ))))
-print('INFO  - Validate tenant credential to be added to compute ...', end='')
-if len(tenant_name) < 1:
-    print(' Error.')
-    print('ERROR - Could not find tenant \"%s\" in Prisma Cloud Accounts.'
-          % args.tenant)
-    sys.exit()
-elif len(tenant_name) > 1:
-    print(' Error.')
-    print('ERROR - Too many Prisma Cloud Accounts matched tenant \"%s\".'
-          % args.tenant)
-else:
-    tenant_name = ' '.join(map(str, tenant_name))
-    print(' Success.')
-
-print('API   - Getting all children accounts in tenant ...', end='')
-children = pc_api.cloud_accounts_children_list_read('azure', args.tenant)
+print('API   - Getting the Azure Cloud Account Information ...', end='')
+tenant_client_info = pc_api.cloud_account_info_read('azure', args.tenantId)
 print(' Success.')
 
-# var cloud_account_names = list of all tenant's children's names
-# var children = list of dict for all children cloud accounts
-cloud_account_names = []
-for child_account in children:
-    if child_account['accountType'] == 'account':
-        cloud_account_names.append(child_account['name'])
+print('API   - Getting all children accounts in tenant ...', end='')
+children = pc_api.cloud_accounts_children_list_read('azure', args.tenantId)
+print(' Success.')
 
-if len(cloud_account_names) < 1:
+children_cloud_accounts = get_children_accounts(children)
+if len(children_cloud_accounts) < 1:
     print('INFO  - No children accounts in tenant to add to compute.')
+else:
+    print('INFO  - Number of subscriptions within cloud tenant: %s.' % len(children_cloud_accounts))
 
-# Generate a list of Compute Credentials associated with tenant and store
-# as tenant_creds.
-# var tenant_name = string of name of tenant
-# var tenant_creds = list of all compute credentials belonging to args.tenant
-tenant_creds = []
-for cred in compute_credential_list:
-    if (
-        ('description' in cred) and
-        (tenant_name in cred['_id']) and
-        (cred['type'] == 'azure')
-    ):
-        tenant_creds.append(cred['_id'])
+tenants_childrens_creds = get_tenant_children_creds(
+                                                    compute_credential_list,
+                                                    tenant_client_info['cloudAccount']['name']
+                                                   )
+print('INFO  - Number of existing compute credentials belonging to tenant: %s.'
+      % len(tenants_childrens_creds))
 
-# Interate through compute credential names and compare to cloud account
-# tenant children.
-# If not in children, remove credential from compute.
-for cred in tenant_creds:
-    if cred not in cloud_account_names:
-        if not args.dryrun:
-            print('API   - Removing credential \"%s\" from compute ...'
-                  % cred, end='')
-            pc_api.credential_list_delete(cred)
-            print(' Success')
-        else:
-            print('DRYRN - Removing credential \"%s\" from compute' % cred)
-        del_counter+=1
+deleted_count = del_orphaned_credentials(tenants_childrens_creds, children_cloud_accounts)
+added_count = add_missing_credentials(tenants_childrens_creds, children_cloud_accounts, tenant_client_info['clientId'])
 
-# Iterate through the list of children accounts...
-for child in pc_api.cloud_accounts_children_list_read('azure', args.tenant):
-    # and match and child that is both accountType == "account" and is not
-    # already in compute_credential_list
-    if (
-        (child['accountType'] == 'account') and
-        (not any(d['_id'] == child['name'] for d in compute_credential_list))
-    ):
-        # for each child account being add, insert associated subscription
-        # id into service_key
-        service_key_dict['subscriptionId'] = child['accountId']
-        secret = {
-            'encrypted': '',
-            'plain': json.dumps(service_key_dict)
-        }
-        # Build body for API
-        body = {
-            'secret': secret,
-            'serviceAccount': {},
-            'type': 'azure',
-            'description': 'Added by automation',
-            'skipVerify': False,
-            '_id': child['name']
-        }
-
-        # Add credential
-        if not args.dryrun:
-            print('API   - Adding account \"%s\" to compute credentials ...'
-                  % child['name'], end='')
-            pc_api.credential_list_create(body)
-            print(' Success')
-        else:
-            print('DRYRN - Adding account \"%s\" to compute credentials'
-                  % child['name'])
-        add_counter+=1
-
-print('Total Added   : %s' %add_counter)
-print('Total Deleted : %s' %del_counter)
+print('Total Added   : %s' %added_count)
+print('Total Deleted : %s' %deleted_count)

@@ -6,8 +6,10 @@ from .compute      import PrismaCloudAPIComputeMixin
 from ._containers  import ContainersPrismaCloudAPIComputeMixin
 from ._credentials import CredentialsPrismaCloudAPIComputeMixin
 from ._images      import ImagesPrismaCloudAPIComputeMixin
+from ._policies    import PoliciesPrismaCloudAPIComputeMixin
 from ._registry    import RegistryPrismaCloudAPIComputeMixin
 from ._scans       import ScansPrismaCloudAPIComputeMixin
+from ._settings    import SettingsPrismaCloudAPIComputeMixin
 from ._status      import StatusPrismaCloudAPIComputeMixin
 
 mixin_classes_as_strings = list(filter(lambda x: x.endswith('PrismaCloudAPIComputeMixin'), dir()))
