@@ -3,8 +3,6 @@
 from __future__ import print_function
 import json
 from pc_lib import pc_api, pc_utility
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # --Configuration-- #
 
