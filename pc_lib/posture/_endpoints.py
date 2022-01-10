@@ -286,6 +286,9 @@ class EndpointsPrismaCloudAPIMixin():
     def cloud_accounts_create(self, cloud_type, cloud_account_to_add):
         return self.execute('POST', 'cloud/%s' % cloud_type, body_params=cloud_account_to_add)
 
+    def cloud_account_info_read(self, cloud_type, cloud_account_id):
+        return self.execute('GET', 'cloud/%s/%s' % (cloud_type, cloud_account_id))
+
     def cloud_account_update(self, cloud_type, cloud_account_id, cloud_account_update):
         return self.execute('PUT', 'cloud/%s/%s' % (cloud_type, cloud_account_id), body_params=cloud_account_update)
 
