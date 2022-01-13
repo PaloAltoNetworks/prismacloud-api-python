@@ -75,20 +75,20 @@ else:
         cloud_type = args.cloud_type.lower()
         for policy in policy_list:
             if policy['enabled'] is not specified_policy_status:
-                if cloud_type in (policy['cloudType']):
+                if cloud_type == policy['cloudType']:
                     policy_list_to_update.append(policy)
     elif args.policy_severity is not None:
         policy_severity = args.policy_severity.lower()
         for policy in policy_list:
             if policy['enabled'] is not specified_policy_status:
-                if policy_severity in (policy['severity']):
+                if policy_severity == policy['severity']:
                     policy_list_to_update.append(policy)
     elif args.policy_type is not None:
         policy_type = args.policy_type.lower()
         for policy in policy_list:
             if policy['enabled'] is not specified_policy_status:
-                if policy_type in (policy['policyType']):
-                      policy_list_to_update.append(policy)
+                if policy_type == policy['policyType']:
+                    policy_list_to_update.append(policy)
 
 if policy_list_to_update:
     print('API - Updating Policies ...')
