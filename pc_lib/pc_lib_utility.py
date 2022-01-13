@@ -79,13 +79,15 @@ class PrismaCloudUtility():
                 settings['api_compute'] = ''
             if 'ca_bundle' not in settings:
                 settings['ca_bundle'] = ''
+            settings['apiBase']     = self.normalize_api_base(settings['apiBase'])
+            settings['api_compute'] = self.normalize_api_compute_base(settings['api_compute'])
         elif args.api == '' and args.api_compute == '':
             self.error_and_exit(400, 'One of API (--api) or API Compute (--api_compute) are required.')
         else:
             settings['apiBase']     = self.normalize_api_base(args.api)
+            settings['api_compute'] = self.normalize_api_compute_base(args.api_compute)
             settings['username']    = args.username
             settings['password']    = args.password
-            settings['api_compute'] = self.normalize_api_compute_base(args.api_compute)
             settings['ca_bundle']   = args.ca_bundle
         return settings
 
