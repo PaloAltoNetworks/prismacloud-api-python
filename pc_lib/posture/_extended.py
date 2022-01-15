@@ -53,6 +53,8 @@ class ExtendedPrismaCloudAPIMixin():
         self.progress('API - Getting the Resources ...')
         futures = []
         for cloud_account_resource in cloud_account_resource_list:
+            if not 'rrn' in cloud_account_resource:
+                continue
             self.progress('Scheduling Resource Request: %s' % cloud_account_resource['rrn'])
             thread_progress = 'Getting Resource: %s' % cloud_account_resource['rrn']
             futures.append(thread_pool_executor.submit(self.resource_read, body_params={'rrn': cloud_account_resource['rrn']}, force=True, message=thread_progress))

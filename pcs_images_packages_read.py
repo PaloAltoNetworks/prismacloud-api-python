@@ -103,6 +103,8 @@ def parse_images(images, output_mode, search_package_type, search_exact_name, se
         if 'entityInfo' in image:
             try:
                 image_ii = '%s %s' % (image['entityInfo']['instances'][0]['image'], image['entityInfo']['instances'][0]['host'])
+            except IndexError:
+                image_ii = ''
             except KeyError:
                 image_ii = ''
             except TypeError:
@@ -115,6 +117,8 @@ def parse_images(images, output_mode, search_package_type, search_exact_name, se
         else:
             try:
                 image_ii = '%s %s' % (image['instances'][0]['image'], image['instances'][0]['host'])
+            except IndexError:
+                image_ii = ''
             except KeyError:
                 image_ii = ''
             except TypeError:

@@ -83,7 +83,7 @@ For detailed documentation of each script's parameters, specify `-h` or `--help`
 
 #### pcs_policy_set_status.py
 
-Use this script to enable or disable Policies globally for an account (filtered by Policy Type or Compliance Standard).
+Use this script to enable or disable Policies globally for a tenant (all Policies or filtered by Cloud Type, Policy Type, Policy Severity, or Compliance Standard).
 This is primarily used to set up a new environment with every Policy enabled, or to update an environment after a large number of new Policies have been released.
 
 Example:
