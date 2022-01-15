@@ -3,8 +3,8 @@
 import sys
 
 from .compute      import PrismaCloudAPIComputeMixin
-from ._cloud       import CloudPrismaCloudAPIComputeMixin
 from ._containers  import ContainersPrismaCloudAPIComputeMixin
+from ._cloud       import CloudPrismaCloudAPIComputeMixin
 from ._credentials import CredentialsPrismaCloudAPIComputeMixin
 from ._images      import ImagesPrismaCloudAPIComputeMixin
 from ._policies    import PoliciesPrismaCloudAPIComputeMixin

@@ -1,4 +1,4 @@
-""" Prisma Cloud Compute API Cloud Endpoints Class """
+""" Prisma Compute API Cloud Endpoints Class """
 
 # Cloud
 
