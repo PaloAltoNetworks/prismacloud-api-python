@@ -18,11 +18,12 @@ pc_api.configure(settings)
 
 # REPLACE CODE HERE
 
-print()
-print('Prisma Cloud API Test:')
-print()
-result = pc_api.current_user()
-print(result)
+if pc_api.api:
+    print()
+    print('Prisma Cloud API Test:')
+    print()
+    result = pc_api.current_user()
+    print(result)
 
 if pc_api.api_compute:
     print()
@@ -30,8 +31,3 @@ if pc_api.api_compute:
     print()
     result = pc_api.statuses_intelligence()
     print(result)
-
-print()
-print('Prisma Cloud PrismaCloudAPI Class Status:')
-print()
-print(pc_api)

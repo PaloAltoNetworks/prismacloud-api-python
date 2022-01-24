@@ -15,7 +15,6 @@ if args.config_file is None:
     print(pc_utility.DEFAULT_SETTINGS_FILE_NAME)
 else:
     print(args.config_file)
-print(args)
 
 if (args.username is not None and args.password is not None) and (args.api != '' or args.api_compute != ''):
     pc_utility.write_settings_file(args)
