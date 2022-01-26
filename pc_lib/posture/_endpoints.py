@@ -465,6 +465,53 @@ class EndpointsPrismaCloudAPIMixin():
         #else:
 
     """
+    Search
+
+    [ ] LIST
+    [ ] CREATE
+    [x] READ
+    [ ] UPDATE
+    [ ] DELETE
+    """
+
+    def search_config_read(self, search_params):
+        result = []
+        next_page_token = None
+        api_response = self.execute('POST', 'search/config', body_params=search_params)
+        if 'data' in api_response and 'items' in api_response['data']:
+            result = api_response['data']['items']
+            next_page_token = api_response['data'].pop('nextPageToken', None)
+        while next_page_token:
+            api_response = self.execute('POST', 'search/config/page', body_params={'pageToken': next_page_token})
+            if 'items' in api_response:
+                result.extend(api_response['items'])
+            next_page_token = api_response.pop('nextPageToken', None)
+        return result
+
+    def search_network_read(self, search_params, filtered=False):
+        search_url = 'search'
+        if filtered:
+            search_url = 'search/filtered'
+        return self.execute('POST', search_url, body_params=search_params)
+
+    def search_event_read(self, search_params, subsearch=None):
+        result = []
+        next_page_token = None
+        search_url = 'search/event'
+        if subsearch and subsearch in ['aggregate', 'filtered']:
+            search_url = 'search/event/%s' % subsearch
+        api_response = self.execute('POST', search_url, body_params=search_params)
+        if 'data' in api_response and 'items' in api_response['data']:
+            result = api_response['data']['items']
+            next_page_token = api_response['data'].pop('nextPageToken', None)
+        while next_page_token:
+            api_response = self.execute('POST', 'search/config/page', body_params={'pageToken': next_page_token})
+            if 'items' in api_response:
+                result.extend(api_response['items'])
+            next_page_token = api_response.pop('nextPageToken', None)
+        return result
+
+    """
     Configuration
 
     [ ] LIST
