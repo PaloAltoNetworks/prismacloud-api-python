@@ -1,4 +1,4 @@
-""" Get a Count of Protected Containers """
+""" Collect Compute Audits, History, and Logs """
 
 from __future__ import print_function
 
@@ -16,31 +16,35 @@ this_parser.add_argument(
     default=1,
     help='(Optional) - Time period to collect, in hours, from now. (Default: 1)')
 this_parser.add_argument(
-    '--log_limit',
-    type=int,
-    default=32768,
-    help='(Optional) - Number of console logs to collect, requires --console_logs. (Default: 32768)')
-this_parser.add_argument(
-    '--no_core_audits',
-    action='store_false',
-    help='(Optional) - Do not collect core audit data. (Default: disabled)')
+    '--no_audit_events',
+    action='store_true',
+    help='(Optional) - Do not collect Audit Events. (Default: disabled)')
 this_parser.add_argument(
     '--host_forensic_activities',
     action='store_true',
-    help='(Optional) - Collect Host Forensic Activity audit data. Warning: potentially high volume/slow. (Default: disabled)')
+    help='(Optional) - Collect Host Forensic Activity. Warning: potentially high volume. (Default: disabled)')
+this_parser.add_argument(
+    '--console_history',
+    action='store_true',
+    help='(Optional) - Collect Console History. (Default: disabled)')
 this_parser.add_argument(
     '--console_logs',
     action='store_true',
-    help='(Optional) - Collect Console logs. (Default: disabled)')
+    help='(Optional) - Collect Console Logs. (Default: disabled)')
+this_parser.add_argument(
+    '--console_log_limit',
+    type=int,
+    default=32768,
+    help='(Optional) - Number of console logs to collect, requires --console_logs. (Default: 32768)')
 args = this_parser.parse_args()
 
 # --Helpers-- #
 
-def push_item_to_siem(_item, data_type):
-    print(f'POST/PUT ({data_type}) record')
+def send_item_to_siem(_item, data_type):
+    print(f'    PUT ({data_type}) record')
 
-def push_data_to_siem(data, data_type):
-    print(f'POST/PUT {len(data)} ({data_type}) records')
+def send_data_to_siem(data, data_type):
+    print(f'    PUT {len(data)} ({data_type}) records')
 
 # --Initialize-- #
 
@@ -48,6 +52,9 @@ settings = pc_utility.get_settings(args)
 pc_api.configure(settings)
 
 # --Main-- #
+
+print('Collect Compute Audits, History, and Logs')
+print()
 
 # Ranges
 
@@ -73,29 +80,44 @@ audit_query_params = {
     'sort': 'time'
 }
 
-if args.no_core_audits:
+if not args.no_audit_events:
+    print('Collect Audits')
+    print()
     for audit_type in pc_api.compute_audit_types():
         audits = pc_api.audits_list_read(audit_type=audit_type, query_params=audit_query_params)
-        push_data_to_siem(audits, data_type=audit_type)
+        send_data_to_siem(audits, data_type=audit_type)
+    print()
 
 if args.host_forensic_activities:
+    print('Collect Host Forensic Activity Audits (potentially high-volume, please wait)')
+    print()
     audits = pc_api.host_forensic_activities_list_read(query_params=audit_query_params)
-    push_data_to_siem(audits, data_type='forensic/activities')
+    send_data_to_siem(audits, data_type='forensic/activities')
+    print()
 
-log_query_params = {
-    'lines': args.log_limit
+if args.console_history:
+    print('Collect Console History')
+    print()
+    audits = pc_api.console_history_list_read(query_params=audit_query_params)
+    send_data_to_siem(audits, data_type='audits/mgmt')
+    print()
+
+console_log_query_params = {
+    'lines': args.console_log_limit
 }
 
 if args.console_logs:
+    print('Collect Console History')
     print()
-    print(f'Log Limit: {args.log_limit}')
+    print('Console Log Limit:')
+    print(f'    {args.console_log_limit}')
     print()
 
     logs_in_scope = []
-    logs = pc_api.console_logs_list_read(query_params=log_query_params)
+    logs = pc_api.console_logs_list_read(query_params=console_log_query_params)
     for log in logs:
         if log['time']:
             tz_log_time = parser.isoparse(log['time']).astimezone(tz.tzlocal())
             if tz_date_time_0 <= tz_log_time <= tz_date_time_1:
                 logs_in_scope.append(log)
-    push_data_to_siem(logs_in_scope, data_type='logs/console')
+    send_data_to_siem(logs_in_scope, data_type='logs/console')
