@@ -184,6 +184,24 @@ python3 pcs_images_packages_read.py --package_type jar --package_id log4j:2.14.1
 ```
 
 
+#### pcs_compute_forward_to_siem.py
+
+Use this script to forward Audits, and Console History and Logs from Prisma Cloud Compute to a SIEM.
+
+It is expected to be called once an hour, by default, to read from the Prisma Cloud API and write to your SIEM API.
+
+It depends upon the SIEM to deduplicate data, and requires you to modify the `outbound_api_call()` function for your SIEM API.
+
+Example:
+
+```
+python3 pcs_compute_forward_to_siem.py --console_history --console_logs
+```
+
+You can specifically disable forwarding of Audits with `--no_audit_events`.
+
+Note that `--host_forensic_activities` results in high-volume/time-intensive API calls.
+
 ### Other CSPM and CWP Scripts
 
 #### pcs_cloud_account_import_azure.py (in progress)**

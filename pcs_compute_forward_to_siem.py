@@ -1,8 +1,8 @@
 """ Collect Compute Audits, History, and Logs """
 
-# This code is expected to be called once an hour by default,
-# to read from Prisma Cloud APIs and write to SIEM APIs.
-# It depends upon the SIEM to deduplicate data.
+# Use this script to forward Audits, and Console History and Logs from Prisma Cloud Compute to a SIEM.
+# It is expected to be called once an hour, by default, to read from the Prisma Cloud API and write to your SIEM API.
+# It depends upon the SIEM to deduplicate data, and requires you to modify the `outbound_api_call()` function for your SIEM API.
 
 from __future__ import print_function
 
@@ -50,7 +50,7 @@ this_parser.add_argument(
 this_parser.add_argument(
     '--host_forensic_activities',
     action='store_true',
-    help='(Optional) - Collect Host Forensic Activity. Warning: high volume. (Default: disabled)')
+    help='(Optional) - Collect Host Forensic Activity. Warning: high-volume/time-intensive. (Default: disabled)')
 this_parser.add_argument(
     '--console_history',
     action='store_true',
@@ -219,7 +219,7 @@ with concurrent.futures.ThreadPoolExecutor(OUTER_CONCURRENY) as executor:
         print()
 
     if args.host_forensic_activities:
-        print('Collecting Host Forensic Activity Audits (high-volume, please wait)')
+        print('Collecting Host Forensic Activity Audits (high-volume/time-intensive, please wait)')
         print()
         outer_futures.append(executor.submit(
                 #process_host_forensic_activities(audit_query_params)
