@@ -38,9 +38,7 @@ class AuditsPrismaCloudAPIComputeMixin:
             'firewall/app/serverless',
             'runtime/serverless',
             # Incidents
-            'incidents',
-            # History
-            'mgmt'
+            'incidents'
         ]
 
     # Hosts > Host Activities
@@ -48,6 +46,12 @@ class AuditsPrismaCloudAPIComputeMixin:
     def host_forensic_activities_list_read(self, query_params=None):
         audits = self.execute_compute('GET', 'api/v1/forensic/activities?', query_params=query_params, paginated=True)
         return audits
+
+    # Compute > Manage > History
+
+    def console_history_list_read(self, query_params=None):
+        logs = self.execute_compute('GET', 'api/v1/audits/mgmt?', query_params=query_params)
+        return logs
 
     # Compute > Manage > Logs
 
