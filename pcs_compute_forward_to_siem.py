@@ -24,8 +24,8 @@ from pc_lib import pc_api, pc_utility
 # --Configuration-- #
 
 ENABLE_PROFILING = False
-OUTER_CONCURRENY = 4
-INNER_CONCURRENY = 8
+OUTER_CONCURRENY = 1
+INNER_CONCURRENY = 1
 OUTPUT_DIRECTORY = '/tmp/prisma-cloud-compute-data'
 
 DEFAULT_HOURS = 1
@@ -70,21 +70,24 @@ args = this_parser.parse_args()
 
 def outbound_api_call(data_type:str, data: Union[list, dict]):
     # Transform data into the format expected by the request to your SIEM.
+    data['event'] = data_type
     profile_log('OUTBOUND_API_CALL', 'STARTING')
-    req_method       = ''
-    req_url          = ''
-    req_headers      = {}
+    req_method       = 'POST'
+    req_url          = 'https://splunk-master-demo2201.tkishel.demo.twistlock.com:8080/services/collector/event'
+    req_headers      = {'Authorization': 'Splunk cd2ce553-503a-4dd1-ad06-75638fecf1f8'}
     req_query_params = {}
     req_body_params  = data
+    connect_timeout  = 4
     retry_status_codes = [401, 429, 500, 502, 503, 504]
     retry_limit = 4
     retry_pause = 8
     # Configure req_url to enable the request.
     if not req_url:
-        print(f'        OUTBOUND_API_CALL for {data_type} ...')
+        print(f'        OUTBOUND_API_CALL for {data_type} STUB ...')
         profile_log('OUTBOUND_API_CALL', 'FINISHED')
         return
-    api_response = requests.request(req_method, req_url, headers=req_headers, params=req_query_params, data=json.dumps(req_body_params))
+    print(f'        OUTBOUND_API_CALL for {data_type} ...')
+    api_response = requests.request(req_method, req_url, headers=req_headers, params=req_query_params, data=json.dumps(req_body_params), timeout=connect_timeout, verify=False)
     if api_response.status_code in retry_status_codes:
         for _ in range(1, retry_limit):
             time.sleep(retry_pause)
