@@ -11,3 +11,7 @@ class RegistryPrismaCloudAPIComputeMixin:
         else:
             images = self.execute_compute('GET', 'api/v1/registry?filterBaseImage=true', paginated=True)
         return images
+
+    def registry_scan(self, body_params=None):
+        result = self.execute_compute('POST', 'api/v1/registry/scan', body_params=body_params)
+        return result
