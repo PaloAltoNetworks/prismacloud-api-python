@@ -73,8 +73,8 @@ def outbound_api_call(data_type:str, data: Union[list, dict]):
     data['event'] = data_type
     profile_log('OUTBOUND_API_CALL', 'STARTING')
     req_method       = 'POST'
-    req_url          = 'https://splunk-master-demo2201.tkishel.demo.twistlock.com:8080/services/collector/event'
-    req_headers      = {'Authorization': 'Splunk cd2ce553-503a-4dd1-ad06-75638fecf1f8'}
+    req_url          = ''
+    req_headers      = {}
     req_query_params = {}
     req_body_params  = data
     connect_timeout  = 4
