@@ -12,22 +12,29 @@ class PrismaCloudAPIComputeMixin():
     """ Requests and Output """
 
     def login_compute(self):
-        self.login('https://%s/api/v1/authenticate' % self.api_compute)
+        if self.api:
+            # Login via CSPM.
+            self.login()
+        elif self.api_compute:
+            # Login via CWP.
+            self.login('https://%s/api/v1/authenticate' % self.api_compute)
+        else:
+            self.error_and_exit(418, "Specify a Prisma Cloud API/UI Base URL or Prisma Cloud Compute API Base URL")
 
     def extend_login_compute(self):
-        self.login_compute()
+        if self.api:
+            # Extend CSPM Login.
+            self.extend_login()
+        elif self.api_compute:
+            # Login via CWP.
+            self.login_compute()
+        else:
+            self.error_and_exit(418, "Specify a Prisma Cloud API/UI Base URL or Prisma Cloud Compute API Base URL")
 
     # pylint: disable=too-many-arguments,too-many-branches,too-many-locals,too-many-statements
     def execute_compute(self, action, endpoint, query_params=None, body_params=None, force=False, paginated=False):
         if not self.token:
-            if self.api:
-                # Authenticate via CSPM.
-                self.login()
-            elif self.api_compute:
-                # Authenticate via CWP.
-                self.login_compute()
-            else:
-                self.error_and_exit(418, "Specify API or Compute API to Authenticate")
+            self.login_compute()
         # Endpoints that have the potential to return large numbers of results return a 'Total-Count' response header.
         offset = 0
         limit = 50
@@ -35,14 +42,7 @@ class PrismaCloudAPIComputeMixin():
         results = []
         while offset == 0 or offset < total:
             if int(time.time() - self.token_timer) > self.token_limit:
-                if self.api:
-                    # Extend CSPM authentication.
-                    self.extend_login()
-                elif self.api_compute:
-                    # Authenticate via CWP.
-                    self.extend_login_compute()
-                else:
-                    self.error_and_exit(418, "Specify a Prisma Cloud API/UI Base URL or Prisma Cloud Compute API Base URL")
+                self.extend_login_compute()
             requ_action = action
             if paginated:
                 requ_url = 'https://%s/%s&limit=%s&offset=%s' % (self.api_compute, endpoint, limit, offset)
