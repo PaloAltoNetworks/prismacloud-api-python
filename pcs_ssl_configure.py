@@ -2,10 +2,10 @@
 
 import argparse
 import socket
+import OpenSSL
 
 import certifi
 
-from OpenSSL import crypto, SSL
 
 # --Description-- #
 
@@ -40,7 +40,7 @@ panw_subjects = [
     '/DC=local/DC=paloaltonetworks/CN=Palo Alto Networks Inc Domain CA',
     '/C=US/O=Palo Alto Networks Inc/CN=Palo Alto Networks Inc Root CA'
 ]
-ssl_context_method = SSL.TLSv1_2_METHOD # SSL.SSLv23_METHOD
+ssl_context_method = OpenSSL.SSL.TLSv1_2_METHOD # SSL.SSLv23_METHOD
 
 # --Main-- #
 
@@ -49,9 +49,9 @@ with open(src_ca_file, 'r') as root_ca_file:
 
 with open(dst_ca_file, 'w') as custom_ca_file:
     custom_ca_file.write(root_certificates)
-    context = SSL.Context(method=ssl_context_method)
+    context = OpenSSL.SSL.Context(method=ssl_context_method)
     context.load_verify_locations(cafile=src_ca_file)
-    conn = SSL.Connection(context, socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+    conn = OpenSSL.SSL.Connection(context, socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM))
     conn.settimeout(5)
     conn.connect((host_name, port))
     conn.setblocking(1)
@@ -63,7 +63,7 @@ with open(dst_ca_file, 'w') as custom_ca_file:
         if subject in panw_subjects:
             subject_string     = '# Subject: %s' % subject
             issuer_string      = '# Issuer: %s' % issuer
-            certificate_string = crypto.dump_certificate(crypto.FILETYPE_PEM, certificate).decode('utf-8')
+            certificate_string = OpenSSL.crypto.dump_certificate(OpenSSL.crypto.FILETYPE_PEM, certificate).decode('utf-8')
             custom_ca_file.write("\n")
             custom_ca_file.write(subject_string)
             custom_ca_file.write("\n")
