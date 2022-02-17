@@ -7,7 +7,9 @@ from ._audits      import AuditsPrismaCloudAPIComputeMixin
 from ._cloud       import CloudPrismaCloudAPIComputeMixin
 from ._containers  import ContainersPrismaCloudAPIComputeMixin
 from ._credentials import CredentialsPrismaCloudAPIComputeMixin
+from ._defenders   import DefendersPrismaCloudAPIComputeMixin
 from ._images      import ImagesPrismaCloudAPIComputeMixin
+from ._logs        import LogsPrismaCloudAPIComputeMixin
 from ._policies    import PoliciesPrismaCloudAPIComputeMixin
 from ._registry    import RegistryPrismaCloudAPIComputeMixin
 from ._scans       import ScansPrismaCloudAPIComputeMixin
