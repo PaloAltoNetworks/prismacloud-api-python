@@ -60,3 +60,6 @@ disable=
 # Available formats are text, parseable, colorized, json and msvs (visual studio). 
 #
 output-format=colorized
+
+[TYPECHECK]
+ignored-modules=socket
