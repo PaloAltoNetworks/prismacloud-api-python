@@ -52,9 +52,3 @@ class AuditsPrismaCloudAPIComputeMixin:
     def console_history_list_read(self, query_params=None):
         logs = self.execute_compute('GET', 'api/v1/audits/mgmt?', query_params=query_params)
         return logs
-
-    # Compute > Manage > Logs
-
-    def console_logs_list_read(self, query_params=None):
-        logs = self.execute_compute('GET', 'api/v1/logs/console?', query_params=query_params)
-        return logs
