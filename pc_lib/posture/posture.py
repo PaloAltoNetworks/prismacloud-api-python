@@ -11,7 +11,14 @@ import requests
 class PrismaCloudAPIMixin():
     """ Requests and Output """
 
+    def suppress_warnings_when_ca_bundle_false(self):
+        if self.ca_bundle is False:
+            # Pylint Issue #4584
+            # pylint: disable=no-member
+            requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+
     def login(self, requ_url=None):
+        self.suppress_warnings_when_ca_bundle_false()
         if not requ_url:
             requ_url = 'https://%s/login' % self.api
         requ_action = 'POST'
@@ -26,6 +33,7 @@ class PrismaCloudAPIMixin():
             self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
 
     def extend_login(self):
+        self.suppress_warnings_when_ca_bundle_false()
         requ_url = 'https://%s/auth_token/extend' % self.api
         requ_action = 'GET'
         requ_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
@@ -45,6 +53,7 @@ class PrismaCloudAPIMixin():
 
     # pylint: disable=too-many-arguments
     def execute(self, action, endpoint, query_params=None, body_params=None, force=False):
+        self.suppress_warnings_when_ca_bundle_false()
         if not self.token:
             self.login()
         if int(time.time() - self.token_timer) > self.token_limit:

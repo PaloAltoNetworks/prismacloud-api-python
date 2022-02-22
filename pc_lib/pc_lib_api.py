@@ -47,18 +47,11 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute):
 
     def configure(self, settings):
         # One of API (--api) or API Compute (--api_compute) are required.
-        self.api         = settings['apiBase']
+        self.api         = settings['api']
         self.api_compute = settings['api_compute']
         self.username    = settings['username']
         self.password    = settings['password']
-        # Used as the verify parameter of the requests.request() method: which can be a boolean or a path to a file.
-        if settings['ca_bundle']:
-            if settings['ca_bundle'] == 'True':
-                settings['ca_bundle'] = True
-            elif settings['ca_bundle'] == 'False':
-                settings['ca_bundle'] = False
-            self.ca_bundle = settings['ca_bundle']
-        # Logging!
+        self.ca_bundle   = settings['ca_bundle']
         self.logger = logging.getLogger(__name__)
         formatter   = logging.Formatter(fmt='%(asctime)s: %(levelname)s: %(message)s', datefmt='%Y-%m-%d %I:%M:%S %p')
         filehandler = logging.FileHandler(self.error_log)
