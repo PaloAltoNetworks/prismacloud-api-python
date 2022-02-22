@@ -8,6 +8,11 @@ from pc_lib import pc_api, pc_utility
 # --Configuration-- #
 
 parser = pc_utility.get_arg_parser()
+parser.add_argument(
+        '--output',
+        default='output.csv',
+        type=str,
+        help='(Optional) - Name of output file, defaults to output.csv')
 args = parser.parse_args()
 
 # --Helpers-- #
@@ -43,7 +48,7 @@ for account in (cloud_accounts_list):
     process_account(account,"")
 
 keys = master_account_list[0].keys()
-with open('output.csv', 'w', newline='') as a_file:
+with open(args.output, 'w', newline='') as a_file:
     dict_writer = csv.DictWriter(a_file, keys)
     dict_writer.writeheader()
     dict_writer.writerows(master_account_list)
