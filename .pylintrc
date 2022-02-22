@@ -17,6 +17,7 @@ const-rgx=(([A-Z_][A-Z0-9_]*)|([a-z_][a-z0-9_]*)|(__.*__))$
 # Minimum number of public methods for a class (see R0903).
 #
 min-public-methods=1
+max-public-methods=24
 max-args=8
 max-branches=21
 max-nested-blocks=8
