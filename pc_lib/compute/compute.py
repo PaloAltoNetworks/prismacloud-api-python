@@ -33,6 +33,7 @@ class PrismaCloudAPIComputeMixin():
 
     # pylint: disable=too-many-arguments,too-many-branches,too-many-locals,too-many-statements
     def execute_compute(self, action, endpoint, query_params=None, body_params=None, force=False, paginated=False):
+        self.suppress_warnings_when_ca_bundle_false()
         if not self.token:
             self.login_compute()
         # Endpoints that have the potential to return large numbers of results return a 'Total-Count' response header.
