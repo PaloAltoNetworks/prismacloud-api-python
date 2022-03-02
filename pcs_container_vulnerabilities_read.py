@@ -38,7 +38,7 @@ print()
 vulnerabilities_by_container = []
 
 print('Getting Deployed Images (please wait) ...', end='')
-images = pc_api.images_list_read()
+images = pc_api.images_list_read(query_params={'filterBaseImage': 'true'})
 print(' done.')
 print()
 

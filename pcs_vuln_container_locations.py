@@ -73,7 +73,7 @@ if args.mode in ['registry', 'all']:
 # Monitor > Vulnerabilities/Compliance > Images > Deployed
 if args.mode in ['deployed', 'all']:
     print('Getting Deployed Images ...', end='')
-    deployed_images = pc_api.images_list_read(args.image_id)
+    deployed_images = pc_api.images_list_read(image_id=args.image_id, query_params={'filterBaseImage': 'true'})
     print(' done.')
     print('Found %s Deployed Images' % len(deployed_images))
     print()
