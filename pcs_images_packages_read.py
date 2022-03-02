@@ -232,7 +232,7 @@ if args.mode in ['registry', 'all']:
 # Monitor > Vulnerabilities/Compliance > Images > Deployed
 if args.mode in ['deployed', 'all']:
     print('Getting Deployed Images ...')
-    deployed_images = pc_api.images_list_read(args.image_id)
+    deployed_images = pc_api.images_list_read(image_id=args.image_id, query_params={'filterBaseImage': 'true'})
     deployed_images_with_package = parse_images(deployed_images, search_all_packages, args.package_type, args.exact_match_name, search_package_name, args.version_comparison, search_package_version)
     print('Done.')
     print()
