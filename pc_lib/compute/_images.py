@@ -9,5 +9,5 @@ class ImagesPrismaCloudAPIComputeMixin:
         if image_id:
             images = self.execute_compute('GET', 'api/v1/images?id=%s' % image_id, query_params=query_params)
         else:
-            images = self.execute_compute('GET', 'api/v1/images', query_params=query_params, paginated=True)
+            images = self.execute_compute('GET', 'api/v1/images?', query_params=query_params, paginated=True)
         return images
