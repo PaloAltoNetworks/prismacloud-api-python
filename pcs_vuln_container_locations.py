@@ -93,7 +93,7 @@ if args.mode in ['deployed', 'all']:
             # print('Excluding Image ID: %s is not vulnerable to CVE: %s' % (image_id, args.cve))
             continue
         print('Locations for vulnerable Deployed Image ID: %s ' % image_id)
-        containers = pc_api.containers_list_read(image_id)
+        containers = pc_api.containers_list_read(image_id=image_id)
         if not containers:
             print('\tNo containers found for this image')
             continue
