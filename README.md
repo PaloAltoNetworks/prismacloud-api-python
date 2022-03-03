@@ -2,11 +2,20 @@
 
 Prisma Cloud utility scripts, and a Python SDK for Prisma Cloud APIs.
 
----
+
 Note: the execution of scripts has changed, to support moving them into a `scripts` directory.
 
-For example, from `python3 -m pcs_configure.py` to `python3 -m scripts.pcs_configure`
----
+For example, from:
+
+```
+pcs-toolbox # python3 pcs_configure.py --config_file ~/pc-settings.conf
+```
+
+to
+
+```
+pcs-toolbox # python3 -m scripts.pcs_configure --config_file ~/pc-settings.conf
+```
 
 ## Table of Contents
 
