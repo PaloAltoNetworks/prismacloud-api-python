@@ -1,7 +1,7 @@
 """ Standalone Example: Add a Cloud Account """
 
-from __future__ import print_function
 import json
+
 import requests
 
 ## This is an example of using the Prisma Cloud API to:

@@ -5,12 +5,10 @@ from pc_lib import pc_api, pc_utility
 # --Configuration-- #
 
 parser = pc_utility.get_arg_parser()
-# INSERT ARGS HERE
 args = parser.parse_args()
 
 # --Initialize-- #
 
-pc_utility.prompt_for_verification_to_continue(args)
 settings = pc_utility.get_settings(args)
 pc_api.configure(settings)
 
@@ -24,11 +22,7 @@ if pc_api.api:
     print()
     print(pc_api.current_user())
     print()
-    print('Prisma Cloud API Meta Info:')
-    print()
-    print(pc_api.current_user())
-    print()
-    print('Prisma Cloud API Compute Configuration:')
+    print('Prisma Cloud Compute API Info:')
     print()
     print(pc_api.compute_config())
     print()

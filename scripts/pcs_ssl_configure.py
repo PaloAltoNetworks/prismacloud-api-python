@@ -6,7 +6,6 @@ import OpenSSL
 
 import certifi
 
-
 # --Description-- #
 
 # Prisma Cloud SSL Helper (requires 'pip install certifi pyopenssl')

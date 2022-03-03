@@ -1,7 +1,7 @@
 """ Get a list of Packages in CI, Registry, Deployed, or all Images """
 
-from __future__ import print_function
 from packaging import version
+
 from pc_lib import pc_api, pc_utility
 
 # --Configuration-- #

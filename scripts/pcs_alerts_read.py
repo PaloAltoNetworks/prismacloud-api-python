@@ -1,7 +1,5 @@
 """ Get a list of Alerts """
 
-from __future__ import print_function
-
 import json
 
 from pc_lib import pc_api, pc_utility

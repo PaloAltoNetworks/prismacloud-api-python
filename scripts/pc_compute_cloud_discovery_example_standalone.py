@@ -1,8 +1,9 @@
 """ Standalone Example: Enable Cloud Discovery """
 
-from __future__ import print_function
 import json
+
 import requests
+
 from requests.auth import HTTPBasicAuth
 
 ## This is an example of using the Prisma Cloud Compute API to:

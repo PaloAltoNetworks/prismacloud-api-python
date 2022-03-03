@@ -2,10 +2,8 @@
 
 Prisma Cloud utility scripts, and a Python SDK for Prisma Cloud APIs.
 
-
-Note: the execution of scripts has changed, to support moving them into a `scripts` directory.
-
-For example, from:
+Note: the scripts have moved into the `scripts` directory.
+On Windows, you may need to replace the `scripts/pc_lib` symlink with the actual `pc_lib` directory (or enable git symbolic links on Windows).
 
 ```
 pcs-toolbox # python3 pcs_configure.py --config_file ~/pc-settings.conf
@@ -14,7 +12,7 @@ pcs-toolbox # python3 pcs_configure.py --config_file ~/pc-settings.conf
 to
 
 ```
-pcs-toolbox # python3 -m scripts.pcs_configure --config_file ~/pc-settings.conf
+pcs-toolbox # python3 scripts/pcs_configure --config_file ~/pc-settings.conf
 ```
 
 ## Table of Contents
@@ -80,11 +78,11 @@ https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin/manage-
 ### Examples:
 
 ```
-python3 -m scripts.pcs_configure --username "Example Access Key" --password "Example Secret Key" --api "app.prismacloud.io"
+python3 scripts/pcs_configure --username "Example Access Key" --password "Example Secret Key" --api "app.prismacloud.io"
 
-python3 -m scripts.pcs_configure --username "Example Access Key" --password "Example Secret Key" --api "app.prismacloud.io" --config_file ~/example-pc-settings.conf
+python3 scripts/pcs_configure --username "Example Access Key" --password "Example Secret Key" --api "app.prismacloud.io" --config_file ~/example-pc-settings.conf
 
-python3 -m scripts.pcs_configure --username "Example Username" --password "Example Password" --api_compute "onpremise.example.com"
+python3 scripts/pcs_configure --username "Example Username" --password "Example Password" --api_compute "onpremise.example.com"
 ```
 
 Run `pcs_configure` specifying nothing (other than the optional `--config_file`) to output your current configuration file.
@@ -104,7 +102,7 @@ This is primarily used to set up a new environment with every Policy enabled, or
 Example:
 
 ```
-python3 -m scripts.pcs_policy_set_status --policy_type config enable
+python3 scripts/pcs_policy_set_status --policy_type config enable
 ```
 
 Use this script to enable Policies that are associated with a specific Compliance Standard (or Compliance Standards).
@@ -112,9 +110,9 @@ Use this script to enable Policies that are associated with a specific Complianc
 Example:
 
 ```
-python3 -m scripts.pcs_policy_status --policy_type all disable
+python3 scripts/pcs_policy_status --policy_type all disable
 
-python3 -m scripts.pcs_policy_status --compliance_standard "GDPR" enable
+python3 scripts/pcs_policy_status --compliance_standard "GDPR" enable
 ```
 
 #### pcs_user_import
@@ -125,7 +123,7 @@ It will check for duplicates before importing.
 Example:
 
 ```
-python3 -m scripts.pcs_user_import "example-import-users.csv" "Example Prisma Cloud Role to assign to the imported Users"
+python3 scripts/pcs_user_import "example-import-users.csv" "Example Prisma Cloud Role to assign to the imported Users"
 ```
 
 #### pcs_policy_custom_export
@@ -135,7 +133,7 @@ Use this script to export custom Policies to a file, for backup ... or to import
 Example:
 
 ```
-python3 -m scripts.pcs_policy_custom_export "example-custom-policies.json"
+python3 scripts/pcs_policy_custom_export "example-custom-policies.json"
 ```
 
 #### pcs_policy_custom_import
@@ -147,7 +145,7 @@ It will check for duplicates before importing.
 Example:
 
 ```
-python3 -m scripts.pcs_policy_custom_import "example-custom-policies.json"
+python3 scripts/pcs_policy_custom_import "example-custom-policies.json"
 ```
 
 #### pcs_compliance_export
@@ -157,7 +155,7 @@ Use this script to export an existing Compliance Standard (and its Requirements 
 Example:
 
 ```
-python3 -m scripts.pcs_compliance_export "GDPR" "example-compliance-standard.json"
+python3 scripts/pcs_compliance_export "GDPR" "example-compliance-standard.json"
 ```
 
 #### pcs_compliance_import
@@ -170,7 +168,7 @@ It will check for duplicates before importing.
 Example:
 
 ```
-python3 -m scripts.pcs_compliance_import "example-compliance-standard.json" "GDPR Imported" --policy
+python3 scripts/pcs_compliance_import "example-compliance-standard.json" "GDPR Imported" --policy
 ```
 
 
@@ -183,9 +181,9 @@ Use this script to inspect the packages in all of the container images (or one i
 Example:
 
 ```
-python3 -m scripts.pcs_images_packages_read
+python3 scripts/pcs_images_packages_read
 
-python3 -m scripts.pcs_images_packages_read --image_id "sha256:c004737361182d3cd7f38e6d9ce4a44f2a349b8dc996834e2cba0defcd0cb522"
+python3 scripts/pcs_images_packages_read --image_id "sha256:c004737361182d3cd7f38e6d9ce4a44f2a349b8dc996834e2cba0defcd0cb522"
 ```
 
 An alternate usage is to specify a package via `--package_id` to search for containers with a specific package, and optionally a version.
@@ -193,9 +191,9 @@ An alternate usage is to specify a package via `--package_id` to search for cont
 Example:
 
 ```
-python3 -m scripts.pcs_images_packages_read --package_type jar --package_id log4j
+python3 scripts/pcs_images_packages_read --package_type jar --package_id log4j
 
-python3 -m scripts.pcs_images_packages_read --package_type jar --package_id log4j:2.14.1 --version_comparison lt --output_to_csv True
+python3 scripts/pcs_images_packages_read --package_type jar --package_id log4j:2.14.1 --version_comparison lt --output_to_csv True
 ```
 
 
@@ -210,7 +208,7 @@ It depends upon the SIEM to deduplicate data, and requires you to modify the `ou
 Example:
 
 ```
-python3 -m scripts.pcs_compute_forward_to_siem --console_history --console_logs
+python3 scripts/pcs_compute_forward_to_siem --console_history --console_logs
 ```
 
 You can specifically disable forwarding of Audits with `--no_audit_events`.
@@ -227,7 +225,7 @@ Note: This is still a work in progress: the basic import framework is running, b
 Example:
 
 ```
-python3 -m scripts.pcs_cloud_account_import_azure prisma_cloud_account_import_azure_template.csv
+python3 scripts/pcs_cloud_account_import_azure prisma_cloud_account_import_azure_template.csv
 ```
 
 #### pcs_posture_endpoint_client
@@ -239,7 +237,7 @@ Please note this tool is not intended as a replacement for well-formed scripts a
 Example 1: GET
 
 ```
-python3 -m scripts.pcs_posture_endpoint_client GET v2/policy
+python3 scripts/pcs_posture_endpoint_client GET v2/policy
 ```
 
 Example 2: POST
@@ -248,7 +246,7 @@ Example 2: POST
 cat > body.json <<EOF
 { "name": "test standard", "description":"test description" }
 EOF
-python3 -m scripts.pcs_posture_endpoint_client POST /compliance --request_body body.json
+python3 scripts/pcs_posture_endpoint_client POST /compliance --request_body body.json
 ```
 
 #### pcs_compute_endpoint_client
@@ -258,5 +256,5 @@ This is identical to `pcs_posture_endpoint_client`, except it uses the CWP API r
 Example 1: GET
 
 ```
-python3 -m scripts.pcs_compute_endpoint_client GET api/v1/statuses/intelligence
+python3 scripts/pcs_compute_endpoint_client GET api/v1/statuses/intelligence
 ```

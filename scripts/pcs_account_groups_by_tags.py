@@ -1,8 +1,9 @@
-'''
+"""
 pcs_account_groups_by_tags.py: using cloud provider tags applied to cloud accounts to automatically place them into Prisma Cloud account groups
-'''
+"""
 
 import json
+
 from pc_lib import pc_api, pc_utility
 
 # --Configuration-- #

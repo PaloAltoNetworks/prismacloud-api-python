@@ -1,6 +1,5 @@
 """ Read or write command-line parameters to a configuration file  """
 
-from __future__ import print_function
 from pc_lib import pc_utility
 
 # --Configuration-- #

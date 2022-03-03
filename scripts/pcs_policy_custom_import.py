@@ -1,6 +1,4 @@
-""" Import custom Policies """
-
-from __future__ import print_function
+""" Import Custom Policies """
 
 import json
 import time

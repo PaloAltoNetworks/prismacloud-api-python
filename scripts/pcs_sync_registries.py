@@ -1,7 +1,7 @@
 """ Add discovered registries to Vulnerability->Images->Registry settings """
 
-from __future__ import print_function
 from operator import itemgetter
+
 from pc_lib import pc_api, pc_utility
 
 # --Configuration-- #

@@ -3,8 +3,6 @@
 # This provides a view of the current state of the registries
 # (i.e. not including images that no longer exist in the registries).
 
-from __future__ import print_function
-
 import datetime
 import time
 

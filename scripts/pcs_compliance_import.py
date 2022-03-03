@@ -1,10 +1,8 @@
 """ Import a specific Compliance Standard """
 
-from __future__ import print_function
-
 import json
-import time
 import os
+import time
 
 import requests
 

@@ -4,8 +4,6 @@
 # It is expected to be called once an hour, by default, to read from the Prisma Cloud API and write to your SIEM API.
 # It depends upon the SIEM to deduplicate data, and requires you to modify the `outbound_api_call()` function for your SIEM API.
 
-from __future__ import print_function
-
 import concurrent.futures
 import datetime
 import json

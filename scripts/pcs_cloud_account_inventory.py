@@ -1,8 +1,8 @@
 # pylint: disable=redefined-outer-name
 """ Add discovered registries to Vulnerability->Images->Registry settings """
 
-from __future__ import print_function
 import csv
+
 from pc_lib import pc_api, pc_utility
 
 # --Configuration-- #
@@ -44,7 +44,7 @@ pc_api.configure(settings)
 
 cloud_accounts_list = pc_api.cloud_accounts_list_read()
 master_account_list=[]
-for account in (cloud_accounts_list):
+for account in cloud_accounts_list:
     process_account(account,"")
 
 keys = master_account_list[0].keys()

@@ -1,7 +1,7 @@
 """ Synchronize Azure Accounts from PC to PCC """
 
-from __future__ import print_function
 import json
+
 from pc_lib import pc_api, pc_utility
 
 # --Configuration-- #
