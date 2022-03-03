@@ -1,9 +1,10 @@
 """ Prisma Cloud API Class """
 
-# Legacy SDK Version 1.0.
+import sys
 
-from .legacy.config_helper import ConfigHelper
-from .legacy.redlock_sdk import RLSession
+MIN_PYTHON = (3, 6)
+if sys.version_info < MIN_PYTHON:
+    sys.exit("Python %s.%s or later is required.\n" % MIN_PYTHON)
 
 # SDK Version 2.0.
 

@@ -27,5 +27,5 @@ Here are a few resources on how to contribute to open source for the first time.
 
 
 ```
-pylint *.py pc_lib/*.py pc_lib/*/*.py
+pylint pc_lib/*.py pc_lib/*/*.py scripts/*.py
 ```
