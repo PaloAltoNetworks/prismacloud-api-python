@@ -1,9 +1,0 @@
-# Legacy SDK Version 1.0.
-
-prisma_cloud:
-  username: "<Prisma Cloud Access Key>"
-  password: "<Prisma Cloud Secret Key>"
-  customer_name:
-  api_base: "<Prisma Cloud API/UI Base URL ex: api.prismacloud.io>"
-  ca_bundle:
-  filename: 
