@@ -28,6 +28,6 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Test with pytest
       run: |
-        pylint *.py pc_lib/*.py pc_lib/*/*.py
+        pylint pc_lib/*.py pc_lib/*/*.py scripts/*.py
 
 # find . -name '*.py' -exec pylint {} \;
