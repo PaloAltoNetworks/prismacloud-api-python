@@ -24,10 +24,12 @@ pcs-toolbox # python3 scripts/pcs_configure.py --config_file ~/pc-settings.conf
     * [CSPM Scripts](#CSPM-Scripts)
     * [CWP Scripts](#CWP-Scripts)
 
+
 ## Support
 
 These scripts have been developed by Prisma Cloud SEs, they are not Supported by Palo Alto Networks.
 Nevertheless, the maintainers will make a best-effort to address issues, and (of course) contributors are encouraged to submit issues and pull requests.
+
 
 ## Setup
 
@@ -41,7 +43,7 @@ To check and install these packages, execute:
 pip3 install -r requirements.txt
 ```
 
-These scripts require the included `pc_lib` library directory to be in the same directory as the script itself.
+These scripts require the included `pc_lib` library directory (or its symlink) to be in the same directory as the script itself.
 
 ## Configuration
 
@@ -59,22 +61,6 @@ An Access Key/Secret Key is preferable to using a Username/Password, and Access 
 
 Configuration is saved as cleartext JSON, by default in the same directory as the scripts themselves, unless you specify `--config_file`.
 
-### CSPM vs CWP
-
-The `--api` parameter is required for scripts (such as `pcs_alerts_read`) that use the Prisma Cloud CSPM API.
-
-The `--api_compute` parameter is required for scripts (such as `pcs_images_packages_read`) that use the Prisma Cloud Compute (CWP) API.
-
-For use with On-Premise/Self-Hosted Prisma Cloud Compute, `--username` is your Prisma Cloud Compute User, `--password` is your password or your active bearer token, and `--api` must not be specified.
-
-### References
-
-https://prisma.pan.dev/api/cloud/
-
-https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin/manage-prisma-cloud-administrators/create-access-keys.html
-
-https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin/manage-prisma-cloud-administrators/prisma-cloud-admin-permissions.html
-
 ### Examples:
 
 ```
@@ -87,12 +73,85 @@ python3 scripts/pcs_configure.py --username "Example Username" --password "Examp
 
 Run `pcs_configure` specifying nothing (other than the optional `--config_file`) to output your current configuration file.
 
+### CSPM vs CWP
+
+The `--api` parameter is required for scripts (such as `pcs_alerts_read`) that use the Prisma Cloud CSPM API.
+
+The `--api_compute` parameter is required for scripts (such as `pcs_images_packages_read`) that use the Prisma Cloud Compute (CWP) API.
+
+For use with On-Premise/Self-Hosted Prisma Cloud Compute, `--username` is your Prisma Cloud Compute User, `--password` is your password or your active bearer token, and `--api` must not be specified.
+
+### References
+
+API:
+
+https://prisma.pan.dev/api/cloud/
+
+Access Keys:
+
+https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin/manage-prisma-cloud-administrators/create-access-keys.html
+
+Permissions:
+
+https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin/manage-prisma-cloud-administrators/prisma-cloud-admin-permissions.html
+
+
 ## Script Usage
 
 For detailed documentation of each script's parameters, specify `-h` or `--help` when executing the script.
 
 
 ### CSPM Scripts
+
+
+#### pcs_compliance_export
+
+Use this script to export an existing Compliance Standard (and its Requirements and Sections) to a file, for backup ... or to import into another tenant.
+
+Example:
+
+```
+python3 scripts/pcs_compliance_export.py "GDPR" "example-compliance-standard.json"
+```
+
+
+#### pcs_compliance_import
+
+Use this to script import an exported Compliance Standard (and its Requirements and Sections) into a new Compliance Standard.
+To import the associated Policy mappings, specify the `--policy` parameter. 
+To associate custom Policies requires first running `pcs_policy_custom_export` to generate a mapping file (and `pcs_policy_custom_import` when importing into another tenant).
+It will check for duplicates before importing.
+
+Example:
+
+```
+python3 scripts/pcs_compliance_import.py "example-compliance-standard.json" "GDPR Imported" --policy
+```
+
+
+#### pcs_policy_custom_export
+
+Use this script to export custom Policies to a file, for backup ... or to import into another tenant.
+
+Example:
+
+```
+python3 scripts/pcs_policy_custom_export.py "example-custom-policies.json"
+```
+
+
+#### pcs_policy_custom_import
+
+Use this to script import custom Policies.
+By default, imported Policies will be disabled, to maintain the status of imported Policies, specify `--maintain_status`
+It will check for duplicates before importing.
+
+Example:
+
+```
+python3 scripts/pcs_policy_custom_import.py "example-custom-policies.json"
+```
+
 
 #### pcs_policy_set_status
 
@@ -115,6 +174,22 @@ python3 scripts/pcs_policy_status.py --policy_type all disable
 python3 scripts/pcs_policy_status.py --compliance_standard "GDPR" enable
 ```
 
+
+#### pcs_rotate_service_account_access_key
+
+Service accounts are limited to two access keys.
+Use this script to rotate service account access keys, deleting the oldest key (if it exists) and creating a new key.
+It appends an incremented version number (` vN`) to the name of the new key.
+
+Example:
+
+```
+python3 scripts/pcs_rotate_service_account_access_key.py "Example Service Account Key" --days 30
+
+Next Access Key: {'id': 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', 'secretKey': 'fffffffffffffffffffffffffff=', 'name': 'Example Service Account Key v2'}
+```
+
+
 #### pcs_user_import
 
 Use this script to import a list of Users from a CSV file, assigning the imported Users to the specified Role.
@@ -126,53 +201,28 @@ Example:
 python3 scripts/pcs_user_import.py "example-import-users.csv" "Example Prisma Cloud Role to assign to the imported Users"
 ```
 
-#### pcs_policy_custom_export
-
-Use this script to export custom Policies to a file, for backup ... or to import into another tenant.
-
-Example:
-
-```
-python3 scripts/pcs_policy_custom_export.py "example-custom-policies.json"
-```
-
-#### pcs_policy_custom_import
-
-Use this to script import custom Policies.
-By default, imported Policies will be disabled, to maintain the status of imported Policies, specify `--maintain_status`
-It will check for duplicates before importing.
-
-Example:
-
-```
-python3 scripts/pcs_policy_custom_import.py "example-custom-policies.json"
-```
-
-#### pcs_compliance_export
-
-Use this script to export an existing Compliance Standard (and its Requirements and Sections) to a file, for backup ... or to import into another tenant.
-
-Example:
-
-```
-python3 scripts/pcs_compliance_export.py "GDPR" "example-compliance-standard.json"
-```
-
-#### pcs_compliance_import
-
-Use this to script import an exported Compliance Standard (and its Requirements and Sections) into a new Compliance Standard.
-To import the associated Policy mappings, specify the `--policy` parameter. 
-To associate custom Policies requires first running `pcs_policy_custom_export` to generate a mapping file (and `pcs_policy_custom_import` when importing into another tenant).
-It will check for duplicates before importing.
-
-Example:
-
-```
-python3 scripts/pcs_compliance_import.py "example-compliance-standard.json" "GDPR Imported" --policy
-```
-
 
 ### CWP Scripts
+
+
+#### pcs_compute_forward_to_siem
+
+Use this script to forward Audits, and Console History and Logs from Prisma Cloud Compute to a SIEM.
+
+It is expected to be called once an hour, by default, to read from the Prisma Cloud API and write to your SIEM API.
+
+It depends upon the SIEM to deduplicate data, and requires you to modify the `outbound_api_call()` function for your SIEM API.
+
+Example:
+
+```
+python3 scripts/pcs_compute_forward_to_siem.py --console_history --console_logs
+```
+
+You can specifically disable forwarding of Audits with `--no_audit_events`.
+
+Note that `--host_forensic_activities` results in high-volume/time-intensive API calls.
+
 
 #### pcs_images_packages_read
 
@@ -197,25 +247,8 @@ python3 scripts/pcs_images_packages_read.py --package_type jar --package_id log4
 ```
 
 
-#### pcs_compute_forward_to_siem
-
-Use this script to forward Audits, and Console History and Logs from Prisma Cloud Compute to a SIEM.
-
-It is expected to be called once an hour, by default, to read from the Prisma Cloud API and write to your SIEM API.
-
-It depends upon the SIEM to deduplicate data, and requires you to modify the `outbound_api_call()` function for your SIEM API.
-
-Example:
-
-```
-python3 scripts/pcs_compute_forward_to_siem.py --console_history --console_logs
-```
-
-You can specifically disable forwarding of Audits with `--no_audit_events`.
-
-Note that `--host_forensic_activities` results in high-volume/time-intensive API calls.
-
 ### Other CSPM and CWP Scripts
+
 
 #### pcs_cloud_account_import_azure (in progress)**
 
@@ -227,6 +260,7 @@ Example:
 ```
 python3 scripts/pcs_cloud_account_import_azure.py prisma_cloud_account_import_azure_template.csv
 ```
+
 
 #### pcs_posture_endpoint_client
 
@@ -248,6 +282,7 @@ cat > body.json <<EOF
 EOF
 python3 scripts/pcs_posture_endpoint_client.py POST /compliance --request_body body.json
 ```
+
 
 #### pcs_compute_endpoint_client
 
