@@ -22,6 +22,11 @@ parser.add_argument(
     type=str,
     help='(Optional) - Filter - Policy Type.')
 parser.add_argument(
+    '-fpn',
+    '--policyname',
+    type=str,
+    help='(Optional) - Filter - Policy Name.')
+parser.add_argument(
     '-tr',
     '--timerange',
     type=int,
@@ -71,6 +76,12 @@ if args.policytype is not None:
     temp_filter['name']     = 'policy.type'
     temp_filter['operator'] = '='
     temp_filter['value']    = args.policytype
+    alerts_filter['filters'].append(temp_filter)
+if args.policyname is not None:
+    temp_filter = {}
+    temp_filter['name']     = 'policy.name'
+    temp_filter['operator'] = '='
+    temp_filter['value']    = args.policyname
     alerts_filter['filters'].append(temp_filter)
 
 print('API - Getting the Alerts list ...', end='')
