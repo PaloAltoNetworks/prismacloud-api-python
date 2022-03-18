@@ -26,7 +26,7 @@ class PrismaCloudAPICodeSecurityMixin():
                 self.extend_login()
             requ_action = action
             if paginated:
-                requ_url = 'https://%s/%s&limit=%s&offset=%s' % (self.api, endpoint, limit, offset)
+                requ_url = 'https://%s/%s?limit=%s&offset=%s' % (self.api, endpoint, limit, offset)
             else:
                 requ_url = 'https://%s/%s' % (self.api, endpoint)
             requ_headers = {'Content-Type': 'application/json'}
