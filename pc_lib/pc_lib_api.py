@@ -3,6 +3,7 @@
 import logging
 
 from .posture import PrismaCloudAPIPosture
+from .code_security import PrismaCloudAPICodeSecurity
 from .compute import PrismaCloudAPICompute
 from .pc_lib_utility import PrismaCloudUtility
 
@@ -22,7 +23,7 @@ class CallCounter:
         return self.method(*args, **kwargs)
 
 # pylint: disable=too-many-instance-attributes
-class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute):
+class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAPICodeSecurity):
     """ Prisma Cloud API Class """
     # pylint: disable=super-init-not-called
     def __init__(self):
