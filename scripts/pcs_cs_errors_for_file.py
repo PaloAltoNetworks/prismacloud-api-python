@@ -1,7 +1,5 @@
 """ Returns a list of potential Code Security policy violations for the specified file path """
 
-import json
-
 from pc_lib import pc_api, pc_utility
 
 # --Configuration-- #

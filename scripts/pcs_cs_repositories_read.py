@@ -1,7 +1,5 @@
 """ Returns a list of repositories that are integrated with Prisma Cloud Code Security """
 
-import json
-
 from pc_lib import pc_api, pc_utility
 
 # --Configuration-- #
