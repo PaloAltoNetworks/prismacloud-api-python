@@ -44,7 +44,7 @@ class PrismaCloudAPIComputeMixin():
                 self.extend_login_compute()
             requ_action = action
             if paginated:
-                requ_url = 'https://%s/%s&limit=%s&offset=%s' % (self.api_compute, endpoint, limit, offset)
+                requ_url = 'https://%s/%s?limit=%s&offset=%s' % (self.api_compute, endpoint, limit, offset)
             else:
                 requ_url = 'https://%s/%s' % (self.api_compute, endpoint)
             requ_headers = {'Content-Type': 'application/json'}

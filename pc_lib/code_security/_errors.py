@@ -8,7 +8,6 @@ class ErrorsPrismaCloudAPICodeSecurityMixin:
     def errors_files_list(self, criteria):
         return self.execute_code_security('POST', 'code/api/v1/errors/files', body_params=criteria)
 
-    # TODO limit/offset via query_params
     def errors_file_list(self, criteria):
         return self.execute_code_security('POST', 'code/api/v1/errors/file', body_params=criteria, paginated=True)
 
