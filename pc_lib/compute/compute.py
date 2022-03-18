@@ -1,7 +1,5 @@
 """ Requests and Output """
 
-from __future__ import print_function
-
 import json
 import sys
 import time
@@ -39,9 +37,9 @@ class PrismaCloudAPIComputeMixin():
         # Endpoints that have the potential to return large numbers of results return a 'Total-Count' response header.
         offset = 0
         limit = 50
-        total = 0
+        more = False
         results = []
-        while offset == 0 or offset < total:
+        while offset == 0 or more is True:
             if int(time.time() - self.token_timer) > self.token_limit:
                 self.extend_login_compute()
             requ_action = action
@@ -70,21 +68,21 @@ class PrismaCloudAPIComputeMixin():
                 try:
                     result = json.loads(api_response.content)
                 except ValueError:
-                    if api_response.content:
-                        self.logger.error('API: (%s) responded with an error: (%s), with query %s and body params: %s' % (requ_url, api_response.status_code, query_params, body_params))
+                    self.logger.error('API: (%s) responded with no response, with query %s and body params: %s' % (requ_url, query_params, body_params))
                     return None
                 if 'Total-Count' in api_response.headers:
-                    if int(api_response.headers['Total-Count']) > 0:
+                    total_count = int(api_response.headers['Total-Count'])
+                    if total_count > 0:
                         results.extend(result)
-                        total = int(api_response.headers['Total-Count'])
+                    offset += limit
+                    more = bool(offset < total_count)
                 else:
                     return result
             else:
                 if force:
                     self.logger.error('API: (%s) responded with an error: (%s), with query %s and body params: %s' % (requ_url, api_response.status_code, query_params, body_params))
                     return None
-                self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
-            offset += limit
+                self.error_and_exit(api_response.status_code, 'API (%s) responded with an error and this response:\n%s' % (requ_url, api_response.text))
         return results
 
     # The Compute API setting is optional.

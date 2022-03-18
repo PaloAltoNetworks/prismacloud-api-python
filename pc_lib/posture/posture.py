@@ -1,7 +1,5 @@
 """ Requests and Output """
 
-from __future__ import print_function
-
 import json
 import sys
 import time
@@ -64,7 +62,10 @@ class PrismaCloudAPIMixin():
         if self.token:
             requ_headers['x-redlock-auth'] = self.token
         requ_params = query_params
-        requ_data = json.dumps(body_params)
+        if body_params:
+            requ_data = json.dumps(body_params)
+        else:
+            requ_data = body_params
         api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=requ_params, data=requ_data, verify=self.ca_bundle)
         if api_response.status_code in self.retry_status_codes:
             for _ in range(1, self.retry_limit):
