@@ -49,7 +49,7 @@ class PrismaCloudAPIMixin():
         else:
             self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
 
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments, too-many-locals
     def execute(self, action, endpoint, query_params=None, body_params=None, force=False, paginated=False):
         self.suppress_warnings_when_ca_bundle_false()
         if not self.token:
@@ -93,7 +93,7 @@ class PrismaCloudAPIMixin():
                         body_params = {'pageToken': result['nextPageToken']}
                         more = True
                     else:
-                        more = False                        
+                        more = False
                 else:
                     return result
             else:
