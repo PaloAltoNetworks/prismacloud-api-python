@@ -16,7 +16,8 @@ class PrismaCloudAPICodeSecurityMixin():
             self.login()
         if int(time.time() - self.token_timer) > self.token_limit:
             self.extend_login()
-        # Endpoints that have the potential to return large numbers of results return hasNext: true.
+        # Endpoints that return large numbers of results use a 'hasNext' key.
+        # Pagination is via query parameters for both GET and POST, and appears to be specific to "List File Errors - POST".
         offset = 0
         limit = 50
         more = False
@@ -50,7 +51,7 @@ class PrismaCloudAPICodeSecurityMixin():
                 except ValueError:
                     self.logger.error('API: (%s) responded with no response, with query %s and body params: %s' % (requ_url, query_params, body_params))
                     return None
-                if paginated is True:
+                if paginated:
                     results.extend(result['data'])
                     if 'hasNext' in result:
                         offset += limit

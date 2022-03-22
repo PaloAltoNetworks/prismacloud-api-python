@@ -32,12 +32,6 @@ parser.add_argument(
     type=int,
     default=30,
     help='(Optional) - Time Range in days (default 30).')
-parser.add_argument(
-    '-l',
-    '--limit',
-    type=int,
-    default=500,
-    help='(Optional) - Limit the number of Alerts to get (default 500).')
 args = parser.parse_args()
 
 # --Initialize-- #
@@ -57,7 +51,7 @@ if args.detailed:
 else:
     alerts_filter['detailed'] = False
 alerts_filter['filters'] = []
-alerts_filter['limit'] = args.limit
+alerts_filter['limit'] = 1000
 alerts_filter['offset'] = 0
 alerts_filter['sortBy'] = ['id:asc']
 alerts_filter['timeRange'] = {}
