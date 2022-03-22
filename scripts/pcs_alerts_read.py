@@ -15,6 +15,7 @@ parser.add_argument(
     '-fas',
     '--alertstatus',
     type=str,
+    choices=['open', 'resolved', 'snoozed', 'dismissed'],
     help='(Optional) - Filter - Alert Status.')
 parser.add_argument(
     '-fpt',
