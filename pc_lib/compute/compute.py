@@ -34,7 +34,8 @@ class PrismaCloudAPIComputeMixin():
         self.suppress_warnings_when_ca_bundle_false()
         if not self.token:
             self.login_compute()
-        # Endpoints that have the potential to return large numbers of results return a 'Total-Count' response header.
+        # Endpoints that return large numbers of results use a 'Total-Count' response header.
+        # Pagination is via query parameters for both GET and POST, and the limit has a maximum of 50.
         offset = 0
         limit = 50
         more = False
