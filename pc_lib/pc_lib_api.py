@@ -40,6 +40,8 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
         self.retry_pause        = 8
         self.retry_status_codes = [401, 429, 500, 502, 503, 504]
         self.max_workers        = 8
+        #
+        self.debug              = False
         self.error_log          = 'error.log'
         self.logger             = None
 
@@ -53,6 +55,8 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
         self.username    = settings['username']
         self.password    = settings['password']
         self.ca_bundle   = settings['ca_bundle']
+        #
+        self.debug  = settings['debug']
         self.logger = logging.getLogger(__name__)
         formatter   = logging.Formatter(fmt='%(asctime)s: %(levelname)s: %(message)s', datefmt='%Y-%m-%d %I:%M:%S %p')
         filehandler = logging.FileHandler(self.error_log)
@@ -60,6 +64,7 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
         filehandler.setFormatter(formatter)
         self.logger.addHandler(filehandler)
         self.logger.error = CallCounter(self.logger.error)
+        #
         self.auto_configure_compute()
 
     def auto_configure_compute(self):

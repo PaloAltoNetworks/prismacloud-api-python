@@ -74,6 +74,11 @@ class PrismaCloudUtility():
            '--yes',
             action='store_true',
             help='(Optional) - Do not prompt for verification.')
+        get_arg_parser.add_argument(
+           '-d',
+           '--debug',
+            action='store_true',
+            help='(Optional) - Output debugging information.')
         return get_arg_parser
 
     # Get settings from the command-line and/or settings file.
@@ -104,6 +109,8 @@ class PrismaCloudUtility():
         # Validate
         if settings['api'] == '' and settings['api_compute'] == '':
             self.error_and_exit(400, 'One of API (--api) or API Compute (--api_compute) are required.')
+        # Debugging
+        settings['debug'] = args.debug
         return settings
 
     # Read settings.

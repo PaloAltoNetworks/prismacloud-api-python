@@ -59,6 +59,8 @@ class PrismaCloudAPIComputeMixin():
             requ_params = query_params
             requ_data = json.dumps(body_params)
             api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=requ_params, data=requ_data, verify=self.ca_bundle)
+            if self.debug:
+                print('API Respose Status Code: %s' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
                 for _ in range(1, self.retry_limit):
                     time.sleep(self.retry_pause)
@@ -72,6 +74,8 @@ class PrismaCloudAPIComputeMixin():
                     self.logger.error('API: (%s) responded with no response, with query %s and body params: %s' % (requ_url, query_params, body_params))
                     return None
                 if 'Total-Count' in api_response.headers:
+                    if self.debug:
+                        print('Retrieving Next Page of Results: Offset/Total Count: %s/%s' % (offset, api_response.headers['Total-Count']))
                     total_count = int(api_response.headers['Total-Count'])
                     if total_count > 0:
                         results.extend(result)

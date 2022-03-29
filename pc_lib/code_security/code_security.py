@@ -39,6 +39,8 @@ class PrismaCloudAPICodeSecurityMixin():
             else:
                 requ_data = body_params
             api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=requ_params, data=requ_data, verify=self.ca_bundle)
+            if self.debug:
+                print('API Respose Status Code: %s' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
                 for _ in range(1, self.retry_limit):
                     time.sleep(self.retry_pause)
@@ -54,6 +56,8 @@ class PrismaCloudAPICodeSecurityMixin():
                 if paginated:
                     results.extend(result['data'])
                     if 'hasNext' in result:
+                        if self.debug:
+                            print('Retrieving Next Page of Results')
                         offset += limit
                         more = result['hasNext']
                     else:
