@@ -7,14 +7,7 @@ from pc_lib import pc_api, pc_utility
 # --Configuration-- #
 
 parser = pc_utility.get_arg_parser()
-
-parser.add_argument('-d', '--debug',
-    action='store_true',
-    help='(Optional) Enable debugging.')
-
 args = parser.parse_args()
-
-DEBUG_MODE = args.debug
 
 # --Helpers-- #
 
@@ -49,13 +42,13 @@ print()
 
 images_dictionary = {}
 for image in images:
-    if DEBUG_MODE:
+    if pc_api.debug:
         print(json.dumps(image, indent=4))
     image_id = image['_id']
     images_dictionary[image_id] = image
 
 for container in containers:
-    if DEBUG_MODE:
+    if pc_api.debug:
         print(json.dumps(container, indent=4))
     if 'imageID' in container['info']:
         image_id   = container['info']['imageID']
