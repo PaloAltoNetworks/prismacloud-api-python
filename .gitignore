@@ -10,8 +10,10 @@ error.log
 # Python
 
 __pycache__/
+*egg*
 *.py[cod]
 *$py.class
+dist/*
 
 # OSX
 

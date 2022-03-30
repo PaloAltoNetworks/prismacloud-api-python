@@ -1,9 +1,6 @@
-# pcs-toolbox
-
-#  pcs-toolbox
+#  pcs-toolbox / pc_lib
 
 `pc_lib` is Python SDK for Prisma Cloud APIs as a Python package.
-`scripts` are utility scripts that utilize the SDK.
 
 ## Table of Contents
 
@@ -14,6 +11,16 @@
 
 This project has been developed by Prisma Cloud SEs, it is not Supported by Palo Alto Networks.
 Nevertheless, the maintainers will make a best-effort to address issues, and (of course) contributors are encouraged to submit issues and pull requests.
+
+## Setup
+
+To install this package, execute:
+
+```
+pip3 install pc_lib
+```
+
+
 
 ### References
 

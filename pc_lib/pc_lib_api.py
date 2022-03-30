@@ -56,7 +56,8 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
         self.password    = settings['password']
         self.ca_bundle   = settings['ca_bundle']
         #
-        self.debug  = settings['debug']
+        if 'debug' in settings:
+            self.debug = settings['debug']
         self.logger = logging.getLogger(__name__)
         formatter   = logging.Formatter(fmt='%(asctime)s: %(levelname)s: %(message)s', datefmt='%Y-%m-%d %I:%M:%S %p')
         filehandler = logging.FileHandler(self.error_log)
