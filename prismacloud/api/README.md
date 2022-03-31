@@ -1,4 +1,4 @@
-# pcs-toolbox / prismacloud / api
+# Python SDK for the Prisma Cloud APIs
 
 This is a Python SDK for the Prisma Cloud APIs (CSPM, CWPP, and PCCS) in the form of a Python package.
 
