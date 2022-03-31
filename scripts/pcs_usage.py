@@ -1,6 +1,6 @@
 """ Get Usage """
 
-from pc_lib import pc_api, pc_utility
+from prismacloud.api import pc_api, pc_utility
 
 # --Configuration-- #
 

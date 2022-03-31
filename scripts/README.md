@@ -1,32 +1,36 @@
 # pcs-toolbox / scripts
 
+Example scripts that utilize the SDK.
+
 ## Table of Contents
 
 * [Support](#Support)
 * [Setup](#Setup)
 * [Configuration](#Configuration)
-* [Script Usage](#Script-Usage)
+* [Usage](#Usage)
     * [CSPM Scripts](#CSPM-Scripts)
     * [CWP Scripts](#CWP-Scripts)
+
 
 ## Support
 
 This project has been developed by Prisma Cloud SEs, it is not Supported by Palo Alto Networks.
 Nevertheless, the maintainers will make a best-effort to address issues, and (of course) contributors are encouraged to submit issues and pull requests.
 
+
 ## Setup
 
 These scripts are written and tested in Python 3.x.
-If you need to install Python 3, you can get more information at [Python's Home Page](https://www.python.org/) ... and you will also need [PIP](https://pypi.python.org/pypi/pip). 
+If you need to install Python 3, you can get more information at [Python's Home Page](https://www.python.org/).
+You will also need [PIP](https://pypi.python.org/pypi/pip). 
 
-These scripts require the Python packages documented in requirements.txt.
-To install these packages, execute:
+These scripts require the `prismacloud-api` Python package.
+To install that packages, execute:
 
 ```
-pip3 install -r ../requirements.txt
+pip3 install prismacloud-api
 ```
 
-These scripts require the included `pc_lib` library directory (or its symlink) to be in the same directory as the script itself.
 
 ## Configuration
 
@@ -64,22 +68,8 @@ The `--api_compute` parameter is required for scripts (such as `pcs_images_packa
 
 For use with On-Premise/Self-Hosted Prisma Cloud Compute, `--username` is your Prisma Cloud Compute User, `--password` is your password or your active bearer token, and `--api` must not be specified.
 
-### References
 
-API:
-
-https://prisma.pan.dev/api/cloud/
-
-Access Keys:
-
-https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin/manage-prisma-cloud-administrators/create-access-keys.html
-
-Permissions:
-
-https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin/manage-prisma-cloud-administrators/prisma-cloud-admin-permissions.html
-
-
-## Script Usage
+## Usage
 
 For detailed documentation of each script's parameters, specify `-h` or `--help` when executing the script.
 

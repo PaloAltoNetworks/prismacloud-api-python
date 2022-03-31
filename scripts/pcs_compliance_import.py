@@ -6,7 +6,7 @@ import time
 
 import requests
 
-from pc_lib import pc_api, pc_utility
+from prismacloud.api import pc_api, pc_utility
 
 # TODO: Do not update policy.rule.name when policy.systemDefault == True ?
 

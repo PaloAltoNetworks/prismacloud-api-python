@@ -1,6 +1,6 @@
 """ Returns a list of potential Code Security policy violations for the specified file path """
 
-from pc_lib import pc_api, pc_utility
+from prismacloud.api import pc_api, pc_utility
 
 # --Configuration-- #
 

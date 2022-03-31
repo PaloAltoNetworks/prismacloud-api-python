@@ -1,6 +1,6 @@
 """ Read or write command-line parameters to a configuration file  """
 
-from pc_lib import pc_utility
+from prismacloud.api import pc_utility
 
 # --Configuration-- #
 

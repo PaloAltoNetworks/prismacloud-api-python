@@ -6,7 +6,7 @@ with open('README.md', 'r') as fh:
     long_description = fh.read()
 
 spec = importlib.util.spec_from_file_location(
-    'pc_lib.version', os.path.join('pc_lib', 'version.py')
+    'prismacloud.api.version', os.path.join('prismacloud', 'api', 'version.py')
 )
 
 mod = importlib.util.module_from_spec(spec)
@@ -19,6 +19,7 @@ setuptools.setup(
     author='Tom Kishel',
     author_email='tkishel@paloaltonetworks.com',
     description='Prisma Cloud API SDK for Python',
+    keywords="prisma cloud api",
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/PaloAltoNetworks/pcs-toolbox',
@@ -34,5 +35,5 @@ setuptools.setup(
         'packaging',
         'pyyaml'
     ],
-    python_requires='>=3.6'
+    python_requires='>=3.7'
 )
