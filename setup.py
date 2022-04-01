@@ -23,7 +23,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/PaloAltoNetworks/pcs-toolbox',
-    packages=setuptools.find_packages(exclude=['scripts']),
+    packages=setuptools.find_namespace_packages(exclude=['scripts']),
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License',
