@@ -17,6 +17,7 @@ import requests
 
 from dateutil import parser, tz
 
+# pylint: disable=import-error
 from prismacloud.api import pc_api, pc_utility
 
 # --Configuration-- #

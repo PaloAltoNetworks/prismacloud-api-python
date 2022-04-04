@@ -3,6 +3,7 @@
 from json import dumps as json_dumps
 from sys import exit as sys_exit, stderr, stdout
 
+# pylint: disable=import-error
 from prismacloud.api import pc_api, pc_utility
 
 # --Configuration-- #

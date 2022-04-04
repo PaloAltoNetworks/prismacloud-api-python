@@ -1,5 +1,6 @@
 """ Get a list of vulnerable containers and their clusters """
 
+# pylint: disable=import-error
 from prismacloud.api import pc_api, pc_utility
 
 # --Configuration-- #

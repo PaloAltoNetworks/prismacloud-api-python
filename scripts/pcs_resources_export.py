@@ -1,5 +1,6 @@
 """ Get Resources """
 
+# pylint: disable=import-error
 from prismacloud.api import pc_api, pc_utility
 
 # --Configuration-- #

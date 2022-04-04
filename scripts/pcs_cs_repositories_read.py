@@ -1,5 +1,6 @@
 """ Returns a list of repositories that are integrated with Prisma Cloud Code Security """
 
+# pylint: disable=import-error
 from prismacloud.api import pc_api, pc_utility
 
 # --Configuration-- #

@@ -1,5 +1,6 @@
 """ Add Policies to an alert rule based on compliance standard """
 
+# pylint: disable=import-error
 from prismacloud.api import pc_api, pc_utility
 
 # --Configuration-- #

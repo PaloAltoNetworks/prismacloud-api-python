@@ -6,6 +6,7 @@ import time
 
 import requests
 
+# pylint: disable=import-error
 from prismacloud.api import pc_api, pc_utility
 
 # TODO: Do not update policy.rule.name when policy.systemDefault == True ?
