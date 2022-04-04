@@ -7,6 +7,7 @@ Major changes with Version 4.0:
 
 * Published as a Python package.
 * Uses `~/.prismacloud/credentials.json` instead of `pc-settings.conf` as its default configuration file.
+* Uses `~/.prismacloud/` instead of the current working directory as its default configuration file directory.
 
 ## Table of Contents
 
