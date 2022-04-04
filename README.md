@@ -6,8 +6,8 @@ It also includes example scripts that utilize the SDK.
 Major changes with Version 4.0:
 
 * Published as a Python package.
-* Uses `~/.prismacloud/credentials.json` instead of `pc-settings.conf` as its default configuration file.
 * Uses `~/.prismacloud/` instead of the current working directory as its default configuration file directory.
+* Uses `~/.prismacloud/credentials.json` instead of `pc-settings.conf` as its default configuration file.
 
 ## Table of Contents
 
