@@ -72,4 +72,4 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
         if self.api and not self.api_compute:
             meta_info = self.meta_info()
             if meta_info and 'twistlockUrl' in meta_info:
-                self.api_compute = PrismaCloudUtility.normalize_api_compute_base(meta_info['twistlockUrl'])
+                self.api_compute = PrismaCloudUtility.normalize_api_compute(meta_info['twistlockUrl'])
