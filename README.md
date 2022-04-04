@@ -29,7 +29,7 @@ Execute a script based upon the SDK:
 python3 scripts/pcs_script_example.py --config-file demobuild.conf
 ```
 
-Please refer to the example/reference [scripts] (https://github.com/PaloAltoNetworks/pcs-toolbox/tree/main/scripts) directory for documentation and usage details.
+Please refer to the example/reference [scripts](https://github.com/PaloAltoNetworks/pcs-toolbox/tree/main/scripts) directory for documentation and usage details.
 
 
 ## Support
