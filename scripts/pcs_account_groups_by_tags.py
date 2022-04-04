@@ -4,7 +4,8 @@ pcs_account_groups_by_tags.py: using cloud provider tags applied to cloud accoun
 
 import json
 
-from pc_lib import pc_api, pc_utility
+# pylint: disable=import-error
+from prismacloud.api import pc_api, pc_utility
 
 # --Configuration-- #
 

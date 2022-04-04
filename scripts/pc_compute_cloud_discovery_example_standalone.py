@@ -4,6 +4,7 @@ import json
 
 import requests
 
+# pylint: disable=import-error
 from requests.auth import HTTPBasicAuth
 
 ## This is an example of using the Prisma Cloud Compute API to:

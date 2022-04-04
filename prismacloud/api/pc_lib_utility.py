@@ -23,8 +23,8 @@ except NameError:
 class PrismaCloudUtility():
     """ Prisma Cloud Utility Class """
 
-    DEFAULT_SETTINGS_FILE_NAME    = 'pc-settings.conf'
-    DEFAULT_SETTINGS_FILE_VERSION = 4
+    CONFIG_DIRECTORY = os.path.join(os.environ['HOME'], '.prismacloud')
+    DEFAULT_CONFIG_FILE = os.path.join(CONFIG_DIRECTORY, 'credentials.json')
 
     # Default command line arguments.
 
@@ -34,25 +34,25 @@ class PrismaCloudUtility():
             '-u',
             '--username',
             type=str,
-            help='(Required) - Prisma Cloud API Access Key.')
+            help='(Required) - Prisma Cloud CSPM Access Key (or Compute Username)')
         get_arg_parser.add_argument(
             '-p',
             '--password',
             type=str,
-            help='(Required) - Prisma Cloud API Secret Key.')
+            help='(Required) - Prisma Cloud CSPM Secret Key (or Compute Password)')
         get_arg_parser.add_argument(
             '--api',
             '--api_cspm',
             '--api-cspm',
             default='',
             type=str,
-            help='(Optional) - Prisma Cloud CSPM API/UI Base URL')
+            help='(Optional) - Prisma Cloud CSPM API/UI URL')
         get_arg_parser.add_argument(
             '--api_compute',
             '--api-compute',
             type=str,
             default='',
-            help='(Optional) Prisma Cloud Compute API/UI Base URL (See Compute > Manage > System > Downloads: Path to Console).')
+            help='(Optional with CSPM) Prisma Cloud Compute API/UI URL')
         get_arg_parser.add_argument(
             '--ca_bundle',
             '--ca_certificate',
@@ -68,7 +68,7 @@ class PrismaCloudUtility():
             '--conf-file',
             default=None,
             type=str,
-            help='(Optional) - Prisma Cloud API configuration settings file (by default: %s).' % self.DEFAULT_SETTINGS_FILE_NAME)
+            help='(Optional) - Configuration file (by default: %s)' % self.DEFAULT_CONFIG_FILE)
         get_arg_parser.add_argument(
            '-y',
            '--yes',
@@ -81,13 +81,35 @@ class PrismaCloudUtility():
             help='(Optional) - Output debugging information.')
         return get_arg_parser
 
+    # Read or write settings.
+
+    def configure(self, args):
+        print('Configuration File Name:')
+        if args.config_file is None:
+            print(self.DEFAULT_CONFIG_FILE)
+        else:
+            print(args.config_file)
+        print()
+        if args.username is None and args.password is None:
+            settings = self.read_settings_file(args.config_file)
+            self.print_settings_file(settings)
+        elif args.api != '' or args.api_compute != '':
+            self.write_settings_file(args)
+            print('Settings saved.')
+        else:
+            print('Please specify a CSPM Access Key / Compute Username (-u / --username), CSPM Secret Key / Compute Password (-p / --password), and API/UI URL (--api or --api_compute) to save your configuration.')
+            print()
+            print('Please specify nothing, other than an optional (--config_file), to view your current configuration.')
+        print()
+
     # Get settings from the command-line and/or settings file.
 
     def get_settings(self, args):
         settings = {}
-        # Merge
-        if args.username is None or args.password is None:
+        # Verify that there are enough command-line settings to continue, otherwise read the settings file.
+        if (args.username is None or args.password is None) or (args.api == '' and args.api_compute == ''):
             settings = self.read_settings_file(args.config_file)
+        # Command-line settings take precedence over the settings file.
         if args.username:
             settings['username'] = args.username
         if args.password:
@@ -98,38 +120,50 @@ class PrismaCloudUtility():
             settings['api_compute'] = args.api_compute
         if args.ca_bundle != '':
             settings['ca_bundle'] = args.ca_bundle
-        # Normalize
+        # Normalize API URLs.
         settings['api']         = self.normalize_api(settings['api'])
-        settings['api_compute'] = self.normalize_api_compute_base(settings['api_compute'])
+        settings['api_compute'] = self.normalize_api_compute(settings['api_compute'])
         # The 'ca_bundle' setting can be a boolean or a string path to a file, as per the 'verify' parameter of requests.request().
         if settings['ca_bundle'] == 'True' or settings['ca_bundle'] == '':
             settings['ca_bundle'] = True
         if settings['ca_bundle'] == 'False':
             settings['ca_bundle'] = False
-        # Validate
+        # Verify that there are enough settings to continue.
+        if settings['username'] is None or settings['password'] is None:
+            self.error_and_exit(400, 'Both (--username) and (--password) are required.')
         if settings['api'] == '' and settings['api_compute'] == '':
             self.error_and_exit(400, 'One of API (--api) or API Compute (--api_compute) are required.')
-        # Debugging
+        # Debugging.
         settings['debug'] = args.debug
         return settings
 
     # Read settings.
 
     def read_settings_file(self, settings_file_name=None):
-        settings_file_name = self.user_or_default_settings_file(settings_file_name)
-        if not os.path.isfile(settings_file_name):
-            self.error_and_exit(400, 'Cannot find the settings file. Please run pcs_configure.py to create one, or specify one via (--config_file).')
+        settings_file_name = self.specified_or_default_settings_file(settings_file_name)
+        if not os.path.exists(settings_file_name):
+            self.error_and_exit(400, 'Cannot open the settings file (%s).\nPlease run pcs_configure.py to create a file, or specify one via (--config_file).' % settings_file_name)
         settings = self.read_json_file(settings_file_name)
         if not settings:
-            self.error_and_exit(500, 'The settings file exists, but cannot be read. Please run pcs_configure.py to create a new one.')
-        if settings['settings_file_version'] != self.DEFAULT_SETTINGS_FILE_VERSION:
-            self.error_and_exit(500, 'The settings file is out-of-date. Please rerun pcs_configure.py to create a new one, and/or download the latest version of these scripts.')
+            self.error_and_exit(500, 'Cannot read the settings file.\nPlease run pcs_configure.py to create a new file.')
         # Older settings that have been renamed in newer settings files.
         if 'apiBase' in settings:
+            # Do not overwrite the newer setting with the older setting.
             if 'api' not in settings:
                 settings['api'] = settings['apiBase']
             del settings['apiBase']
+        # Map settings from prismacloud-cli to prismacloud-api.
+        if 'access_key_id' in settings:
+            settings['username'] = settings['access_key_id']
+        if 'secret_key' in settings:
+            settings['password'] = settings['secret_key']
+        if 'api_endpoint' in settings:
+            settings['api'] = settings['api_endpoint']
+        if 'pcc_api_endpoint' in settings:
+            settings['api_compute'] = settings['pcc_api_endpoint']
         # Newer settings that may not be present in older settings files.
+        if 'api' not in settings:
+            settings['api'] = ''
         if 'api_compute' not in settings:
             settings['api_compute'] = ''
         if 'ca_bundle' not in settings:
@@ -139,11 +173,12 @@ class PrismaCloudUtility():
     # Write settings.
 
     def write_settings_file(self, args):
-        settings_file_name = self.user_or_default_settings_file(args.config_file)
+        settings_file_name = self.specified_or_default_settings_file(args.config_file)
+        if not os.path.exists(self.CONFIG_DIRECTORY):
+            os.makedirs(self.CONFIG_DIRECTORY)
         settings = {}
-        settings['settings_file_version'] = self.DEFAULT_SETTINGS_FILE_VERSION
         settings['api']         = self.normalize_api(args.api)
-        settings['api_compute'] = self.normalize_api_compute_base(args.api_compute)
+        settings['api_compute'] = self.normalize_api_compute(args.api_compute)
         settings['username']    = args.username
         settings['password']    = args.password
         settings['ca_bundle']   = args.ca_bundle
@@ -156,47 +191,40 @@ class PrismaCloudUtility():
         print('Settings:')
         print()
         if settings['api'] is not None:
-            print('Prisma Cloud CSPM API/UI Base URL:')
+            print('Prisma Cloud CSPM API/UI URL:')
             print(settings['api'])
             print()
         if settings['api_compute'] is not None:
-            print('Prisma Cloud Compute API/UI Base URL:')
+            print('Prisma Cloud Compute API/UI URL:')
             print(settings['api_compute'])
             print()
         if settings['username'] is not None:
-            print('Prisma Cloud Access Key or Compute Username:')
+            print('Prisma Cloud CSPM Access Key (or Compute Username):')
             print(settings['username'])
             print()
         if settings['password'] is not None:
-            print('Prisma Cloud Secret Key or Compute Password:')
+            print('Prisma Cloud CSPM Secret Key (or Compute Password):')
             print(settings['password'])
             print()
         if settings['ca_bundle'] is not None:
             print('Custom CA (bundle) file:')
             print(settings['ca_bundle'])
 
-    # Return user-specified settings file, or the default settings file.
+    # Return the user-specified settings file, or the default settings file.
 
-    def user_or_default_settings_file(self, settings_file_name=None):
-        if settings_file_name is None:
-            settings_file_name = self.DEFAULT_SETTINGS_FILE_NAME
-            # Using the default file name, in the same directory as the script.
-            settings_file_name_and_path = os.path.join(os.getcwd(), settings_file_name)
-            # TBD:
-            # If the default file name does not exist in the same directory as the script, use the default file name in the home directory.
-            # if not os.path.isfile(settings_file_name_and_path):
-            #    settings_file_name_and_path = os.path.join(os.path.expanduser('~'), settings_file_name)
-        else:
-            # Using the specified file name.
+    def specified_or_default_settings_file(self, settings_file_name=None):
+        # Default to the default settings file name and path.
+        settings_file_name_and_path = self.DEFAULT_CONFIG_FILE
+        if settings_file_name:
             if os.path.sep in settings_file_name:
-                # Use the specified file name verbatim, as it is a file path.
+                # Using the specified settings file name and path verbatim.
                 settings_file_name_and_path = settings_file_name
             else:
-                # Use the specified file name, in the same directory as the script.
-                settings_file_name_and_path = os.path.join(os.getcwd(), settings_file_name)
+                # Using the specified file name, in the configuration directory.
+                settings_file_name_and_path = os.path.join(self.CONFIG_DIRECTORY, settings_file_name)
         return settings_file_name_and_path
 
-    # Normalize API/UI Base URL.
+    # Normalize API/UI URL.
 
     @classmethod
     def normalize_api(cls, api):
@@ -210,10 +238,10 @@ class PrismaCloudUtility():
         api = api.rstrip('/')
         return api
 
-    # Normalize Compute API/UI Base URL.
+    # Normalize Compute API/UI URL.
 
     @classmethod
-    def normalize_api_compute_base(cls, api_compute):
+    def normalize_api_compute(cls, api_compute):
         if not api_compute:
             return ''
         api_compute = api_compute.lower()
