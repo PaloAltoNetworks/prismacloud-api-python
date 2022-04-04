@@ -28,4 +28,5 @@ jobs:
         python -m pip install prismacloud-api
     - name: Test with pytest
       run: |
-        pylint prismacloud/*py prismacloud/*/*.py scripts/*.py
+        pylint prismacloud/*/*py scripts/*py
+
