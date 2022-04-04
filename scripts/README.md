@@ -42,20 +42,20 @@ Use the `pcs_configure.py` script to save a configuration file. Configuration op
 - `-p / --password` (REQUIRED) Password associated with your Prisma Cloud Username, or Secret Key associated with your Access Key
 - `--api`           (OPTIONAL) Prisma Cloud API/UI Base URL used to access Prisma Cloud (`app*.prismacloud.*` ... or you can specify a direct `api*.prismacloud.*` URL). 
 - `--api_compute`   (OPTIONAL) Prisma Cloud Compute API Base URL used to access Prisma Cloud Compute (For SaaS, use Compute > Manage > System > Downloads: Path to Console). 
-- `--config_file`   (OPTIONAL) File containing your Prisma Cloud API configuration settings. Default: `pc-settings.conf`
+- `--config_file`   (OPTIONAL) File containing your Prisma Cloud API configuration settings. Default: `~/.prismacloud/credentials.json`
 
 An Access Key/Secret Key is preferable to using a Username/Password, and Access Keys must be created by a Prisma Cloud User with the permissions required by the script(s) being executed.
 
-Configuration is saved as cleartext JSON, by default in the same directory as the scripts themselves, unless you specify `--config_file`.
+Configuration is saved as cleartext JSON, by default in the `~/.prismacloud/` directory, unless you specify an alternative `--config_file`.
 
 ### Examples:
 
 ```
 python3 pcs_configure.py --username "Example Access Key" --password "Example Secret Key" --api "app.prismacloud.io"
 
-python3 pcs_configure.py --username "Example Access Key" --password "Example Secret Key" --api "app.prismacloud.io" --config_file ~/example-pc-settings.conf
+python3 pcs_configure.py --username "Example Username"   --password "Example Password"   --api_compute "onpremise.example.com"
 
-python3 pcs_configure.py --username "Example Username" --password "Example Password" --api_compute "onpremise.example.com"
+python3 pcs_configure.py --username "Example Access Key" --password "Example Secret Key" --api "app.prismacloud.io" --config_file ~/alternative-credentials.conf
 ```
 
 Run `pcs_configure.py` specifying nothing (other than the optional `--config_file`) to output your current configuration file.
