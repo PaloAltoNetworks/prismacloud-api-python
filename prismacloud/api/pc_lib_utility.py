@@ -137,7 +137,7 @@ class PrismaCloudUtility():
         settings['debug'] = args.debug
         return settings
 
-    # Read settings. Consider: settings.get('key', default_value)
+    # Read settings.
 
     def read_settings_file(self, settings_file_name=None):
         settings_file_name = self.specified_or_default_settings_file(settings_file_name)
@@ -148,6 +148,7 @@ class PrismaCloudUtility():
             self.error_and_exit(500, 'Cannot read the settings file.\nPlease run pcs_configure.py to create a new file.')
         # Older settings that have been renamed in newer settings files.
         if 'apiBase' in settings:
+            # Do not overwrite the newer setting with the older setting.
             if 'api' not in settings:
                 settings['api'] = settings['apiBase']
             del settings['apiBase']
@@ -161,6 +162,8 @@ class PrismaCloudUtility():
         if 'pcc_api_endpoint' in settings:
             settings['api_compute'] = settings['pcc_api_endpoint']
         # Newer settings that may not be present in older settings files.
+        if 'api' not in settings:
+            settings['api'] = ''
         if 'api_compute' not in settings:
             settings['api_compute'] = ''
         if 'ca_bundle' not in settings:
