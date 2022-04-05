@@ -31,6 +31,12 @@ To install that packages, execute:
 pip3 install prismacloud-api
 ```
 
+They also require other packages:
+
+```
+pip3 install -r requirements.txt 
+```
+
 
 ## Configuration
 

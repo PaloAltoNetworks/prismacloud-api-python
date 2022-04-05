@@ -31,9 +31,7 @@ setuptools.setup(
         'Topic :: Utilities'
     ],
     install_requires=[
-        'requests',
-        'packaging',
-        'pyyaml'
+        'requests'
     ],
     python_requires='>=3.6'
 )
