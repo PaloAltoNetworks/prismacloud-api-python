@@ -8,25 +8,33 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
         python-version: [3.9]
 
     steps:
-    - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+    - uses: actions/checkout@v3
+      uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
+
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install pylint
-        python -m pip install prismacloud-api
-    - name: Test with pytest
-      run: |
-        pylint prismacloud/*/*py scripts/*py
+        pip install pylint
+        pip install -r requirements.txt
+        pip install build
 
+    - name: Test API
+      run: |
+        pylint prismacloud/*/*py
+
+    - name: Test Scripts
+      run: |
+        python -m build
+        pip install dist/prismacloud_api-*
+        pylint scripts/*py
