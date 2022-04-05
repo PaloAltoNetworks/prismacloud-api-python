@@ -34,4 +34,5 @@ jobs:
       run: |
         python -m build
         pip install dist/prismacloud_api-*
+        pip install -r scripts/requirements.txt
         pylint scripts/*py

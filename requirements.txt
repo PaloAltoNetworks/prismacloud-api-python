@@ -1,4 +1,1 @@
 requests
-packaging
-pyopenssl
-pyyaml
