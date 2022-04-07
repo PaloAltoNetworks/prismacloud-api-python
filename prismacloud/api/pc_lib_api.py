@@ -60,7 +60,7 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
             self.debug = settings['debug']
         self.logger = logging.getLogger(__name__)
         formatter   = logging.Formatter(fmt='%(asctime)s: %(levelname)s: %(message)s', datefmt='%Y-%m-%d %I:%M:%S %p')
-        filehandler = logging.FileHandler(self.error_log)
+        filehandler = logging.FileHandler(self.error_log, delay=True)
         filehandler.setLevel(level=logging.DEBUG)
         filehandler.setFormatter(formatter)
         self.logger.addHandler(filehandler)
