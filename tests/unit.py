@@ -1,10 +1,14 @@
+""" Unit Tests """
+
 import unittest
 
 import mock
 
-from prismacloud.api import pc_api, pc_utility
+# pylint: disable=import-error
+from prismacloud.api import pc_api
 
 class TestPrismaCloudAPI(unittest.TestCase):
+    """ Unit Tests with Mocking """
 
     SETTINGS = {
             'username':    'abc',
