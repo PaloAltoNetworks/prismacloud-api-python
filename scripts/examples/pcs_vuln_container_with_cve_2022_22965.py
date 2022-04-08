@@ -63,18 +63,19 @@ if args.mode in ['registry', 'all']:
             if args.cve and vulnerability['cve'] == args.cve:
                 vulnerable = True
                 # print('Image ID: %s is vulnerable to CVE: %s' % (image_id, args.cve))
-                #check if it contains the java application 
-                for app in image['applications']:
-                    if ((app['name'] == 'java') and ('1.8' not in app['version'])):
-                        _registry = image['tags'][0]['registry']
-                        _repo = image['tags'][0]['repo']
-                        _tag = image['tags'][0]['tag']
-                        _vulnerabilityDetails = image['_id'] + ',' + _registry + ',' + _repo + ',' + _tag + ',' + vulnerability['cve'] + ',' + app['name'] + ',' + app['version'] + ',' + app['path'] + '\n'
-                        vulnerableImageDetails.append(_vulnerabilityDetails)
-                        #print('Applicaiton Name: %s' % app)
-                        #print('Image ID: %s is vulnerable to CVE: %s' % (image_id, args.cve))
-                        #print('Registry: %s' % image['tags'])
-                        break
+                #check if it contains the java application
+                if 'applications' in image:
+                    for app in image['applications']:
+                        if ((app['name'] == 'java') and ('1.8' not in app['version'])):
+                            _registry = image['tags'][0]['registry']
+                            _repo = image['tags'][0]['repo']
+                            _tag = image['tags'][0]['tag']
+                            _vulnerabilityDetails = image['_id'] + ',' + _registry + ',' + _repo + ',' + _tag + ',' + vulnerability['cve'] + ',' + app['name'] + ',' + app['version'] + ',' + app['path'] + '\n'
+                            vulnerableImageDetails.append(_vulnerabilityDetails)
+                            #print('Applicaiton Name: %s' % app)
+                            #print('Image ID: %s is vulnerable to CVE: %s' % (image_id, args.cve))
+                            #print('Registry: %s' % image['tags'])
+                            break
                 break
     print()
 
@@ -100,17 +101,18 @@ if args.mode in ['deployed', 'all']:
             if args.cve and vulnerability['cve'] == args.cve:
                 vulnerable = True
                 #check if it contains the java application 
-                for app in image['applications']:
-                    if ((app['name'] == 'java') and ('1.8' not in app['version'])):
-                        _registry = image['tags'][0]['registry']
-                        _repo = image['tags'][0]['repo']
-                        _tag = image['tags'][0]['tag']
-                        _vulnerabilityDetails = image['_id'] + ',' + _registry + ',' + _repo + ',' + _tag + ',' + vulnerability['cve'] + ',' + app['name'] + ',' + app['version'] + ',' + app['path'] + '\n'
-                        vulnerableImageDetails.append(_vulnerabilityDetails)
-                        #print('Applicaiton Name: %s' % app)
-                        #print('Image ID: %s is vulnerable to CVE: %s' % (image_id, args.cve))
-                        #print('Registry: %s' % image['tags'])
-                        break
+                if 'applications' in image:
+                    for app in image['applications']:
+                        if ((app['name'] == 'java') and ('1.8' not in app['version'])):
+                            _registry = image['tags'][0]['registry']
+                            _repo = image['tags'][0]['repo']
+                            _tag = image['tags'][0]['tag']
+                            _vulnerabilityDetails = image['_id'] + ',' + _registry + ',' + _repo + ',' + _tag + ',' + vulnerability['cve'] + ',' + app['name'] + ',' + app['version'] + ',' + app['path'] + '\n'
+                            vulnerableImageDetails.append(_vulnerabilityDetails)
+                            #print('Applicaiton Name: %s' % app)
+                            #print('Image ID: %s is vulnerable to CVE: %s' % (image_id, args.cve))
+                            #print('Registry: %s' % image['tags'])
+                            break
                 break
     print()
     #print(vulnerableImageDetails)
