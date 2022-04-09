@@ -23,6 +23,12 @@ class PrismaCloudAPIMixin():
         requ_headers = {'Content-Type': 'application/json'}
         requ_data = json.dumps({'username': self.username, 'password': self.password})
         api_response = requests.request(requ_action, requ_url, headers=requ_headers, data=requ_data, verify=self.ca_bundle)
+        if api_response.status_code in self.retry_status_codes:
+            for _ in range(1, self.retry_limit):
+                time.sleep(self.retry_pause)
+                api_response = requests.request(requ_action, requ_url, headers=requ_headers, data=requ_data, verify=self.ca_bundle)
+                if api_response.ok:
+                    break
         if api_response.ok:
             api_response = json.loads(api_response.content)
             self.token = api_response.get('token')
