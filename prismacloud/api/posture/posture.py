@@ -23,12 +23,20 @@ class PrismaCloudAPIMixin():
         requ_headers = {'Content-Type': 'application/json'}
         requ_data = json.dumps({'username': self.username, 'password': self.password})
         api_response = requests.request(requ_action, requ_url, headers=requ_headers, data=requ_data, verify=self.ca_bundle)
+        if api_response.status_code in self.retry_status_codes:
+            for _ in range(1, self.retry_limit):
+                time.sleep(self.retry_pause)
+                api_response = requests.request(requ_action, requ_url, headers=requ_headers, data=requ_data, verify=self.ca_bundle)
+                if api_response.ok:
+                    break
         if api_response.ok:
             api_response = json.loads(api_response.content)
             self.token = api_response.get('token')
             self.token_timer = time.time()
         else:
             self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
+        if self.debug:
+            print('New API Token: %s' % self.token)
 
     def extend_login(self):
         self.suppress_warnings_when_ca_bundle_false()
@@ -48,6 +56,8 @@ class PrismaCloudAPIMixin():
             self.token_timer = time.time()
         else:
             self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
+        if self.debug:
+            print('Extending API Token')
 
     # pylint: disable=too-many-arguments, too-many-locals
     def execute(self, action, endpoint, query_params=None, body_params=None, force=False, paginated=False):

@@ -1,6 +1,6 @@
-# Python SDK for the Prisma Cloud APIs
+# Reference scripts for the Python SDK for the Prisma Cloud APIs
 
-Example scripts that utilize the Python SDK for the Prisma Cloud APIs.
+Reference scripts that utilize the Python SDK for the Prisma Cloud APIs.
 
 ## Table of Contents
 
@@ -31,7 +31,8 @@ To install that packages, execute:
 pip3 install prismacloud-api
 ```
 
-They also require other packages:
+These scripts may also require other packages.
+To install those packages, execute:
 
 ```
 pip3 install -r requirements.txt 
