@@ -18,16 +18,14 @@ class PrismaCloudAPIComputeMixin():
             self.login('https://%s/api/v1/authenticate' % self.api_compute)
         else:
             self.error_and_exit(418, "Specify a Prisma Cloud API/UI Base URL or Prisma Cloud Compute API Base URL")
+        if self.debug:
+            print('New API Token: %s' % self.token)
 
     def extend_login_compute(self):
-        if self.api:
-            # Extend CSPM Login.
-            self.extend_login()
-        elif self.api_compute:
-            # Login via CWP.
-            self.login_compute()
-        else:
-            self.error_and_exit(418, "Specify a Prisma Cloud API/UI Base URL or Prisma Cloud Compute API Base URL")
+        # There is no extend for CWP, just logon again.
+        if self.debug:
+            print('Extending API Token')
+        self.login_compute()
 
     # pylint: disable=too-many-arguments,too-many-branches,too-many-locals,too-many-statements
     def execute_compute(self, action, endpoint, query_params=None, body_params=None, force=False, paginated=False):
@@ -94,7 +92,7 @@ class PrismaCloudAPIComputeMixin():
 
     def validate_api_compute(self):
         if not self.api_compute:
-            self.error_and_exit(500, 'Please specify a Prisma Cloud Compute Base URL.')
+            self.error_and_exit(500, 'Please specify a Prisma Cloud Compute API Base URL.')
 
     # Exit handler (Error).
 

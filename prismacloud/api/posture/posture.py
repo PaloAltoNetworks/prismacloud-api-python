@@ -35,6 +35,8 @@ class PrismaCloudAPIMixin():
             self.token_timer = time.time()
         else:
             self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
+        if self.debug:
+            print('New API Token: %s' % self.token)
 
     def extend_login(self):
         self.suppress_warnings_when_ca_bundle_false()
@@ -54,6 +56,8 @@ class PrismaCloudAPIMixin():
             self.token_timer = time.time()
         else:
             self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
+        if self.debug:
+            print('Extending API Token')
 
     # pylint: disable=too-many-arguments, too-many-locals
     def execute(self, action, endpoint, query_params=None, body_params=None, force=False, paginated=False):
