@@ -14,6 +14,11 @@ parser.add_argument(
     required=True,
     help='Account ID of Tenant to sync.')
 parser.add_argument(
+    '--clientId',
+    type=str,
+    required=True,
+    help='Client Id of SPN Service Key.')
+parser.add_argument(
     '--clientSecret',
     type=str,
     required=True,
@@ -201,7 +206,7 @@ print('INFO  - Number of existing compute credentials belonging to tenant: %s.'
       % len(tenants_childrens_creds))
 
 deleted_count = del_orphaned_credentials(tenants_childrens_creds, children_cloud_accounts)
-added_count = add_missing_credentials(tenants_childrens_creds, children_cloud_accounts, tenant_client_info['clientId'])
+added_count = add_missing_credentials(tenants_childrens_creds, children_cloud_accounts, args.clientId)
 
 print('Total Added   : %s' %added_count)
 print('Total Deleted : %s' %deleted_count)
