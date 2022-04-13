@@ -37,7 +37,7 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('POST', 'alert', query_params=query_params, body_params=body_params)
 
     def alert_v2_list_read(self, query_params=None, body_params=None):
-        return self.execute('POST', 'v2/alert', query_params=query_params, body_params=body_params)
+        return self.execute('POST', 'v2/alert', query_params=query_params, body_params=body_params, paginated=True)
 
     """
     Policies

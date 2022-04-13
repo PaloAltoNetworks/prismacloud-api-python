@@ -3,6 +3,7 @@
 import logging
 
 from .posture import PrismaCloudAPIPosture
+from .code_security import PrismaCloudAPICodeSecurity
 from .compute import PrismaCloudAPICompute
 from .pc_lib_utility import PrismaCloudUtility
 
@@ -22,7 +23,7 @@ class CallCounter:
         return self.method(*args, **kwargs)
 
 # pylint: disable=too-many-instance-attributes
-class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute):
+class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAPICodeSecurity):
     """ Prisma Cloud API Class """
     # pylint: disable=super-init-not-called
     def __init__(self):
@@ -39,6 +40,8 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute):
         self.retry_pause        = 8
         self.retry_status_codes = [401, 429, 500, 502, 503, 504]
         self.max_workers        = 8
+        #
+        self.debug              = False
         self.error_log          = 'error.log'
         self.logger             = None
 
@@ -52,17 +55,21 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute):
         self.username    = settings['username']
         self.password    = settings['password']
         self.ca_bundle   = settings['ca_bundle']
+        #
+        if 'debug' in settings:
+            self.debug = settings['debug']
         self.logger = logging.getLogger(__name__)
         formatter   = logging.Formatter(fmt='%(asctime)s: %(levelname)s: %(message)s', datefmt='%Y-%m-%d %I:%M:%S %p')
-        filehandler = logging.FileHandler(self.error_log)
+        filehandler = logging.FileHandler(self.error_log, delay=True)
         filehandler.setLevel(level=logging.DEBUG)
         filehandler.setFormatter(formatter)
         self.logger.addHandler(filehandler)
         self.logger.error = CallCounter(self.logger.error)
+        #
         self.auto_configure_compute()
 
     def auto_configure_compute(self):
         if self.api and not self.api_compute:
             meta_info = self.meta_info()
             if meta_info and 'twistlockUrl' in meta_info:
-                self.api_compute = PrismaCloudUtility.normalize_api_compute_base(meta_info['twistlockUrl'])
+                self.api_compute = PrismaCloudUtility.normalize_api_compute(meta_info['twistlockUrl'])

@@ -2,7 +2,8 @@
 
 import json
 
-from pc_lib import pc_api, pc_utility
+# pylint: disable=import-error
+from prismacloud.api import pc_api, pc_utility
 
 # --Configuration-- #
 
@@ -15,6 +16,7 @@ parser.add_argument(
     '-fas',
     '--alertstatus',
     type=str,
+    choices=['open', 'resolved', 'snoozed', 'dismissed'],
     help='(Optional) - Filter - Alert Status.')
 parser.add_argument(
     '-fpt',
@@ -22,17 +24,16 @@ parser.add_argument(
     type=str,
     help='(Optional) - Filter - Policy Type.')
 parser.add_argument(
+    '-fpn',
+    '--policyname',
+    type=str,
+    help='(Optional) - Filter - Policy Name.')
+parser.add_argument(
     '-tr',
     '--timerange',
     type=int,
     default=30,
     help='(Optional) - Time Range in days (default 30).')
-parser.add_argument(
-    '-l',
-    '--limit',
-    type=int,
-    default=500,
-    help='(Optional) - Limit the number of Alerts to get (default 500).')
 args = parser.parse_args()
 
 # --Initialize-- #
@@ -52,7 +53,7 @@ if args.detailed:
 else:
     alerts_filter['detailed'] = False
 alerts_filter['filters'] = []
-alerts_filter['limit'] = args.limit
+alerts_filter['limit'] = 1000
 alerts_filter['offset'] = 0
 alerts_filter['sortBy'] = ['id:asc']
 alerts_filter['timeRange'] = {}
@@ -71,6 +72,12 @@ if args.policytype is not None:
     temp_filter['name']     = 'policy.type'
     temp_filter['operator'] = '='
     temp_filter['value']    = args.policytype
+    alerts_filter['filters'].append(temp_filter)
+if args.policyname is not None:
+    temp_filter = {}
+    temp_filter['name']     = 'policy.name'
+    temp_filter['operator'] = '='
+    temp_filter['value']    = args.policyname
     alerts_filter['filters'].append(temp_filter)
 
 print('API - Getting the Alerts list ...', end='')
