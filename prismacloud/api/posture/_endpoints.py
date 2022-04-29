@@ -3,6 +3,8 @@
 # TODO: Split into multiple files, one per endpoint ...
 
 # pylint: disable=too-many-public-methods
+
+
 class EndpointsPrismaCloudAPIMixin():
     """ Prisma Cloud API Endpoints Class """
 
@@ -359,14 +361,15 @@ class EndpointsPrismaCloudAPIMixin():
         result = []
         page_number = 1
         while page_number == 1 or 'pageToken' in body_params:
-            api_response = self.execute('POST', 'resource/scan_info', body_params=body_params)
+            api_response = self.execute(
+                'POST', 'resource/scan_info', body_params=body_params)
             if 'resources' in api_response:
                 result.extend(api_response['resources'])
             if 'nextPageToken' in api_response:
                 body_params['pageToken'] = api_response['nextPageToken']
             else:
                 body_params.pop('pageToken', None)
-            #if 'totalMatchedCount' in api_response:
+            # if 'totalMatchedCount' in api_response:
             #    self.progress('Resources: %s, Page Size: %s, Page: %s' % (api_response['totalMatchedCount'], body_params['limit'], page_number))
             page_number += 1
         return result
@@ -456,13 +459,13 @@ class EndpointsPrismaCloudAPIMixin():
     def compliance_report_download(self, report_id):
         return self.execute('GET', 'report/%s/download' % report_id)
         # TODO:
-        #if response_status == 204:
+        # if response_status == 204:
         #    # download pending
         #    pass
-        #elif response_status == 200:
+        # elif response_status == 200:
         #    # download ready
         #    pass
-        #else:
+        # else:
 
     """
     Search
@@ -477,12 +480,14 @@ class EndpointsPrismaCloudAPIMixin():
     def search_config_read(self, search_params):
         result = []
         next_page_token = None
-        api_response = self.execute('POST', 'search/config', body_params=search_params)
+        api_response = self.execute(
+            'POST', 'search/config', body_params=search_params)
         if 'data' in api_response and 'items' in api_response['data']:
             result = api_response['data']['items']
             next_page_token = api_response['data'].pop('nextPageToken', None)
         while next_page_token:
-            api_response = self.execute('POST', 'search/config/page', body_params={'pageToken': next_page_token})
+            api_response = self.execute(
+                'POST', 'search/config/page', body_params={'pageToken': next_page_token})
             if 'items' in api_response:
                 result.extend(api_response['items'])
             next_page_token = api_response.pop('nextPageToken', None)
@@ -500,12 +505,14 @@ class EndpointsPrismaCloudAPIMixin():
         search_url = 'search/event'
         if subsearch and subsearch in ['aggregate', 'filtered']:
             search_url = 'search/event/%s' % subsearch
-        api_response = self.execute('POST', search_url, body_params=search_params)
+        api_response = self.execute(
+            'POST', search_url, body_params=search_params)
         if 'data' in api_response and 'items' in api_response['data']:
             result = api_response['data']['items']
             next_page_token = api_response['data'].pop('nextPageToken', None)
         while next_page_token:
-            api_response = self.execute('POST', 'search/config/page', body_params={'pageToken': next_page_token})
+            api_response = self.execute(
+                'POST', 'search/config/page', body_params={'pageToken': next_page_token})
             if 'items' in api_response:
                 result.extend(api_response['items'])
             next_page_token = api_response.pop('nextPageToken', None)
@@ -542,3 +549,46 @@ class EndpointsPrismaCloudAPIMixin():
 
     def resource_usage_over_time(self, body_params):
         return self.execute('POST', 'license/api/v1/usage/time_series', body_params=body_params)
+
+    """
+    Enterprise Settings 
+
+    [ ] LIST
+    [ ] CREATE
+    [X] READ
+    [X] UPDATE
+    [ ] DELETE
+    """
+
+    def enterprise_settings_config(self, body_params):
+        return self.execute('POST', 'settings/enterprise', body_params=body_params)
+
+    def enterprise_settings(self):
+        return self.execute('GET', 'settings/enterprise')
+
+    """
+    Anomaly Settings 
+
+    [ ] LIST
+    [ ] CREATE
+    [ ] READ
+    [X] UPDATE
+    [ ] DELETE
+    """
+
+    def anomaly_settings_config(self, body_params, policy_id):
+        anomaly_url = 'anomalies/settings/%s' % policy_id
+        return self.execute('POST', anomaly_url, body_params=body_params)
+
+    """
+    Check the other side
+
+    [ ] LIST
+    [ ] CREATE
+    [X] READ
+    [X] UPDATE
+    [ ] DELETE
+    """
+
+    def check(self):
+        return self.execute('GET', 'check')
