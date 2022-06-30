@@ -8,6 +8,9 @@ import json
 import os
 import sys
 
+from update_checker import UpdateChecker
+from .version import version as api_version
+
 try:
     # pylint: disable=redefined-builtin
     input = raw_input
@@ -25,6 +28,15 @@ class PrismaCloudUtility():
 
     CONFIG_DIRECTORY = os.path.join(os.environ['HOME'], '.prismacloud')
     DEFAULT_CONFIG_FILE = os.path.join(CONFIG_DIRECTORY, 'credentials.json')
+
+    @classmethod
+    def package_version_check(cls, package_name='prismacloud-api'):
+        package_version_message = 'version: %s' % api_version
+        checker = UpdateChecker()
+        result = checker.check(package_name, api_version)
+        if result:
+            package_version_message = "version update available: %s -> %s\nrun 'pip3 install --upgrade %s' to update" % (api_version, result.available_version, package_name)
+        return package_version_message
 
     # Default command line arguments.
 
@@ -79,6 +91,7 @@ class PrismaCloudUtility():
            '--debug',
             action='store_true',
             help='(Optional) - Output debugging information.')
+        get_arg_parser.epilog=self.package_version_check()
         return get_arg_parser
 
     # Read or write settings.

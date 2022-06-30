@@ -31,7 +31,8 @@ setuptools.setup(
         'Topic :: Utilities'
     ],
     install_requires=[
-        'requests'
+        'requests',
+        'update_checker'
     ],
     python_requires='>=3.6'
 )
