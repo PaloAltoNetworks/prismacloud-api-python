@@ -8,8 +8,8 @@ url2 = "https://api3.prismacloud.io/audit/redlock"
 
 
 payload = {
-    "password": "(access key)",
-    "username": "(secret key)"
+    "username": "(access key)",
+    "password": "(secret key)"
 }
 headers1 = {"content-type": "application/json; charset=UTF-8"}
 
