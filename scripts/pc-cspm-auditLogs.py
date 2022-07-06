@@ -3,8 +3,8 @@ import requests
 import json
 import csv
 
-url1 = "https://api3.prismacloud.io/login"
-url2 = "https://api3.prismacloud.io/audit/redlock"
+url1 = "https://(apiendpoint).prismacloud.io/login"
+url2 = "https://(apiendpoint).prismacloud.io/audit/redlock"
 
 
 payload = {
