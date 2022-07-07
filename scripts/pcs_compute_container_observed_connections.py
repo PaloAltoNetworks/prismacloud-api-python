@@ -63,7 +63,7 @@ if args.namespace and ',' in args.namespace:
 cluster = urllib.parse.quote(args.cluster)
 
 if args.collection:
-   collection = '&collections=%s' % urllib.parse.quote(args.namespace)
+   collection = '&collections=%s' % urllib.parse.quote(args.collection)
 else:
    collection = ''
     
