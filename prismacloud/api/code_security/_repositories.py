@@ -14,3 +14,6 @@ class RepositoriesPrismaCloudAPICodeSecurityMixin:
 
     def repository_branches(self, query_params=None):
         return self.execute_code_security('GET', 'code/api/v1/repositories/branches', query_params=query_params)
+
+    def repositories_update(self, body_params):
+        return self.execute_code_security('POST', 'code/api/v1/repositories', body_params=body_params)
