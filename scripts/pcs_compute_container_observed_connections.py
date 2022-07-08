@@ -47,18 +47,16 @@ if args.x:
     print('Excluding connections external to the specified collection and/or namespace.')
 print()
 
+# Define variables.
+
 connections = []
-container_image_names = {}
+containers = {}
 
 # Note: the cluster, collection, and namespace script arguments are singletons, 
 # but could be comma-delimited arrays, as the endpoint parameters accept arrays.
 
 if ',' in args.cluster:
     pc_utility.error_and_exit(400, 'This script is arbitrarily limited to querying one cluster')
-if args.collection and ',' in args.collection:
-    pc_utility.error_and_exit(400, 'This script is arbitrarily limited to querying one collection')
-if args.namespace and ',' in args.namespace:
-    pc_utility.error_and_exit(400, 'This script is arbitrarily limited to querying one namespace')
 
 cluster = urllib.parse.quote(args.cluster)
 
@@ -71,30 +69,43 @@ if args.namespace:
    namespace = '&namespaces=%s' % urllib.parse.quote(args.namespace)
 else:
    namespace = ''
-    
+
+# Query the endpoint.
+
 radar = pc_api.execute_compute('GET', 'api/v1/radar/container?project=Central+Console&clusters=%s%s%s' % (cluster, collection, namespace))
+if not radar or not radar['radar']:
+    pc_utility.error_and_exit(400, 'No containers match the specified parameters.')
+radar_containers = radar['radar']
 
-containers = radar['radar']
+# Convert the list of container dictionaries into a dictionary of container dictionaries.
 
-# print
-# print(containers)
-# print
+for container in radar_containers:
+    containers[container['_id']] = container
 
-for container in containers:
-    container_image_names[container['_id']] = container['imageNames'][0].rsplit('/', 1)[-1]
+# Convert containers into a list of connection dictionaries.
 
-for container in containers:
-    for incoming_connection in container['incomingConnections']:
+for radar_container in radar_containers:
+    for incoming_connection in radar_container['incomingConnections']:
         for port in incoming_connection['ports']:
-            src_name = container_image_names.get(incoming_connection['profileID'], 'EXTERNAL TO QUERY')
-            if args.x and src_name == 'EXTERNAL TO QUERY':
-                continue
+            src_container = containers.get(incoming_connection['profileID'])
+            if src_container:
+                src_name = src_container['imageNames'][0].rsplit('/', 1)[-1]
+                src_namespace = src_container['namespace']
+            else:
+                if args.x:
+                    # Exclude connections external to the specified collection and/or namespace.
+                    continue
+                src_name = 'EXTERNAL TO QUERY'
+                src_namespace = 'EXTERNAL TO QUERY'
             connections.append({
-                'dst_name': container_image_names[container['_id']],
+                'dst_name': radar_container['imageNames'][0].rsplit('/', 1)[-1],
                 'dst_port': port['port'],
+                'dst_namespace': radar_container['namespace'],
                 'src_name': src_name,
-                'namespace': container['namespace']
+                'src_namespace': src_namespace
             })
+
+# Output the list of connection dictionaries.
 
 sorted_connections = sorted(connections, key=lambda d: (d['dst_name'], d['dst_port']))
 
