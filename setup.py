@@ -22,7 +22,7 @@ setuptools.setup(
     keywords="prisma cloud api",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/PaloAltoNetworks/pcs-toolbox',
+    url='https://github.com/PaloAltoNetworks/prismacloud-api-python',
     packages=setuptools.find_namespace_packages(exclude=['scripts']),
     classifiers=[
         'Programming Language :: Python :: 3',
