@@ -25,7 +25,7 @@ pip3 install prismacloud-api
 
 ### Reference Scripts
 
-Please refer to the example/reference [scripts](https://github.com/PaloAltoNetworks/pcs-toolbox/tree/main/scripts) directory for script documentation and usage details.
+Please refer to the example/reference [scripts](https://github.com/PaloAltoNetworks/prismacloud-api-python/tree/main/scripts) directory for script documentation and usage details.
 
 ## Support
 
