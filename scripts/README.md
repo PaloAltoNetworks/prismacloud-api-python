@@ -203,6 +203,49 @@ You can specifically disable forwarding of Audits with `--no_audit_events`.
 
 Note that `--host_forensic_activities` results in high-volume/time-intensive API calls.
 
+#### pcs_incident_archiver
+
+Use this script to archive runtime incidents in bulk based on the contents of a CSV file.
+
+Workflow:
+
+1. Navigate to Compute > Monitor > Runtime > Incident Explorer > Active.
+1. Click the "CSV" button to export active incidents.
+1. Remove (e.g. in Excel, Google Sheets, etc) rows that should NOT be archived.
+1. Save the CSV.
+1. Invoke this script on the saved CSV to archive each incident it contains.
+
+Assumptions:
+
+- The input CSV file MUST have a header row.
+- The header row for incident IDs MUST be named `ID`.
+
+Example:
+
+```
+$ cat input.csv
+ID
+62fff91fc3be7f962ec7ea47
+62fff91fc3be7f962ec7ea4c
+62fff91fc3be7f962ec7ea4c
+62fff91fc3be7f962ec7ea4f
+62fff91fc3be7f962ec7ea51
+62fff9b6c3be7f962ec7ea56
+```
+
+```
+python3 scripts/pcs_incident_archiver.py input.csv
+Preparing to archive 5 incidents ...
+
+Ready to execute commands against your Prisma Cloud tenant ...
+Would you like to continue (y or yes)? y
+
+Archived incident 62fff9b6c3be7f962ec7ea56
+Archived incident 62fff91fc3be7f962ec7ea4c
+Archived incident 62fff91fc3be7f962ec7ea47
+Archived incident 62fff91fc3be7f962ec7ea51
+Archived incident 62fff91fc3be7f962ec7ea4f
+```
 
 #### pcs_images_packages_read
 
