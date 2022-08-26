@@ -13,6 +13,11 @@ class AuditsPrismaCloudAPIComputeMixin:
         audits = self.execute_compute('GET', 'api/v1/audits/%s?' % audit_type, query_params=query_params, paginated=True)
         return audits
 
+    def audits_ack_incident(self, incident_id, ack_status = True):
+        body_params = {"acknowledged": ack_status}
+        resp = self.execute_compute('PATCH', 'api/v1/audits/incidents/acknowledge/%s' % incident_id, body_params=body_params)
+        return resp
+
     # Other related and undocumented endpoints.
 
     # Compute > Monitor > Events
