@@ -28,7 +28,7 @@ class PrismaCloudAPIComputeMixin():
         self.login_compute()
 
     # pylint: disable=too-many-arguments,too-many-branches,too-many-locals,too-many-statements
-    def execute_compute(self, action, endpoint, query_params=None, body_params=None, force=False, paginated=False):
+    def execute_compute(self, action, endpoint, query_params=None, body_params=None, request_headers=None, force=False, paginated=False):
         self.suppress_warnings_when_ca_bundle_false()
         if not self.token:
             self.login_compute()
@@ -46,30 +46,33 @@ class PrismaCloudAPIComputeMixin():
                 requ_url = 'https://%s/%s?limit=%s&offset=%s' % (self.api_compute, endpoint, limit, offset)
             else:
                 requ_url = 'https://%s/%s' % (self.api_compute, endpoint)
-            requ_headers = {'Content-Type': 'application/json'}
+            if not request_headers:
+                request_headers = {'Content-Type': 'application/json'}
             if self.token:
                 if self.api:
                     # Authenticate via CSPM
-                    requ_headers['x-redlock-auth'] = self.token
+                    request_headers['x-redlock-auth'] = self.token
                 else:
                     # Authenticate via CWP
-                    requ_headers['Authorization'] = "Bearer %s" % self.token
+                    request_headers['Authorization'] = "Bearer %s" % self.token
             requ_params = query_params
             requ_data = json.dumps(body_params)
-            api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=requ_params, data=requ_data, verify=self.ca_bundle)
+            api_response = requests.request(requ_action, requ_url, headers=request_headers, params=requ_params, data=requ_data, verify=self.ca_bundle)
             if self.debug:
                 print('API Respose Status Code: %s' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
                 for _ in range(1, self.retry_limit):
                     time.sleep(self.retry_pause)
-                    api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=query_params, data=requ_data, verify=self.ca_bundle)
+                    api_response = requests.request(requ_action, requ_url, headers=request_headers, params=query_params, data=requ_data, verify=self.ca_bundle)
                     if api_response.ok:
                         break # retry loop
             if api_response.ok:
+                if api_response.headers['Content-Type'] == 'text/csv':
+                    return api_response.content.decode('utf-8')
                 try:
                     result = json.loads(api_response.content)
                 except ValueError:
-                    self.logger.error('API: (%s) responded with no response, with query %s and body params: %s' % (requ_url, query_params, body_params))
+                    self.logger.error('API: (%s) responded with no JSON response, with query %s and body params: %s' % (requ_url, query_params, body_params))
                     return None
                 if 'Total-Count' in api_response.headers:
                     if self.debug:
