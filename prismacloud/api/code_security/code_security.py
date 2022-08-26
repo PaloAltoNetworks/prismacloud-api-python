@@ -10,7 +10,7 @@ class PrismaCloudAPICodeSecurityMixin():
     """ Requests and Output """
 
     # pylint: disable=too-many-arguments,too-many-branches,too-many-locals,too-many-statements
-    def execute_code_security(self, action, endpoint, query_params=None, body_params=None, force=False, paginated=False):
+    def execute_code_security(self, action, endpoint, query_params=None, body_params=None, request_headers=None, force=False, paginated=False):
         self.suppress_warnings_when_ca_bundle_false()
         if not self.token:
             self.login()
@@ -30,21 +30,22 @@ class PrismaCloudAPICodeSecurityMixin():
                 requ_url = 'https://%s/%s?limit=%s&offset=%s' % (self.api, endpoint, limit, offset)
             else:
                 requ_url = 'https://%s/%s' % (self.api, endpoint)
-            requ_headers = {'Content-Type': 'application/json'}
+            if not request_headers:
+                request_headers = {'Content-Type': 'application/json'}
             if self.token:
-                requ_headers['authorization'] = self.token
+                request_headers['authorization'] = self.token
             requ_params = query_params
             if body_params:
                 requ_data = json.dumps(body_params)
             else:
                 requ_data = body_params
-            api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=requ_params, data=requ_data, verify=self.ca_bundle)
+            api_response = requests.request(requ_action, requ_url, headers=request_headers, params=requ_params, data=requ_data, verify=self.ca_bundle)
             if self.debug:
                 print('API Respose Status Code: %s' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
                 for _ in range(1, self.retry_limit):
                     time.sleep(self.retry_pause)
-                    api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=query_params, data=requ_data, verify=self.ca_bundle)
+                    api_response = requests.request(requ_action, requ_url, headers=request_headers, params=query_params, data=requ_data, verify=self.ca_bundle)
                     if api_response.ok:
                         break # retry loop
             if api_response.ok:

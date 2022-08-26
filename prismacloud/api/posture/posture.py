@@ -20,13 +20,13 @@ class PrismaCloudAPIMixin():
         if not requ_url:
             requ_url = 'https://%s/login' % self.api
         requ_action = 'POST'
-        requ_headers = {'Content-Type': 'application/json'}
+        request_headers = {'Content-Type': 'application/json'}
         requ_data = json.dumps({'username': self.username, 'password': self.password})
-        api_response = requests.request(requ_action, requ_url, headers=requ_headers, data=requ_data, verify=self.ca_bundle)
+        api_response = requests.request(requ_action, requ_url, headers=request_headers, data=requ_data, verify=self.ca_bundle)
         if api_response.status_code in self.retry_status_codes:
             for _ in range(1, self.retry_limit):
                 time.sleep(self.retry_pause)
-                api_response = requests.request(requ_action, requ_url, headers=requ_headers, data=requ_data, verify=self.ca_bundle)
+                api_response = requests.request(requ_action, requ_url, headers=request_headers, data=requ_data, verify=self.ca_bundle)
                 if api_response.ok:
                     break
         if api_response.ok:
@@ -42,12 +42,12 @@ class PrismaCloudAPIMixin():
         self.suppress_warnings_when_ca_bundle_false()
         requ_url = 'https://%s/auth_token/extend' % self.api
         requ_action = 'GET'
-        requ_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
-        api_response = requests.request(requ_action, requ_url, headers=requ_headers, verify=self.ca_bundle)
+        request_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
+        api_response = requests.request(requ_action, requ_url, headers=request_headers, verify=self.ca_bundle)
         if api_response.status_code in self.retry_status_codes:
             for _ in range(1, self.retry_limit):
                 time.sleep(self.retry_pause)
-                api_response = requests.request(requ_action, requ_url, headers=requ_headers, verify=self.ca_bundle)
+                api_response = requests.request(requ_action, requ_url, headers=request_headers, verify=self.ca_bundle)
                 if api_response.ok:
                     break
         if api_response.ok:
@@ -60,7 +60,7 @@ class PrismaCloudAPIMixin():
             print('Extending API Token')
 
     # pylint: disable=too-many-arguments, too-many-locals
-    def execute(self, action, endpoint, query_params=None, body_params=None, force=False, paginated=False):
+    def execute(self, action, endpoint, query_params=None, body_params=None, request_headers=None, force=False, paginated=False):
         self.suppress_warnings_when_ca_bundle_false()
         if not self.token:
             self.login()
@@ -75,24 +75,27 @@ class PrismaCloudAPIMixin():
                 self.extend_login()
             requ_action = action
             requ_url = 'https://%s/%s' % (self.api, endpoint)
-            requ_headers = {'Content-Type': 'application/json'}
+            if not request_headers:
+                request_headers = {'Content-Type': 'application/json'}
             if self.token:
-                requ_headers['x-redlock-auth'] = self.token
+                request_headers['x-redlock-auth'] = self.token
             requ_params = query_params
             if body_params:
                 requ_data = json.dumps(body_params)
             else:
                 requ_data = body_params
-            api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=requ_params, data=requ_data, verify=self.ca_bundle)
+            api_response = requests.request(requ_action, requ_url, headers=request_headers, params=requ_params, data=requ_data, verify=self.ca_bundle)
             if self.debug:
                 print('API Respose Status Code: %s' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
                 for _ in range(1, self.retry_limit):
                     time.sleep(self.retry_pause)
-                    api_response = requests.request(requ_action, requ_url, headers=requ_headers, params=query_params, data=requ_data, verify=self.ca_bundle)
+                    api_response = requests.request(requ_action, requ_url, headers=request_headers, params=query_params, data=requ_data, verify=self.ca_bundle)
                     if api_response.ok:
                         break # retry loop
             if api_response.ok:
+                if api_response.headers['Content-Type'] == 'text/csv':
+                    return api_response.content.decode('utf-8')
                 try:
                     result = json.loads(api_response.content)
                 except ValueError:
