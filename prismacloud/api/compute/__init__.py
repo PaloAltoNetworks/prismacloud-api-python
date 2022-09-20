@@ -14,6 +14,7 @@ from ._policies    import *
 from ._registry    import *
 from ._scans       import *
 from ._settings    import *
+from ._stats       import *
 from ._status      import *
 from ._tags        import *
 
