@@ -67,7 +67,7 @@ class PrismaCloudAPIComputeMixin():
                     if api_response.ok:
                         break # retry loop
             if api_response.ok:
-                if api_response.headers['Content-Type'] == 'text/csv':
+                if api_response.headers.get('Content-Type') == 'text/csv':
                     return api_response.content.decode('utf-8')
                 try:
                     result = json.loads(api_response.content)
