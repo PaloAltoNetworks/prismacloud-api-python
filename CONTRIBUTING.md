@@ -29,3 +29,15 @@ Here are a few resources on how to contribute to open source for the first time.
 ```
 pylint pc_lib/*.py pc_lib/*/*.py scripts/*.py
 ```
+
+## Adding Endpoints
+
+Endpoints for each feature set (CSPM, CWP, CCS) are located in the `prismacloud/api` directory:
+
+- [CSPM API Reference](https://prisma.pan.dev/api/cloud/cspm) (`prismacloud/api/posture`)
+- [CWP API Reference](https://prisma.pan.dev/api/cloud/cwpp) (`prismacloud/api/compute`)
+- [CCS API Reference](https://prisma.pan.dev/api/cloud/code) (`prismacloud/api/code_security`)
+
+Note: We will normalize the disparate acronyms in this repository as part of a future refactor.
+
+Please review the READMEs in the each directory for details on adding endpoints.
