@@ -45,5 +45,5 @@ for host in hosts:
     if not vulnerabilities:
         continue
     for vulnerability in sorted(vulnerabilities, key=lambda v: v['cve']):
-        print('    %s' % (vulnerability['cve']))
+        print('    %s (%s)' % (vulnerability['cve'], vulnerability['vecStr']))
 print()
