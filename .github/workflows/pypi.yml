@@ -30,7 +30,7 @@ jobs:
           pip install -r requirements.txt
       - name: Test API
         run: |
-          pylint prismacloud/*/*py
+          pylint prismacloud/api
       - name: Build
         run: |
           python -m build

@@ -59,7 +59,7 @@ class PrismaCloudAPIMixin():
         if self.debug:
             print('Extending API Token')
 
-    # pylint: disable=too-many-arguments, too-many-locals
+    # pylint: disable=too-many-arguments, too-many-branches, too-many-locals
     def execute(self, action, endpoint, query_params=None, body_params=None, request_headers=None, force=False, paginated=False):
         self.suppress_warnings_when_ca_bundle_false()
         if not self.token:
