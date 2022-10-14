@@ -1,7 +1,5 @@
 """ Get a list of Alerts """
 
-import json
-
 # pylint: disable=import-error
 from prismacloud.api import pc_api, pc_utility
 
@@ -34,4 +32,3 @@ for cloud in clouds:
 apis.sort()
 for api in apis:
     print(api)
-

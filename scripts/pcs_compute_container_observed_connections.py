@@ -52,7 +52,7 @@ print()
 connections = []
 containers = {}
 
-# Note: the cluster, collection, and namespace script arguments are singletons, 
+# Note: the cluster, collection, and namespace script arguments are singletons,
 # but could be comma-delimited arrays, as the endpoint parameters accept arrays.
 
 if ',' in args.cluster:
@@ -61,14 +61,14 @@ if ',' in args.cluster:
 cluster = urllib.parse.quote(args.cluster)
 
 if args.collection:
-   collection = '&collections=%s' % urllib.parse.quote(args.collection)
+    collection = '&collections=%s' % urllib.parse.quote(args.collection)
 else:
-   collection = ''
-    
+    collection = ''
+
 if args.namespace:
-   namespace = '&namespaces=%s' % urllib.parse.quote(args.namespace)
+    namespace = '&namespaces=%s' % urllib.parse.quote(args.namespace)
 else:
-   namespace = ''
+    namespace = ''
 
 # Query the endpoint.
 
