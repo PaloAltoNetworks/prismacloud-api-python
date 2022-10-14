@@ -7,7 +7,7 @@ class LogsPrismaCloudAPIComputeMixin:
 
     # Undocumented endpoints.
 
-   def agentless_logs_list_read(self, query_params=None):
+    def agentless_logs_list_read(self, query_params=None):
         logs = self.execute_compute('GET', 'api/v1/logs/agentless/download', query_params=query_params)
         return logs
 

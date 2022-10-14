@@ -96,6 +96,7 @@ def write_file(file_name, header, data):
 
 # Parse response from the API.
 
+# pylint: disable=too-many-branches
 def parse_images(images, output_mode, search_package_type, search_exact_name, search_name, search_comparison_operator, search_version):
     normalized_images = {}
     images_with_package = []

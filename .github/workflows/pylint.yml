@@ -29,10 +29,10 @@ jobs:
         pip install build
     - name: Test API
       run: |
-        pylint prismacloud/*/*py
+        pylint prismacloud/api
     - name: Test Scripts
       run: |
         python -m build
         pip install dist/prismacloud_api-*
         pip install -r scripts/requirements.txt
-        pylint scripts/*py
+        pylint scripts/*.py
