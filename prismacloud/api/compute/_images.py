@@ -11,3 +11,7 @@ class ImagesPrismaCloudAPIComputeMixin:
         else:
             images = self.execute_compute('GET', 'api/v1/images?', query_params=query_params, paginated=True)
         return images
+
+    def images_download(self, query_params=None):
+        images = self.execute_compute('GET', 'api/v1/images/download?', query_params=query_params)
+        return images
