@@ -61,7 +61,7 @@ result = pc_api.execute_compute('GET', 'api/v1/images/download?', query_params={
 print(' done.')
 print()
 
-print(result, file=open('temp.csv', 'w')) 
+print(result, file=open('temp.csv', 'w'))
 images = pc_utility.read_csv_file_text('temp.csv')
 headers = images[0].keys()
 
