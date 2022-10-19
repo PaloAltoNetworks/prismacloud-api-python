@@ -34,26 +34,29 @@ class PrismaCloudAPICodeSecurityMixin():
                 request_headers = {'Content-Type': 'application/json'}
             if self.token:
                 request_headers['authorization'] = self.token
-            requ_params = query_params
-            if body_params:
-                requ_data = json.dumps(body_params)
-            else:
-                requ_data = body_params
-            api_response = requests.request(requ_action, requ_url, headers=request_headers, params=requ_params, data=requ_data, verify=self.ca_bundle)
+            body_params_json = json.dumps(body_params)
+            api_response = requests.request(requ_action, requ_url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
             if self.debug:
                 print('API Respose Status Code: %s' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
                 for _ in range(1, self.retry_limit):
                     time.sleep(self.retry_pause)
-                    api_response = requests.request(requ_action, requ_url, headers=request_headers, params=query_params, data=requ_data, verify=self.ca_bundle)
+                    api_response = requests.request(requ_action, requ_url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
                     if api_response.ok:
                         break # retry loop
             if api_response.ok:
                 try:
                     result = json.loads(api_response.content)
                 except ValueError:
-                    self.logger.error('API: (%s) responded with no response, with query %s and body params: %s' % (requ_url, query_params, body_params))
-                    return None
+                    self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
+                    if force:
+                        return results # or continue
+                    self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
+                if result is None:
+                    self.logger.error('JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
+                    if force:
+                        return results # or continue
+                    self.error_and_exit(api_response.status_code, 'JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
                 if paginated:
                     results.extend(result['data'])
                     if 'hasNext' in result:
@@ -66,10 +69,10 @@ class PrismaCloudAPICodeSecurityMixin():
                 else:
                     return result
             else:
+                self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (requ_url, api_response.status_code, query_params, body_params))
                 if force:
-                    self.logger.error('API: (%s) responded with an error: (%s), with query %s and body params: %s' % (requ_url, api_response.status_code, query_params, body_params))
-                    return None
-                self.error_and_exit(api_response.status_code, 'API (%s) responded with an error and this response:\n%s' % (requ_url, api_response.text))
+                    return results
+                self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (requ_url, query_params, body_params, api_response.text))
         return results
 
     # Exit handler (Error).
