@@ -15,18 +15,18 @@ class PrismaCloudAPIMixin():
             # pylint: disable=no-member
             requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
-    def login(self, requ_url=None):
+    def login(self, url=None):
         self.suppress_warnings_when_ca_bundle_false()
-        if not requ_url:
-            requ_url = 'https://%s/login' % self.api
-        requ_action = 'POST'
+        if not url:
+            url = 'https://%s/login' % self.api
+        action = 'POST'
         request_headers = {'Content-Type': 'application/json'}
-        requ_data = json.dumps({'username': self.username, 'password': self.password})
-        api_response = requests.request(requ_action, requ_url, headers=request_headers, data=requ_data, verify=self.ca_bundle)
+        body_params_json = json.dumps({'username': self.username, 'password': self.password})
+        api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.ca_bundle)
         if api_response.status_code in self.retry_status_codes:
             for _ in range(1, self.retry_limit):
                 time.sleep(self.retry_pause)
-                api_response = requests.request(requ_action, requ_url, headers=request_headers, data=requ_data, verify=self.ca_bundle)
+                api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.ca_bundle)
                 if api_response.ok:
                     break
         if api_response.ok:
@@ -34,20 +34,20 @@ class PrismaCloudAPIMixin():
             self.token = api_response.get('token')
             self.token_timer = time.time()
         else:
-            self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
+            self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (url, api_response.text))
         if self.debug:
             print('New API Token: %s' % self.token)
 
     def extend_login(self):
         self.suppress_warnings_when_ca_bundle_false()
-        requ_url = 'https://%s/auth_token/extend' % self.api
-        requ_action = 'GET'
+        url = 'https://%s/auth_token/extend' % self.api
+        action = 'GET'
         request_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
-        api_response = requests.request(requ_action, requ_url, headers=request_headers, verify=self.ca_bundle)
+        api_response = requests.request(action, url, headers=request_headers, verify=self.ca_bundle)
         if api_response.status_code in self.retry_status_codes:
             for _ in range(1, self.retry_limit):
                 time.sleep(self.retry_pause)
-                api_response = requests.request(requ_action, requ_url, headers=request_headers, verify=self.ca_bundle)
+                api_response = requests.request(action, url, headers=request_headers, verify=self.ca_bundle)
                 if api_response.ok:
                     break
         if api_response.ok:
@@ -55,7 +55,7 @@ class PrismaCloudAPIMixin():
             self.token = api_response.get('token')
             self.token_timer = time.time()
         else:
-            self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (requ_url, api_response.text))
+            self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (url, api_response.text))
         if self.debug:
             print('Extending API Token')
 
@@ -73,20 +73,19 @@ class PrismaCloudAPIMixin():
         while more is True:
             if int(time.time() - self.token_timer) > self.token_limit:
                 self.extend_login()
-            requ_action = action
-            requ_url = 'https://%s/%s' % (self.api, endpoint)
+            url = 'https://%s/%s' % (self.api, endpoint)
             if not request_headers:
                 request_headers = {'Content-Type': 'application/json'}
             if self.token:
                 request_headers['x-redlock-auth'] = self.token
             body_params_json = json.dumps(body_params)
-            api_response = requests.request(requ_action, requ_url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
+            api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
             if self.debug:
-                print('API Respose Status Code: %s' % api_response.status_code)
+                print('API Response Status Code: %s' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
                 for _ in range(1, self.retry_limit):
                     time.sleep(self.retry_pause)
-                    api_response = requests.request(requ_action, requ_url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
+                    api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
                     if api_response.ok:
                         break # retry loop
             if api_response.ok:
@@ -95,15 +94,15 @@ class PrismaCloudAPIMixin():
                 try:
                     result = json.loads(api_response.content)
                 except ValueError:
-                    self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
+                    self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                     if force:
                         return results # or continue
-                    self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
+                    self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                 if result is None:
-                    self.logger.error('JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
+                    self.logger.error('JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                     if force:
                         return results # or continue
-                    self.error_and_exit(api_response.status_code, 'JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
+                    self.error_and_exit(api_response.status_code, 'JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                 if paginated:
                     results.extend(result['items'])
                     if 'nextPageToken' in result and result['nextPageToken']:
@@ -116,10 +115,10 @@ class PrismaCloudAPIMixin():
                 else:
                     return result
             else:
-                self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (requ_url, api_response.status_code, query_params, body_params))
+                self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (url, api_response.status_code, query_params, body_params))
                 if force:
                     return results
-                self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (requ_url, query_params, body_params, api_response.text))
+                self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
         return results
 
     # Exit handler (Error).

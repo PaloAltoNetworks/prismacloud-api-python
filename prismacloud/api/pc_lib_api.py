@@ -68,8 +68,16 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
         #
         self.auto_configure_compute()
 
+    # Use the Prisma Cloud CSPM API to identify the Prisma Cloud CWP API URL.
+
     def auto_configure_compute(self):
         if self.api and not self.api_compute:
             meta_info = self.meta_info()
             if meta_info and 'twistlockUrl' in meta_info:
                 self.api_compute = PrismaCloudUtility.normalize_api_compute(meta_info['twistlockUrl'])
+
+    # Conditional printing.
+
+    def debug_print(self, message):
+        if self.debug:
+            print(message)

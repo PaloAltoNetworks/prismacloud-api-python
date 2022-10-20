@@ -12,13 +12,19 @@ from prismacloud.api import pc_api, pc_utility
 # --Configuration-- #
 
 DEFAULT_FILE_NAME = 'vulnerabilities.csv'
+DEFAULT_HOURS = 24
 
 parser = pc_utility.get_arg_parser()
 parser.add_argument(
     '--csv_file_name',
     type=str,
     default=DEFAULT_FILE_NAME,
-    help="(Optional) - Export to the given file name. (Default %s)" % DEFAULT_FILE_NAME
+    help="(Optional) - Export to the given file name. (Default %s)" % DEFAULT_FILE_NAME)
+parser.add_argument(
+    '--hours',
+    type=int,
+    default=DEFAULT_HOURS,
+    help="(Optional) - Number of hours for a container host to be considered online. (Default %s)" % DEFAULT_HOURS
 )
 args = parser.parse_args()
 
@@ -31,7 +37,9 @@ pc_api.validate_api_compute()
 # --Helpers-- #
 
 # TODO: Validate Date Comparison
-def recent(datetime_string, delta_hours=24):
+def recent(datetime_string, delta_hours):
+    if delta_hours == 0:
+        return True
     now = datetime.datetime.now().astimezone(tz.tzlocal())
     dat = date_parser.isoparse(datetime_string).astimezone(tz.tzlocal())
     if now - datetime.timedelta(hours=delta_hours) <= dat <= now:
@@ -76,11 +84,10 @@ with open(args.csv_file_name, 'w', encoding='UTF8') as f:
             host = image['Hosts']
             if image['Hosts'] in hosts_dictionary:
                 host = hosts_dictionary[image['Hosts']]
-                 # TODO REPLACE WITH ALTERNATIVE TO host['stopped']
-                if recent(host['scanTime']):
+                if recent(host['scanTime'], args.hours):
                     writer.writerow(image.values())
                 else:
-                    print("Skipping: Last Scan Time: (%s) Host (%s)" % (host['scanTime'], image['Hosts']))
+                    print("Skipping Container: Parent Host (%s) Last Scan Time: (%s) older than (%s) Hours" % (image['Hosts'], host['scanTime'], args.hours))
 
 print("* Vulnerabilities Exported")
 print()
