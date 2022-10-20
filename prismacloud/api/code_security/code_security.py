@@ -16,6 +16,9 @@ class PrismaCloudAPICodeSecurityMixin():
             self.login()
         if int(time.time() - self.token_timer) > self.token_limit:
             self.extend_login()
+        if not request_headers:
+            request_headers = {'Content-Type': 'application/json'}
+        body_params_json = json.dumps(body_params)
         # Endpoints that return large numbers of results use a 'hasNext' key.
         # Pagination is via query parameters for both GET and POST, and appears to be specific to "List File Errors - POST".
         offset = 0
@@ -25,43 +28,37 @@ class PrismaCloudAPICodeSecurityMixin():
         while offset == 0 or more is True:
             if int(time.time() - self.token_timer) > self.token_limit:
                 self.extend_login()
-            requ_action = action
             if paginated:
-                requ_url = 'https://%s/%s?limit=%s&offset=%s' % (self.api, endpoint, limit, offset)
+                url = 'https://%s/%s?limit=%s&offset=%s' % (self.api, endpoint, limit, offset)
             else:
-                requ_url = 'https://%s/%s' % (self.api, endpoint)
-            if not request_headers:
-                request_headers = {'Content-Type': 'application/json'}
+                url = 'https://%s/%s' % (self.api, endpoint)
             if self.token:
                 request_headers['authorization'] = self.token
-            body_params_json = json.dumps(body_params)
-            api_response = requests.request(requ_action, requ_url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
-            if self.debug:
-                print('API Respose Status Code: %s' % api_response.status_code)
+            api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
+            self.debug_print('API Response Status Code: %s' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
                 for _ in range(1, self.retry_limit):
                     time.sleep(self.retry_pause)
-                    api_response = requests.request(requ_action, requ_url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
+                    api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
                     if api_response.ok:
                         break # retry loop
             if api_response.ok:
                 try:
                     result = json.loads(api_response.content)
                 except ValueError:
-                    self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
+                    self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                     if force:
                         return results # or continue
-                    self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
+                    self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                 if result is None:
-                    self.logger.error('JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
+                    self.logger.error('JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                     if force:
                         return results # or continue
-                    self.error_and_exit(api_response.status_code, 'JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
+                    self.error_and_exit(api_response.status_code, 'JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                 if paginated:
                     results.extend(result['data'])
                     if 'hasNext' in result:
-                        if self.debug:
-                            print('Retrieving Next Page of Results')
+                        self.debug_print('Retrieving Next Page of Results')
                         offset += limit
                         more = result['hasNext']
                     else:
@@ -69,10 +66,10 @@ class PrismaCloudAPICodeSecurityMixin():
                 else:
                     return result
             else:
-                self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (requ_url, api_response.status_code, query_params, body_params))
+                self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (url, api_response.status_code, query_params, body_params))
                 if force:
                     return results
-                self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (requ_url, query_params, body_params, api_response.text))
+                self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
         return results
 
     # Exit handler (Error).

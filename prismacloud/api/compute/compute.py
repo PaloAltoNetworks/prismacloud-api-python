@@ -18,13 +18,11 @@ class PrismaCloudAPIComputeMixin():
             self.login('https://%s/api/v1/authenticate' % self.api_compute)
         else:
             self.error_and_exit(418, "Specify a Prisma Cloud API/UI Base URL or Prisma Cloud Compute API Base URL")
-        if self.debug:
-            print('New API Token: %s' % self.token)
+        self.debug_print('New API Token: %s' % self.token)
 
     def extend_login_compute(self):
         # There is no extend for CWP, just logon again.
-        if self.debug:
-            print('Extending API Token')
+        self.debug_print('Extending API Token')
         self.login_compute()
 
     # pylint: disable=too-many-arguments,too-many-branches,too-many-locals,too-many-statements
@@ -32,6 +30,9 @@ class PrismaCloudAPIComputeMixin():
         self.suppress_warnings_when_ca_bundle_false()
         if not self.token:
             self.login_compute()
+        body_params_json = json.dumps(body_params)
+        if not request_headers:
+            request_headers = {'Content-Type': 'application/json'}
         # Endpoints that return large numbers of results use a 'Total-Count' response header.
         # Pagination is via query parameters for both GET and POST, and the limit has a maximum of 50.
         offset = 0
@@ -41,13 +42,10 @@ class PrismaCloudAPIComputeMixin():
         while offset == 0 or more is True:
             if int(time.time() - self.token_timer) > self.token_limit:
                 self.extend_login_compute()
-            requ_action = action
             if paginated:
-                requ_url = 'https://%s/%s?limit=%s&offset=%s' % (self.api_compute, endpoint, limit, offset)
+                url = 'https://%s/%s?limit=%s&offset=%s' % (self.api_compute, endpoint, limit, offset)
             else:
-                requ_url = 'https://%s/%s' % (self.api_compute, endpoint)
-            if not request_headers:
-                request_headers = {'Content-Type': 'application/json'}
+                url = 'https://%s/%s' % (self.api_compute, endpoint)
             if self.token:
                 if self.api:
                     # Authenticate via CSPM
@@ -55,14 +53,12 @@ class PrismaCloudAPIComputeMixin():
                 else:
                     # Authenticate via CWP
                     request_headers['Authorization'] = "Bearer %s" % self.token
-            body_params_json = json.dumps(body_params)
-            api_response = requests.request(requ_action, requ_url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
-            if self.debug:
-                print('API Respose Status Code: (%s)' % api_response.status_code)
+            api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
+            self.debug_print('API Respose Status Code: (%s)' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
                 for _ in range(1, self.retry_limit):
                     time.sleep(self.retry_pause)
-                    api_response = requests.request(requ_action, requ_url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
+                    api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
                     if api_response.ok:
                         break # retry loop
             if api_response.ok:
@@ -71,18 +67,17 @@ class PrismaCloudAPIComputeMixin():
                 try:
                     result = json.loads(api_response.content)
                 except ValueError:
-                    self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
+                    self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                     if force:
                         return results # or continue
-                    self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
+                    self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                 if result is None:
-                    self.logger.error('JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
+                    self.logger.error('JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                     if force:
                         return results # or continue
-                    self.error_and_exit(api_response.status_code, 'JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (requ_url, query_params, body_params, api_response.content))
+                    self.error_and_exit(api_response.status_code, 'JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                 if 'Total-Count' in api_response.headers:
-                    if self.debug:
-                        print('Retrieving Next Page of Results: Offset/Total Count: %s/%s' % (offset, api_response.headers['Total-Count']))
+                    self.debug_print('Retrieving Next Page of Results: Offset/Total Count: %s/%s' % (offset, api_response.headers['Total-Count']))
                     total_count = int(api_response.headers['Total-Count'])
                     if total_count > 0:
                         results.extend(result)
@@ -91,10 +86,10 @@ class PrismaCloudAPIComputeMixin():
                 else:
                     return result
             else:
-                self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (requ_url, api_response.status_code, query_params, body_params))
+                self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (url, api_response.status_code, query_params, body_params))
                 if force:
                     return results
-                self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (requ_url, query_params, body_params, api_response.text))
+                self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
         return results
 
     # The Compute API setting is optional.
