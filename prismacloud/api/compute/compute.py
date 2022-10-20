@@ -54,7 +54,7 @@ class PrismaCloudAPIComputeMixin():
                     # Authenticate via CWP
                     request_headers['Authorization'] = "Bearer %s" % self.token
             api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
-            self.debug_print('API Respose Status Code: (%s)' % api_response.status_code)
+            self.debug_print('API Response Status Code: (%s)' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
                 for _ in range(1, self.retry_limit):
                     time.sleep(self.retry_pause)
