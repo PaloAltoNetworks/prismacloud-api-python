@@ -5,6 +5,7 @@ import sys
 from .compute      import *
 from ._audits      import *
 from ._cloud       import *
+from ._collections import *
 from ._containers  import *
 from ._credentials import *
 from ._defenders   import *
