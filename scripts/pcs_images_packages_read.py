@@ -69,8 +69,12 @@ def optional_print(txt='', mode=True):
 def package_name_matches(comparison_exact, search_name, package_name):
     if not search_name or not package_name:
         return False
-    if (comparison_exact and search_name == package_name) or (search_name in package_name):
-        return True
+    if comparison_exact:
+        if search_name == package_name:
+            return True
+    else:
+        if search_name in package_name:
+            return True
     return False
 
 def package_version_matches(comparison_operator, search_version, package_version):
