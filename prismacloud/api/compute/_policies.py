@@ -8,8 +8,16 @@ class PoliciesPrismaCloudAPIComputeMixin:
     def policies_cloud_platforms_read(self):
         return self.execute_compute('GET', 'api/v1/policies/cloud-platforms')
 
-    def policies_cloud_platforms_write(self, body):
-        return self.execute_compute(
-            'put', 'api/v1/policies/cloud-platforms',
-            body_params=body
-        )
+    def policies_cloud_platforms_write(self, body_params):
+        return self.execute_compute('PUT', 'api/v1/policies/cloud-platforms', body_params=body_params)
+
+    # These implement multiple endpoints. See: https://prisma.pan.dev/api/cloud/cwpp/policies
+
+    def policies_read(self, policy_path):
+        return self.execute_compute('GET', 'api/v1/policies/%s' % policy_path)
+
+    def policies_write(self, policy_path, body_params):
+        return self.execute_compute('PUT', 'api/v1/policies/%s' % policy_path, body_params=body_params)
+
+    def policies_delete(self, policy_path):
+        return self.execute_compute('PUT', 'api/v1/policies/%s' % policy_path, body_params={})
