@@ -19,5 +19,5 @@ class PoliciesPrismaCloudAPIComputeMixin:
     def policies_write(self, policy_path, body_params):
         return self.execute_compute('PUT', 'api/v1/policies/%s' % policy_path, body_params=body_params)
 
-    def policies_delete(self, policy_path, body_params):
+    def policies_delete(self, policy_path):
         return self.execute_compute('PUT', 'api/v1/policies/%s' % policy_path, body_params={})
