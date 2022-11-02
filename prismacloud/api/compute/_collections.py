@@ -21,4 +21,4 @@ class CollectionsPrismaCloudAPIComputeMixin:
         return self.execute_compute('PUT', 'api/v1/collections/%s' % collection_id, body_params=body_params)
 
     def collection_delete(self, collection_id):
-        return self.execute_compute('DELETE', 'api/v1/collections/%s' % collection_id, body_params=body_params)
+        return self.execute_compute('DELETE', 'api/v1/collections/%s' % collection_id)

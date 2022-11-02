@@ -21,6 +21,7 @@ max-public-methods=24
 max-args=8
 max-branches=12
 max-nested-blocks=8
+max-returns=12
 max-statements=64
 
 [FORMAT]
