@@ -54,12 +54,13 @@ users_duplicate_file_count = 0
 users_to_import = []
 for user_to_import in user_list_to_import:
     user_duplicate = False
-    # Remove duplicates from the import file list.
-    for user_to_import_inner in user_list_to_import:
-        if user_to_import['email'].lower() == user_to_import_inner['email'].lower():
-            users_duplicate_file_count = users_duplicate_file_count + 1
-            user_duplicate = True
-            break
+    if len(user_list_to_import) > 1:
+        # Remove duplicates from the import file list.
+        for user_to_import_inner in user_list_to_import:
+            if user_to_import['email'].lower() == user_to_import_inner['email'].lower():
+                users_duplicate_file_count = users_duplicate_file_count + 1
+                user_duplicate = True
+                break
     if not user_duplicate:
         # Remove duplicates based upon the current user list.
         for user_current in user_list_current:
@@ -69,11 +70,12 @@ for user_to_import in user_list_to_import:
                 break
         if not user_duplicate:
             user = {}
+            user['defaultRoleId'] = user_role_id
             user['email']     = user_to_import['email']
             user['firstName'] = user_to_import['firstName']
             user['lastName']  = user_to_import['lastName']
+            user['roleIds']   = [user_role_id]
             user['timeZone']  = 'America/Los_Angeles'
-            user['roleId']    = user_role_id
             # TODO: Consider allowing 'roleId' in the import file to override the command line.
             # if user_to_import['roleId'] is not None:
             #     user['roleId'] = user_to_import['roleId']
