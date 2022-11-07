@@ -56,8 +56,8 @@ class PrismaCloudAPIComputeMixin():
             api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
             self.debug_print('API Response Status Code: (%s)' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
-                for _ in range(1, self.retry_limit):
-                    time.sleep(self.retry_pause)
+                for exponential_wait in self.retry_waits:
+                    time.sleep(exponential_wait)
                     api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
                     if api_response.ok:
                         break # retry loop

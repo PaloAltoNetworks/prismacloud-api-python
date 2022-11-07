@@ -24,11 +24,11 @@ class PrismaCloudAPIMixin():
         body_params_json = json.dumps({'username': self.username, 'password': self.password})
         api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.ca_bundle)
         if api_response.status_code in self.retry_status_codes:
-            for _ in range(1, self.retry_limit):
-                time.sleep(self.retry_pause)
+            for exponential_wait in self.retry_waits:
+                time.sleep(exponential_wait)
                 api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.ca_bundle)
                 if api_response.ok:
-                    break
+                    break # retry loop
         if api_response.ok:
             api_response = json.loads(api_response.content)
             self.token = api_response.get('token')
@@ -45,11 +45,11 @@ class PrismaCloudAPIMixin():
         request_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
         api_response = requests.request(action, url, headers=request_headers, verify=self.ca_bundle)
         if api_response.status_code in self.retry_status_codes:
-            for _ in range(1, self.retry_limit):
-                time.sleep(self.retry_pause)
+            for exponential_wait in self.retry_waits:
+                time.sleep(exponential_wait)
                 api_response = requests.request(action, url, headers=request_headers, verify=self.ca_bundle)
                 if api_response.ok:
-                    break
+                    break # retry loop
         if api_response.ok:
             api_response = json.loads(api_response.content)
             self.token = api_response.get('token')
@@ -83,8 +83,8 @@ class PrismaCloudAPIMixin():
             if self.debug:
                 print('API Response Status Code: %s' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
-                for _ in range(1, self.retry_limit):
-                    time.sleep(self.retry_pause)
+                for exponential_wait in self.retry_waits:
+                    time.sleep(exponential_wait)
                     api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
                     if api_response.ok:
                         break # retry loop
