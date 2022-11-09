@@ -117,22 +117,31 @@ class PrismaCloudUtility():
 
     # Get settings from the command-line and/or settings file.
 
-    def get_settings(self, args):
+    def get_settings(self, args=None):
         settings = {}
-        # Verify that there are enough command-line settings to continue, otherwise read the settings file.
-        if (args.username is None or args.password is None) or (args.api == '' and args.api_compute == ''):
-            settings = self.read_settings_file(args.config_file)
-        # Command-line settings take precedence over the settings file.
-        if args.username:
-            settings['username'] = args.username
-        if args.password:
-            settings['password'] = args.password
-        if args.api != '':
-            settings['api'] = args.api
-        if args.api_compute != '':
-            settings['api_compute'] = args.api_compute
-        if args.ca_bundle != '':
-            settings['ca_bundle'] = args.ca_bundle
+        # Read the args, or read the configuration file.
+        if isinstance(args, argparse.Namespace):
+            # Verify that there are enough command-line settings to continue, otherwise read the settings file.
+            if (args.username is None or args.password is None) or (args.api == '' and args.api_compute == ''):
+                settings = self.read_settings_file(args.config_file)
+            # Any command-line settings take precedence over the settings file.
+            if args.username:
+                settings['username'] = args.username
+            if args.password:
+                settings['password'] = args.password
+            if args.api != '':
+                settings['api'] = args.api
+            if args.api_compute != '':
+                settings['api_compute'] = args.api_compute
+            if args.ca_bundle != '':
+                settings['ca_bundle'] = args.ca_bundle
+            if args.debug:
+                settings['debug'] = args.debug
+            else:
+                settings['debug'] = False
+        # Read the default configuration file.
+        else:
+            settings = self.read_settings_file()
         # Normalize API URLs.
         settings['api']         = self.normalize_api(settings['api'])
         settings['api_compute'] = self.normalize_api_compute(settings['api_compute'])
@@ -146,8 +155,6 @@ class PrismaCloudUtility():
             self.error_and_exit(400, 'Both (--username) and (--password) are required.')
         if settings['api'] == '' and settings['api_compute'] == '':
             self.error_and_exit(400, 'One of API (--api) or API Compute (--api_compute) are required.')
-        # Debugging.
-        settings['debug'] = args.debug
         return settings
 
     # Read settings.
@@ -161,7 +168,6 @@ class PrismaCloudUtility():
             self.error_and_exit(500, 'Cannot read the settings file.\nPlease run pcs_configure.py to create a new file.')
         # Older settings that have been renamed in newer settings files.
         if 'apiBase' in settings:
-            # Do not overwrite the newer setting with the older setting.
             if 'api' not in settings:
                 settings['api'] = settings['apiBase']
             del settings['apiBase']
@@ -174,7 +180,23 @@ class PrismaCloudUtility():
             settings['api'] = settings['api_endpoint']
         if 'pcc_api_endpoint' in settings:
             settings['api_compute'] = settings['pcc_api_endpoint']
-        # Newer settings that may not be present in older settings files.
+        # Map settings from pc-python-integration to prismacloud-api.
+        if 'api_url' in settings:
+            settings['api'] = settings['api_url']
+        if 'a_key' in settings:
+            settings['username'] = settings['a_key']
+        if 's_key' in settings:
+            settings['password'] = settings['s_key']
+        if 'uname' in settings:
+            settings['username'] = settings['uname']
+        if 'passwd' in settings:
+            settings['password'] = settings['passwd']
+        # Newer pc-python-integration settings that may not be present in older settings files.
+        if 'tenant_name' not in settings:
+            settings['tenant_name'] = ''
+        if 'logger' not in settings:
+            settings['logger'] = ''
+        # Newer prismacloud-api settings that may not be present in older settings files.
         if 'api' not in settings:
             settings['api'] = ''
         if 'api_compute' not in settings:
