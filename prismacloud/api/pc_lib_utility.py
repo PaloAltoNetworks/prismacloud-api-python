@@ -38,212 +38,199 @@ class PrismaCloudUtility():
             package_version_message = "version update available: %s -> %s\nrun 'pip3 install --upgrade %s' to update" % (api_version, result.available_version, package_name)
         return package_version_message
 
-    # Default command line arguments.
+    # Default command line arguments. TODO: PC_NAME PC_URL PC_IDENTITY PC_SECRET PC_VERIFY
 
     def get_arg_parser(self):
         get_arg_parser = argparse.ArgumentParser()
         get_arg_parser.add_argument(
-            '-u',
-            '--username',
+            '--name',
+            default='',
             type=str,
-            help='(Required) - Prisma Cloud CSPM Access Key (or Compute Username)')
+            help='(Optional) - Prisma Cloud Tenant (or Compute Console) Name')
         get_arg_parser.add_argument(
-            '-p',
-            '--password',
-            type=str,
-            help='(Required) - Prisma Cloud CSPM Secret Key (or Compute Password)')
-        get_arg_parser.add_argument(
+            '--url',
             '--api',
-            '--api_cspm',
-            '--api-cspm',
-            default='',
-            type=str,
-            help='(Optional) - Prisma Cloud CSPM API/UI URL')
-        get_arg_parser.add_argument(
             '--api_compute',
-            '--api-compute',
-            type=str,
             default='',
-            help='(Optional with CSPM) Prisma Cloud Compute API/UI URL')
+            type=str,
+            help='(Required) - Prisma Cloud Tenant (or Compute Console) URL')
         get_arg_parser.add_argument(
-            '--ca_bundle',
-            '--ca_certificate',
-            '--ca-certificate',
+            '-i',
+            '--identity',
+            '--access_key',
+            '--username',
             default='',
             type=str,
-            help='(Optional) - Custom CA (bundle) file')
+            help='(Required) - Access Key (or Compute Username)')
+        get_arg_parser.add_argument(
+            '-s',
+            '--secret',
+            '--secret_key',
+            '--password',
+            default='',
+            type=str,
+            help='(Required) - Secret Key (or Compute Password)')
+        get_arg_parser.add_argument(
+            '--verify',
+            default='',
+            type=str,
+            help='(Optional) - SSL Verification. Options: true, false, or the path to a certificate bundle (Default: true)')
+        get_arg_parser.add_argument(
+           '--logger',
+            default='',
+            type=str,
+            help='(Optional) - Logger.')
         get_arg_parser.add_argument(
             '-c',
-            '--config_file',
-            '--config-file',
-            '--conf_file',
-            '--conf-file',
+            '--config',
             default=None,
             type=str,
-            help='(Optional) - Configuration file (by default: %s)' % self.DEFAULT_CONFIG_FILE)
+            help='(Optional) - Configuration file (Default: %s)' % self.DEFAULT_CONFIG_FILE)
+        get_arg_parser.add_argument(
+            '--save',
+            action='store_true',
+            help='(Optional) - Save configuration file')
         get_arg_parser.add_argument(
            '-y',
            '--yes',
             action='store_true',
-            help='(Optional) - Do not prompt for verification.')
+            help='(Optional) - Do not prompt for verification')
         get_arg_parser.add_argument(
            '-d',
            '--debug',
             action='store_true',
-            help='(Optional) - Output debugging information.')
+            help='(Optional) - Output debugging information')
         get_arg_parser.epilog=self.package_version_check()
         return get_arg_parser
 
-    # Read or write settings.
-
-    def configure(self, args):
-        print('Configuration File Name:')
-        if args.config_file is None:
-            print(self.DEFAULT_CONFIG_FILE)
-        else:
-            print(args.config_file)
-        print()
-        if args.username is None and args.password is None:
-            settings = self.read_settings_file(args.config_file)
-            self.print_settings_file(settings)
-        elif args.api != '' or args.api_compute != '':
-            self.write_settings_file(args)
-            print('Settings saved.')
-        else:
-            print('Please specify a CSPM Access Key / Compute Username (-u / --username), CSPM Secret Key / Compute Password (-p / --password), and API/UI URL (--api or --api_compute) to save your configuration.')
-            print()
-            print('Please specify nothing, other than an optional (--config_file), to view your current configuration.')
-        print()
-
-    # Get settings from the command-line and/or settings file.
+    # Read arguments from the command line and/or a settings file.
+    # If the command line specifies '--save' then also save command line settings to a settings file,
+    # making the get_settings() method name something to refactor.
 
     def get_settings(self, args=None):
         settings = {}
-        # Read the args, or read the configuration file.
+        # Read the command line arguments, or read a configuration file.
         if isinstance(args, argparse.Namespace):
-            # Verify that there are enough command-line settings to continue, otherwise read the settings file.
-            if (args.username is None or args.password is None) or (args.api == '' and args.api_compute == ''):
-                settings = self.read_settings_file(args.config_file)
-            # Any command-line settings take precedence over the settings file.
-            if args.username:
-                settings['username'] = args.username
-            if args.password:
-                settings['password'] = args.password
-            if args.api != '':
-                settings['api'] = args.api
-            if args.api_compute != '':
-                settings['api_compute'] = args.api_compute
-            if args.ca_bundle != '':
-                settings['ca_bundle'] = args.ca_bundle
-            if args.debug:
-                settings['debug'] = args.debug
-            else:
-                settings['debug'] = False
-        # Read the default configuration file.
+            # Verify that there are enough command line arguments to continue, otherwise read the settings file.
+            if args.url == '' or args.identity == '' or args.secret == '':
+                settings = self.read_settings_file(args.config)
+            # These command line arguments take precedence over the settings file.
+            if args.name != '':
+                settings['name'] = args.name
+            if args.url != '':
+                settings['url'] = args.url
+            if args.identity != '':
+                settings['identity'] = args.identity
+            if args.secret != '':
+                settings['secret'] = args.secret
+            if args.verify != '':
+                settings['verify'] = args.verify
+            # These settings are only command line arguments.
+            settings['debug'] = args.debug
+            settings['yes'] = args.debug
+        # No command line arguments provided, read the default settings file.
         else:
             settings = self.read_settings_file()
-        # Normalize API URLs.
-        settings['api']         = self.normalize_api(settings['api'])
-        settings['api_compute'] = self.normalize_api_compute(settings['api_compute'])
-        # The 'ca_bundle' setting can be a boolean or a string path to a file, as per the 'verify' parameter of requests.request().
-        if settings['ca_bundle'] == 'True' or settings['ca_bundle'] == '':
-            settings['ca_bundle'] = True
-        if settings['ca_bundle'] == 'False':
-            settings['ca_bundle'] = False
+        settings['url'] = self.normalize_api(settings['url'])
+        # The 'verify' setting can be a boolean or a string path to a file, as per the 'verify' parameter of requests.request().
+        if settings['verify'].lower() == 'true' or settings['verify'] == '':
+            settings['verify'] = True
+        elif settings['verify'].lower() == 'false':
+            settings['verify'] = False
+        # Optionally save command line settings to a settings file.
+        if isinstance(args, argparse.Namespace) and args.save:
+            self.write_settings_file(args)
         # Verify that there are enough settings to continue.
-        if settings['username'] is None or settings['password'] is None:
-            self.error_and_exit(400, 'Both (--username) and (--password) are required.')
-        if settings['api'] == '' and settings['api_compute'] == '':
-            self.error_and_exit(400, 'One of API (--api) or API Compute (--api_compute) are required.')
+        if settings['url'] == '' or settings['identity'] == '' or settings['secret'] == '':
+            self.error_and_exit(400, 'Settings --url, --identity, and --secret are required to continue.')
         return settings
 
     # Read settings.
 
+    # pylint: disable=too-many-branches
     def read_settings_file(self, settings_file_name=None):
         settings_file_name = self.specified_or_default_settings_file(settings_file_name)
         if not os.path.exists(settings_file_name):
-            self.error_and_exit(400, 'Cannot open the settings file (%s).\nPlease run pcs_configure.py to create a file, or specify one via (--config_file).' % settings_file_name)
+            self.error_and_exit(400, 'Cannot open the settings file (%s)' % settings_file_name)
         settings = self.read_json_file(settings_file_name)
         if not settings:
-            self.error_and_exit(500, 'Cannot read the settings file.\nPlease run pcs_configure.py to create a new file.')
-        # Older settings that have been renamed in newer settings files.
-        if 'apiBase' in settings:
-            if 'api' not in settings:
-                settings['api'] = settings['apiBase']
-            del settings['apiBase']
-        # Map settings from prismacloud-cli to prismacloud-api.
-        if 'access_key_id' in settings:
-            settings['username'] = settings['access_key_id']
-        if 'secret_key' in settings:
-            settings['password'] = settings['secret_key']
-        if 'api_endpoint' in settings:
-            settings['api'] = settings['api_endpoint']
-        if 'pcc_api_endpoint' in settings:
-            settings['api_compute'] = settings['pcc_api_endpoint']
-        # Map settings from pc-python-integration to prismacloud-api.
-        if 'api_url' in settings:
-            settings['api'] = settings['api_url']
-        if 'a_key' in settings:
-            settings['username'] = settings['a_key']
-        if 's_key' in settings:
-            settings['password'] = settings['s_key']
-        if 'uname' in settings:
-            settings['username'] = settings['uname']
-        if 'passwd' in settings:
-            settings['password'] = settings['passwd']
-        # Newer pc-python-integration settings that may not be present in older settings files.
-        if 'tenant_name' not in settings:
-            settings['tenant_name'] = ''
+            self.error_and_exit(400, 'Cannot read the settings file (%s)' % settings_file_name)
+        # Map settings that may be present in older settings files.
+        if settings.get('api_endpoint'):
+            settings['url'] = settings['api_endpoint']
+        if settings.get('pcc_api_endpoint'):
+            settings['url'] = settings['pcc_api_endpoint']
+        if settings.get('api'):
+            settings['url'] = settings.get('api', )
+        if settings.get('api_compute'):
+            settings['url'] = settings.get('api_compute', )
+        if settings.get('username'):
+            settings['identity'] = settings['username']
+        if settings.get('password'):
+            settings['secret'] = settings['password']
+        if settings.get('access_key_id'):
+            settings['identity'] = settings['access_key_id']
+        if settings.get('secret_key'):
+            settings['secret'] = settings['secret_key']
+        if settings.get('ca_bundle'):
+            settings['verify'] = settings['ca_bundle']
+        # Add current settings that may not be present in older settings files.
+        if 'name' not in settings:
+            settings['name'] = ''
+        if 'url' not in settings:
+            settings['url'] = ''
+        if 'identity' not in settings:
+            settings['identity'] = ''
+        if 'secret' not in settings:
+            settings['secret'] = ''
+        if 'verify' not in settings:
+            settings['verify'] = ''
         if 'logger' not in settings:
             settings['logger'] = ''
-        # Newer prismacloud-api settings that may not be present in older settings files.
-        if 'api' not in settings:
-            settings['api'] = ''
-        if 'api_compute' not in settings:
-            settings['api_compute'] = ''
-        if 'ca_bundle' not in settings:
-            settings['ca_bundle'] = ''
         return settings
 
     # Write settings.
 
     def write_settings_file(self, args):
-        settings_file_name = self.specified_or_default_settings_file(args.config_file)
+        settings_file_name = self.specified_or_default_settings_file(args.config)
         if not os.path.exists(self.CONFIG_DIRECTORY):
             os.makedirs(self.CONFIG_DIRECTORY)
+        if not os.path.exists(self.CONFIG_DIRECTORY):
+            self.error_and_exit(400, 'Cannot create the settings directory (%s)' % self.CONFIG_DIRECTORY)
         settings = {}
-        settings['api']         = self.normalize_api(args.api)
-        settings['api_compute'] = self.normalize_api_compute(args.api_compute)
-        settings['username']    = args.username
-        settings['password']    = args.password
-        settings['ca_bundle']   = args.ca_bundle
+        settings['name']        = args.name
+        settings['url']         = self.normalize_api(args.url)
+        settings['identity']    = args.identity
+        settings['secret']      = args.secret
+        settings['verify']      = args.verify
+        settings['logger']      = args.logger
         self.write_json_file(settings_file_name, settings, pretty=True)
 
     # Output settings.
 
     @classmethod
-    def print_settings_file(cls, settings):
+    def print_settings(cls, settings):
         print('Settings:')
         print()
-        if settings['api'] is not None:
-            print('Prisma Cloud CSPM API/UI URL:')
-            print(settings['api'])
+        if settings['name'] != '':
+            print('Prisma Cloud Tenant (or Compute Console) Name:')
+            print(settings['name'])
             print()
-        if settings['api_compute'] is not None:
-            print('Prisma Cloud Compute API/UI URL:')
-            print(settings['api_compute'])
+        if settings['url'] != '':
+            print('Prisma Cloud URL:')
+            print(settings['url'])
             print()
-        if settings['username'] is not None:
-            print('Prisma Cloud CSPM Access Key (or Compute Username):')
-            print(settings['username'])
+        if settings['identity'] != '':
+            print('Prisma Cloud Access Key (or Compute Username):')
+            print(settings['identity'])
             print()
-        if settings['password'] is not None:
-            print('Prisma Cloud CSPM Secret Key (or Compute Password):')
-            print(settings['password'])
+        if settings['secret'] != '':
+            print('Prisma Cloud Secret Key (or Compute Password):')
+            print(settings['secret'])
             print()
-        if settings['ca_bundle'] is not None:
-            print('Custom CA (bundle) file:')
-            print(settings['ca_bundle'])
+        if settings['verify'] != '':
+            print('SSL Verification:')
+            print(settings['verify'])
 
     # Return the user-specified settings file, or the default settings file.
 
@@ -266,24 +253,13 @@ class PrismaCloudUtility():
         if not api:
             return ''
         api = api.lower()
-        api = api.replace('app', 'api')
-        api = api.replace('redlock', 'prismacloud')
+        if '.prismacloud.io' in api:
+            api = api.replace('app', 'api')
+            api = api.replace('redlock', 'prismacloud')
         api = api.replace('http://', '')
         api = api.replace('https://', '')
         api = api.rstrip('/')
         return api
-
-    # Normalize Compute API/UI URL.
-
-    @classmethod
-    def normalize_api_compute(cls, api_compute):
-        if not api_compute:
-            return ''
-        api_compute = api_compute.lower()
-        api_compute = api_compute.replace('http://', '')
-        api_compute = api_compute.replace('https://', '')
-        api_compute = api_compute.rstrip('/')
-        return api_compute
 
     # Double-check action.
 
@@ -428,10 +404,10 @@ class PrismaCloudUtility():
     # Exit handler (Error).
 
     @classmethod
-    def error_and_exit(cls, error_code, error_message=None, system_message=None):
+    def error_and_exit(cls, _error_code, error_message=None, system_message=None):
         print()
         print()
-        print('Status Code: %s' % error_code)
+        # print('Status Code: %s' % error_code)
         if error_message is not None:
             print(error_message)
         if system_message is not None:

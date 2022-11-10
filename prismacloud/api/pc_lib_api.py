@@ -27,11 +27,12 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
     """ Prisma Cloud API Class """
     # pylint: disable=super-init-not-called
     def __init__(self):
-        self.api                = ""
-        self.api_compute        = ""
-        self.username           = None
-        self.password           = None
-        self.ca_bundle          = True
+        self.name               = ''
+        self.api                = ''
+        self.api_compute        = ''
+        self.identity           = None
+        self.secret             = None
+        self.verify             = True
         #
         self.token              = None
         self.token_timer        = 0
@@ -48,12 +49,11 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
         return 'PrismaCloudAPI:\n  API: %s\n  Compute API: %s\n  API Error Count: %s\n  API Token: %s' % (self.api, self.api_compute, self.logger.error.counter, self.token)
 
     def configure(self, settings):
-        # One of API (--api) or API Compute (--api_compute) are required.
-        self.api         = settings['api']
-        self.api_compute = settings['api_compute']
-        self.username    = settings['username']
-        self.password    = settings['password']
-        self.ca_bundle   = settings['ca_bundle']
+        self.name        = settings['name']
+        self.api         = settings['url']
+        self.identity    = settings['identity']
+        self.secret      = settings['secret']
+        self.verify      = settings['verify']
         #
         if 'debug' in settings:
             self.debug = settings['debug']
@@ -64,16 +64,22 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
         filehandler.setFormatter(formatter)
         self.logger.addHandler(filehandler)
         self.logger.error = CallCounter(self.logger.error)
-        #
-        self.auto_configure_compute()
+        # See map_cli_config_to_api_config() in https://github.com/PaloAltoNetworks/prismacloud-cli/prismacloud/cli/api.py
+        if 'url_compute' in settings:
+            self.api_compute = settings['url_compute']
+        self.auto_configure_urls()
 
     # Use the Prisma Cloud CSPM API to identify the Prisma Cloud CWP API URL.
 
-    def auto_configure_compute(self):
+    def auto_configure_urls(self):
         if self.api and not self.api_compute:
-            meta_info = self.meta_info()
-            if meta_info and 'twistlockUrl' in meta_info:
-                self.api_compute = PrismaCloudUtility.normalize_api_compute(meta_info['twistlockUrl'])
+            if '.prismacloud.io' in self.api:
+                meta_info = self.meta_info()
+                if meta_info and 'twistlockUrl' in meta_info:
+                    self.api_compute = PrismaCloudUtility.normalize_api(meta_info['twistlockUrl'])
+            else:
+                self.api_compute = PrismaCloudUtility.normalize_api(self.api)
+                self.api = ''
 
     # Conditional printing.
 

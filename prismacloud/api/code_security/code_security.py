@@ -11,7 +11,7 @@ class PrismaCloudAPICodeSecurityMixin():
 
     # pylint: disable=too-many-arguments,too-many-branches,too-many-locals,too-many-statements
     def execute_code_security(self, action, endpoint, query_params=None, body_params=None, request_headers=None, force=False, paginated=False):
-        self.suppress_warnings_when_ca_bundle_false()
+        self.suppress_warnings_when_verify_false()
         if not self.token:
             self.login()
         if int(time.time() - self.token_timer) > self.token_limit:
@@ -34,12 +34,12 @@ class PrismaCloudAPICodeSecurityMixin():
                 url = 'https://%s/%s' % (self.api, endpoint)
             if self.token:
                 request_headers['authorization'] = self.token
-            api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
+            api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify)
             self.debug_print('API Response Status Code: %s' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
                 for exponential_wait in self.retry_waits:
                     time.sleep(exponential_wait)
-                    api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
+                    api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify)
                     if api_response.ok:
                         break # retry loop
             if api_response.ok:
