@@ -11,12 +11,12 @@ class TestPrismaCloudAPI(unittest.TestCase):
     """ Unit Tests with Mocking """
 
     SETTINGS = {
-            'username':    'abc',
-            'password':    'def',
-            'api':         'example.prismacloud.io',
-            'api_compute': 'prismacloud.example.com',
-            'ca_bundle':   False,
-            'debug':       False
+            'name':     'Example Tenant',
+            'identity': 'abc',
+            'secret':   'def',
+            'url':      'example.prismacloud.io',
+            'verify':   False,
+            'debug':    False
     }
 
     USER_PROFILE = {
@@ -56,7 +56,7 @@ class TestPrismaCloudAPI(unittest.TestCase):
         get_settings.return_value = self.SETTINGS
         settings = get_settings()
         pc_api.configure(settings)
-        self.assertEqual('example.prismacloud.io', pc_api.api)
+        self.assertEqual('example.prismacloud.io', pc_api.url)
 
     # With
     def test_pc_api_current_user(self):
