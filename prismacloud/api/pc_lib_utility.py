@@ -38,20 +38,20 @@ class PrismaCloudUtility():
             package_version_message = "version update available: %s -> %s\nrun 'pip3 install --upgrade %s' to update" % (api_version, result.available_version, package_name)
         return package_version_message
 
-    # Default command line arguments. TODO: PC_NAME PC_URL PC_IDENTITY PC_SECRET PC_VERIFY
+    # Default command line arguments.
 
     def get_arg_parser(self):
         get_arg_parser = argparse.ArgumentParser()
         get_arg_parser.add_argument(
             '--name',
-            default='',
+            default=os.environ.get('PC_NAME', ''),
             type=str,
             help='(Optional) - Prisma Cloud Tenant (or Compute Console) Name')
         get_arg_parser.add_argument(
             '--url',
             '--api',
             '--api_compute',
-            default='',
+            default=os.environ.get('PC_URL', ''),
             type=str,
             help='(Required) - Prisma Cloud Tenant (or Compute Console) URL')
         get_arg_parser.add_argument(
@@ -59,7 +59,7 @@ class PrismaCloudUtility():
             '--identity',
             '--access_key',
             '--username',
-            default='',
+            default=os.environ.get('PC_IDENTITY', ''),
             type=str,
             help='(Required) - Access Key (or Compute Username)')
         get_arg_parser.add_argument(
@@ -67,19 +67,19 @@ class PrismaCloudUtility():
             '--secret',
             '--secret_key',
             '--password',
-            default='',
+            default=os.environ.get('PC_SECRET', ''),
             type=str,
             help='(Required) - Secret Key (or Compute Password)')
         get_arg_parser.add_argument(
             '--verify',
-            default='',
+            default=os.environ.get('PC_VERIFY', ''),
             type=str,
             help='(Optional) - SSL Verification. Options: true, false, or the path to a certificate bundle (Default: true)')
         get_arg_parser.add_argument(
            '--logger',
-            default='',
+            default=os.environ.get('PC_LOGGER', ''),
             type=str,
-            help='(Optional) - Logger.')
+            help='(Optional) - TODO: Logger.')
         get_arg_parser.add_argument(
             '-c',
             '--config',
@@ -125,6 +125,8 @@ class PrismaCloudUtility():
                 settings['secret'] = args.secret
             if args.verify != '':
                 settings['verify'] = args.verify
+            if args.verify != '':
+                settings['logger'] = args.logger
             # These settings are only command line arguments.
             settings['debug'] = args.debug
             settings['yes'] = args.debug
@@ -140,6 +142,9 @@ class PrismaCloudUtility():
         # Optionally save command line settings to a settings file.
         if isinstance(args, argparse.Namespace) and args.save:
             self.write_settings_file(args)
+            print()
+            print('Congifiguration saved to: %s' % args.config)
+            print()
         # Verify that there are enough settings to continue.
         if settings['url'] == '' or settings['identity'] == '' or settings['secret'] == '':
             self.error_and_exit(400, 'Settings --url, --identity, and --secret are required to continue.')

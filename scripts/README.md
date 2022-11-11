@@ -41,7 +41,7 @@ pip3 install -r requirements.txt
 
 ## Configuration
 
-Configuration for these scripts can be specified each time on the command line, or can be saved to a configuration file.
+Configuration for these scripts can be specified each time on the command line or via environment variables, or can be saved to a configuration file.
 
 Configuration options include:
 
@@ -53,7 +53,19 @@ Configuration options include:
 - `--config FILE`       (Optional) Configuration file. (Default: `~/.prismacloud/credentials.json`)
 - `--save`              (Optional) Save configuration options to a configuration file
 
-Configuration is saved as cleartext JSON, by default in the `~/.prismacloud/` directory, unless you specify an alternative via `--config`.
+Configuration is stored as cleartext JSON, by default in the `~/.prismacloud/` directory, unless you specify an alternative via `--config`.
+
+The following environment variables can be used instead of the equivalent command line options or configuration files:
+
+```
+settings = {
+    "name":     os.environ.get('PC_NAME'),
+    "url":      os.environ.get('PC_URL'),
+    "identity": os.environ.get('PC_IDENTITY'),
+    "secret":   os.environ.get('PC_SECRET'),
+    "verify":   os.environ.get('PC_VERIFY')
+}
+```
 
 
 ## Usage

@@ -33,6 +33,7 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
         self.identity           = None
         self.secret             = None
         self.verify             = True
+        self.debug              = False
         #
         self.token              = None
         self.token_timer        = 0
@@ -41,22 +42,24 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
         self.retry_waits        = [1, 2, 4, 8, 16, 32]
         self.max_workers        = 8
         #
-        self.debug              = False
         self.error_log          = 'error.log'
         self.logger             = None
 
     def __repr__(self):
-        return 'PrismaCloudAPI:\n  API: %s\n  Compute API: %s\n  API Error Count: %s\n  API Token: %s' % (self.api, self.api_compute, self.logger.error.counter, self.token)
+        return 'Prisma Cloud API:\n  API: %s\n  Compute API: %s\n  API Error Count: %s\n  API Token: %s' % (self.api, self.api_compute, self.logger.error.counter, self.token)
 
     def configure(self, settings):
-        self.name        = settings['name']
-        self.api         = settings['url']
+        self.name        = settings.get('name', '')
+        self.api         = settings.get('url', '')
+        # See map_cli_config_to_api_config() in https://github.com/PaloAltoNetworks/prismacloud-cli/prismacloud/cli/api.py
+        self.api_compute = settings.get('url_compute', '')
+        #
         self.identity    = settings['identity']
         self.secret      = settings['secret']
-        self.verify      = settings['verify']
+        self.verify      = settings.get('verify', False)
+        self.debug       = settings.get('debug', False)
         #
-        if 'debug' in settings:
-            self.debug = settings['debug']
+        # self.logger      = settings['logger']
         self.logger = logging.getLogger(__name__)
         formatter   = logging.Formatter(fmt='%(asctime)s: %(levelname)s: %(message)s', datefmt='%Y-%m-%d %I:%M:%S %p')
         filehandler = logging.FileHandler(self.error_log, delay=True)
@@ -64,9 +67,7 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
         filehandler.setFormatter(formatter)
         self.logger.addHandler(filehandler)
         self.logger.error = CallCounter(self.logger.error)
-        # See map_cli_config_to_api_config() in https://github.com/PaloAltoNetworks/prismacloud-cli/prismacloud/cli/api.py
-        if 'url_compute' in settings:
-            self.api_compute = settings['url_compute']
+        #
         self.auto_configure_urls()
 
     # Use the Prisma Cloud CSPM API to identify the Prisma Cloud CWP API URL.

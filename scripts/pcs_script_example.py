@@ -6,12 +6,13 @@ from prismacloud.api import pc_api, pc_utility
 # --Configuration-- #
 
 parser = pc_utility.get_arg_parser()
+# ADD SCRIPT-SPECIFIC ARGS HERE
+parser.add_argument('--example', type=str, default='', help='(Optional) - Example')
 args = parser.parse_args()
 
 # --Initialize-- #
 
-settings = pc_utility.get_settings(args)
-pc_api.configure(settings)
+pc_api.configure(pc_utility.get_settings(args))
 
 # --Main-- #
 
@@ -26,7 +27,6 @@ if pc_api.api:
     print('Prisma Cloud Compute API Info:')
     print()
     print(pc_api.compute_config())
-    print()
 
 if pc_api.api_compute:
     print()
@@ -34,3 +34,6 @@ if pc_api.api_compute:
     print()
     print(pc_api.statuses_intelligence())
     print()
+
+print(pc_api)
+print()
