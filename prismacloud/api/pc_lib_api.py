@@ -35,6 +35,7 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
         self.verify             = True
         self.debug              = False
         #
+        self.timeout            = None # timeout=(16, 300)
         self.token              = None
         self.token_timer        = 0
         self.token_limit        = 590 # aka 9 minutes
@@ -50,10 +51,7 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
 
     def configure(self, settings):
         self.name        = settings.get('name', '')
-        self.api         = settings.get('url', '')
-        # See map_cli_config_to_api_config() in https://github.com/PaloAltoNetworks/prismacloud-cli/prismacloud/cli/api.py
-        self.api_compute = settings.get('url_compute', '')
-        #
+        self.api         = settings.get('url', '').lower()
         self.identity    = settings['identity']
         self.secret      = settings['secret']
         self.verify      = settings.get('verify', False)
@@ -74,7 +72,7 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
 
     def auto_configure_urls(self):
         if self.api and not self.api_compute:
-            if '.prismacloud.io' in self.api:
+            if self.api.endswith('.prismacloud.io') or self.api.endswith('.prismacloud.cn'):
                 meta_info = self.meta_info()
                 if meta_info and 'twistlockUrl' in meta_info:
                     self.api_compute = PrismaCloudUtility.normalize_api(meta_info['twistlockUrl'])
