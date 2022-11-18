@@ -31,3 +31,12 @@ class SettingsPrismaCloudAPIComputeMixin:
             'post', 'api/v1/settings/host-auto-deploy',
             body_params=body
         )
+
+    def settings_serverless_auto_deploy_read(self):
+        return self.execute_compute('get', 'api/v1/settings/serverless-auto-deploy')
+
+    def settings_serverless_auto_deploy_write(self, body):
+        return self.execute_compute(
+            'post', 'api/v1/settings/serverless-auto-deploy',
+            body_params=body
+        )
