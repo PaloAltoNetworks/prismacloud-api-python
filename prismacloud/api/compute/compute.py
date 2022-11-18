@@ -17,7 +17,7 @@ class PrismaCloudAPIComputeMixin():
             # Login via CWP.
             self.login('https://%s/api/v1/authenticate' % self.api_compute)
         else:
-            self.error_and_exit(418, "Specify a Prisma Cloud API/UI Base URL or Prisma Cloud Compute API Base URL")
+            self.error_and_exit(418, "Specify a Prisma Cloud URL or Prisma Cloud Compute URL")
         self.debug_print('New API Token: %s' % self.token)
 
     def extend_login_compute(self):
@@ -27,7 +27,7 @@ class PrismaCloudAPIComputeMixin():
 
     # pylint: disable=too-many-arguments,too-many-branches,too-many-locals,too-many-statements
     def execute_compute(self, action, endpoint, query_params=None, body_params=None, request_headers=None, force=False, paginated=False):
-        self.suppress_warnings_when_ca_bundle_false()
+        self.suppress_warnings_when_verify_false()
         if not self.token:
             self.login_compute()
         body_params_json = json.dumps(body_params)
@@ -53,12 +53,12 @@ class PrismaCloudAPIComputeMixin():
                 else:
                     # Authenticate via CWP
                     request_headers['Authorization'] = "Bearer %s" % self.token
-            api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
+            api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify)
             self.debug_print('API Response Status Code: (%s)' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
                 for exponential_wait in self.retry_waits:
                     time.sleep(exponential_wait)
-                    api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
+                    api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify)
                     if api_response.ok:
                         break # retry loop
             if api_response.ok:
@@ -98,7 +98,7 @@ class PrismaCloudAPIComputeMixin():
 
     def validate_api_compute(self):
         if not self.api_compute:
-            self.error_and_exit(500, 'Please specify a Prisma Cloud Compute API Base URL.')
+            self.error_and_exit(500, 'Please specify a Prisma Cloud Compute API URL.')
 
     # Exit handler (Error).
 

@@ -9,24 +9,24 @@ import requests
 class PrismaCloudAPIMixin():
     """ Requests and Output """
 
-    def suppress_warnings_when_ca_bundle_false(self):
-        if self.ca_bundle is False:
+    def suppress_warnings_when_verify_false(self):
+        if self.verify is False:
             # Pylint Issue #4584
             # pylint: disable=no-member
             requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
     def login(self, url=None):
-        self.suppress_warnings_when_ca_bundle_false()
+        self.suppress_warnings_when_verify_false()
         if not url:
             url = 'https://%s/login' % self.api
         action = 'POST'
         request_headers = {'Content-Type': 'application/json'}
-        body_params_json = json.dumps({'username': self.username, 'password': self.password})
-        api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.ca_bundle)
+        body_params_json = json.dumps({'username': self.identity, 'password': self.secret})
+        api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.verify)
         if api_response.status_code in self.retry_status_codes:
             for exponential_wait in self.retry_waits:
                 time.sleep(exponential_wait)
-                api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.ca_bundle)
+                api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.verify)
                 if api_response.ok:
                     break # retry loop
         if api_response.ok:
@@ -39,15 +39,15 @@ class PrismaCloudAPIMixin():
             print('New API Token: %s' % self.token)
 
     def extend_login(self):
-        self.suppress_warnings_when_ca_bundle_false()
+        self.suppress_warnings_when_verify_false()
         url = 'https://%s/auth_token/extend' % self.api
         action = 'GET'
         request_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
-        api_response = requests.request(action, url, headers=request_headers, verify=self.ca_bundle)
+        api_response = requests.request(action, url, headers=request_headers, verify=self.verify)
         if api_response.status_code in self.retry_status_codes:
             for exponential_wait in self.retry_waits:
                 time.sleep(exponential_wait)
-                api_response = requests.request(action, url, headers=request_headers, verify=self.ca_bundle)
+                api_response = requests.request(action, url, headers=request_headers, verify=self.verify)
                 if api_response.ok:
                     break # retry loop
         if api_response.ok:
@@ -61,7 +61,7 @@ class PrismaCloudAPIMixin():
 
     # pylint: disable=too-many-arguments, too-many-branches, too-many-locals
     def execute(self, action, endpoint, query_params=None, body_params=None, request_headers=None, force=False, paginated=False):
-        self.suppress_warnings_when_ca_bundle_false()
+        self.suppress_warnings_when_verify_false()
         if not self.token:
             self.login()
         if int(time.time() - self.token_timer) > self.token_limit:
@@ -79,13 +79,13 @@ class PrismaCloudAPIMixin():
             if self.token:
                 request_headers['x-redlock-auth'] = self.token
             body_params_json = json.dumps(body_params)
-            api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
+            api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify)
             if self.debug:
                 print('API Response Status Code: %s' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
                 for exponential_wait in self.retry_waits:
                     time.sleep(exponential_wait)
-                    api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.ca_bundle)
+                    api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify)
                     if api_response.ok:
                         break # retry loop
             if api_response.ok:
