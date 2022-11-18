@@ -1,2 +1,3 @@
-requests
-update_checker
+packaging
+python-dateutil
+pyopenssl
