@@ -86,6 +86,39 @@ for cloud_role_to_create in cloud_roles_to_create:
     pc_api.user_role_create(cloud_role_to_create)
 print()
 
+cloud_roles_updated = pc_api.user_role_list_read()
+
+## --Create User-- #
+
+print('API - Getting the current Prisma Cloud user list ...', end='')
+print()
+
+user_list_current = pc_api.user_list_read()
+for user_to_create in cloud_account_group_list_to_import:
+    user_roles_update = []
+    for user_current in user_list_current:
+        user = {}
+        if user_to_create['ibuowner'].lower() == user_current['email'].lower():
+            print('Existing User found with email: %s' % user_to_create['ibuowner'].lower())
+            #print('Existing User Roles: %s' % user_current['roleIds'])
+            #print('Existing User Default Role: %s' % user_current['defaultRoleId'])
+            for cloud_role in cloud_roles_updated:
+                if user_to_create['ibuowner'].lower() in cloud_role['name']:
+                    if cloud_role['id'] in user_current['roleIds']: 
+                        print('Role Already Mapped to User, No Action Required')
+                    else:
+                        user_roles_update = user_current['roleIds']
+                        user_roles_update += [cloud_role['id']]
+                        user = user_current
+                        user['roleIds'] = user_roles_update
+                        pc_api.user_update(user)
+                        print('User Roles Updated with: %s' % user['roleIds'])
+                    break
+            break
+    
+print('done.')
+print()
+
 print('Done.')
 
 
