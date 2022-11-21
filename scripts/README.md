@@ -49,7 +49,7 @@ Configuration for these scripts can be specified each time on the command-line, 
 Configuration options include:
 
 - `--name NICKNAME`     (Optional) Nickname for the Prisma Cloud Tenant (or On-Premise Compute Console)
-- `--url URL`           (Required) URL for the Prisma Cloud Tenant (or On-Premise Compute Console). Examples: `app.prismacloud.io` or `console.example.com`). 
+- `--url URL`           (Required) URL for the Prisma Cloud Tenant (or On-Premise Compute Console). 
 - `--identity IDENTITY` (Required) Prisma Cloud Access Key (or On-Premise Compute Username)
 - `--secret SECRET`     (Required) Prisma Cloud Secret Key (or On-Premise Compute Password)
 - `--verify VERIFY`     (Optional) SSL Verification. Options: `true`, `false`, or the path to a certificate bundle (Default: `true`)
