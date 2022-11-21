@@ -1,6 +1,7 @@
-# Reference scripts for the Python SDK for the Prisma Cloud APIs
+# Example scripts for the Python SDK for Prisma Cloud APIs
 
-Reference scripts that utilize the Python SDK for the Prisma Cloud APIs.
+Example scripts that utilize the Python SDK for Prisma Cloud APIs.
+
 
 ## Table of Contents
 
@@ -14,7 +15,7 @@ Reference scripts that utilize the Python SDK for the Prisma Cloud APIs.
 
 ## Support
 
-This project has been developed by Prisma Cloud SEs, it is not Supported by Palo Alto Networks.
+This project has been developed by members of the Prisma Cloud CS and SE teams, it is not Supported by Palo Alto Networks.
 Nevertheless, the maintainers will make a best-effort to address issues, and (of course) contributors are encouraged to submit issues and pull requests.
 
 
@@ -25,14 +26,16 @@ If you need to install Python 3, you can get more information at [Python's Home 
 You will also need [PIP](https://pypi.python.org/pypi/pip). 
 
 These scripts require the `prismacloud-api` Python package.
-To install that packages, execute:
+
+Install the SDK via `pip3`:
 
 ```
 pip3 install prismacloud-api
 ```
 
-These scripts may also require other packages.
-To install those packages, execute:
+Please refer to [PyPI](https://pypi.org/project/prismacloud-api) for details.
+
+These scripts may also require other packages. To install those packages, execute:
 
 ```
 pip3 install -r requirements.txt 
@@ -41,7 +44,7 @@ pip3 install -r requirements.txt
 
 ## Configuration
 
-Configuration for these scripts can be specified each time on the command line or via environment variables, or can be saved to a configuration file.
+Configuration for these scripts can be specified each time on the command-line, via environment variables, or via a configuration file.
 
 Configuration options include:
 
@@ -51,11 +54,11 @@ Configuration options include:
 - `--secret SECRET`     (Required) Prisma Cloud Secret Key (or On-Premise Compute Password)
 - `--verify VERIFY`     (Optional) SSL Verification. Options: `true`, `false`, or the path to a certificate bundle (Default: `true`)
 - `--config FILE`       (Optional) Configuration file. (Default: `~/.prismacloud/credentials.json`)
-- `--save`              (Optional) Save configuration options to a configuration file
+- `--save`              (Optional) Save configuration to a configuration file
 
 Configuration is stored as cleartext JSON, by default in the `~/.prismacloud/` directory, unless you specify an alternative via `--config`.
 
-The following environment variables can be used instead of the equivalent command line options or configuration files:
+The following environment variables can be used instead of the equivalent command-line options or a configuration file:
 
 ```
 settings = {

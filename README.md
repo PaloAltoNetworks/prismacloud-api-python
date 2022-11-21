@@ -1,7 +1,7 @@
 # Python SDK for the Prisma Cloud APIs
 
-This project includes a Python SDK for the Prisma Cloud APIs (CSPM, CWPP, and PCCS) in the form of a Python package.
-It also includes reference scripts that utilize the SDK.
+This project includes a Python SDK for the Prisma Cloud APIs (CSPM, CWPP, and CCS) in the form of a Python package.
+It also includes reference scripts that utilize this SDK.
 
 Major changes with Version 5.0:
 
@@ -15,57 +15,81 @@ Major changes with Version 5.0:
 
 ## Setup
 
-Install the SDK via:
+Install the SDK via `pip3`:
 
 ```
 pip3 install prismacloud-api
 ```
 
-### Reference Scripts
+Please refer to [PyPI](https://pypi.org/project/prismacloud-api) for details.
 
-Please refer to the example/reference [scripts](https://github.com/PaloAltoNetworks/prismacloud-api-python/tree/main/scripts) directory for documentation and usage details.
+### Example Scripts
 
-If you prefer to use the SDK without using command line options, consider this minimal example:
+Please refer to this [scripts](https://github.com/PaloAltoNetworks/prismacloud-api-python/tree/main/scripts) directory for configuration, documentation, and usage.
+
+If you prefer to use this SDK without using command-line options, consider these minimal examples:
+
+#### Prisma Cloud Enterprise Edition
 
 ```
 import os
 from prismacloud.api import pc_api
 
-sass_settings = {
-    "url":      "api.prismacloud.io",
-    "identity": "accesskey",
-    "secret":   "secretkey"
+# Settings for Prisma Cloud Enterprise Edition
+
+settings = {
+    "url":      "https://api.prismacloud.io/",
+    "identity": "access_key",
+    "secret":   "secret_key"
 }
 
-on_premise_settings = {
-    "url":      "console.example.com",
+pc_api.configure(settings)
+
+print('Prisma Cloud API Current User:')
+print()
+print(pc_api.current_user())
+print()
+print('Prisma Cloud Compute API Intelligence:')
+print()
+print(pc_api.statuses_intelligence())
+print()
+```
+
+#### Prisma Cloud Compute Edition
+
+```
+import os
+from prismacloud.api import pc_api
+
+# Settings for Prisma Cloud Compute Edition
+
+settings = {
+    "url":      "https://console.example.com/",
     "identity": "username",
     "secret":   "password"
 }
 
-env_settings = {
+pc_api.configure(settings)
+
+print('Prisma Cloud Compute API Intelligence:')
+print()
+print(pc_api.statuses_intelligence())
+print()
+```
+
+Settings can also be defined as environment variables:
+
+#### Environment Variables
+
+```
+settings = {
     "url":      os.environ.get('PC_URL'),
     "identity": os.environ.get('PC_IDENTITY'),
     "secret":   os.environ.get('PC_SECRET')
 }
-
-pc_api.configure(sass_settings)
-
-if pc_api.api:
-    print()
-    print('Prisma Cloud API Test:')
-    print()
-    print(pc_api.current_user())
-
-if pc_api.api_compute:
-    print()
-    print('Prisma Cloud Compute API Test:')
-    print()
-    print(pc_api.statuses_intelligence())
-    print()
 ```
 
 ## Support
 
-This project has been developed by Prisma Cloud SEs, it is not Supported by Palo Alto Networks.
+This project has been developed by members of the Prisma Cloud CS and SE teams, it is not Supported by Palo Alto Networks.
 Nevertheless, the maintainers will make a best-effort to address issues, and (of course) contributors are encouraged to submit issues and pull requests.

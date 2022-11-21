@@ -22,11 +22,17 @@ class PrismaCloudAPIMixin():
         action = 'POST'
         request_headers = {'Content-Type': 'application/json'}
         body_params_json = json.dumps({'username': self.identity, 'password': self.secret})
-        api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.verify)
+        # try:
+        #     api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.verify, timeout=self.timeout)
+        # except requests.exceptions.Timeout:
+        #     # continue in a retry loop
+        # except requests.exceptions.RequestException as ex:
+        #     self.error_and_exit(api_response.status_code, 'API (%s) raised an exception\n%s' % (url, ex))
+        api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.verify, timeout=self.timeout)
         if api_response.status_code in self.retry_status_codes:
             for exponential_wait in self.retry_waits:
                 time.sleep(exponential_wait)
-                api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.verify)
+                api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.verify, timeout=self.timeout)
                 if api_response.ok:
                     break # retry loop
         if api_response.ok:
@@ -43,11 +49,11 @@ class PrismaCloudAPIMixin():
         url = 'https://%s/auth_token/extend' % self.api
         action = 'GET'
         request_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
-        api_response = requests.request(action, url, headers=request_headers, verify=self.verify)
+        api_response = requests.request(action, url, headers=request_headers, verify=self.verify, timeout=self.timeout)
         if api_response.status_code in self.retry_status_codes:
             for exponential_wait in self.retry_waits:
                 time.sleep(exponential_wait)
-                api_response = requests.request(action, url, headers=request_headers, verify=self.verify)
+                api_response = requests.request(action, url, headers=request_headers, verify=self.verify, timeout=self.timeout)
                 if api_response.ok:
                     break # retry loop
         if api_response.ok:
@@ -79,13 +85,13 @@ class PrismaCloudAPIMixin():
             if self.token:
                 request_headers['x-redlock-auth'] = self.token
             body_params_json = json.dumps(body_params)
-            api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify)
+            api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
             if self.debug:
                 print('API Response Status Code: %s' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
                 for exponential_wait in self.retry_waits:
                     time.sleep(exponential_wait)
-                    api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify)
+                    api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
                     if api_response.ok:
                         break # retry loop
             if api_response.ok:
