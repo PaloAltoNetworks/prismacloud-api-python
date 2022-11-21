@@ -12,6 +12,10 @@ parser.add_argument(
     'import_file_name',
     type=str,
     help='Import (CSV) file name for the Account Groups.')
+parser.add_argument(
+    'prefix',
+    type=str,
+    help='The prefix of account group')
 args = parser.parse_args()
 
 # --Initialize-- #
@@ -43,7 +47,7 @@ for cloud_account_group_to_import in cloud_account_group_list_to_import:
                 break
     if not cloud_account_group_duplicate:
         cloud_account_group = {}
-        cloud_account_group['name'] = "bhlab_test_" + cloud_account_group_to_import['name'].lower()
+        cloud_account_group['name'] = args.prefix + "test_" + cloud_account_group_to_import['name'].lower()
         cloud_account_group['description'] = cloud_account_group_to_import['description']
         accountId_string = cloud_account_group_to_import['accountIds'][1:-1]
         accountId_string = accountId_string.replace("'","")
@@ -59,4 +63,29 @@ for cloud_account_group_to_import in cloud_account_groups_to_import:
     print('Adding Cloud Account Group: %s' % cloud_account_group_to_import['name'])
     pc_api.cloud_account_group_create(cloud_account_group_to_import)
 print()
+
+## --Create Role-- ##
+
+print('API - Getting the current updated list of Account Groups ...', end='')
+cloud_account_group_list_updated = pc_api.cloud_account_group_list_read()
+print(' done.')
+print()
+
+cloud_roles_to_create = []
+for cloud_account_group in cloud_account_group_list_updated:
+    if cloud_account_group['name'].lower()[0:len(args.prefix)] == args.prefix:
+        cloud_role = {}
+        cloud_role['name'] = cloud_account_group['name'].lower().replace("bhlab_test_","bhlab_role_")
+        cloud_role['roleType'] = "yma"
+        cloud_role['accountGroupIds'] = [cloud_account_group['id']]
+        cloud_roles_to_create.append(cloud_role)
+
+print('API - Creating Roles ...')
+for cloud_role_to_create in cloud_roles_to_create:
+    print('Adding Roles: %s' % cloud_role_to_create['name'])
+    pc_api.user_role_create(cloud_role_to_create)
+print()
+
 print('Done.')
+
+

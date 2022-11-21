@@ -41,7 +41,7 @@ for cloud_account_group_current in cloud_account_group_list_current:
 
 print('Cloud Account Groups to Cleanup: %s' % len(cloud_account_groups_to_cleanup))
 
-print('API - Creating Cloud Account Groups ...')
+print('API - Cleaning Up Cloud Account Groups ...')
 for cloud_account_group_to_cleanup in cloud_account_groups_to_cleanup:
     print('Emptying Cloud Account Group: %s' % cloud_account_group_to_cleanup['name'])
     pc_api.cloud_account_group_update(cloud_account_group_to_cleanup['id'],cloud_account_group_to_cleanup)
@@ -49,4 +49,6 @@ for cloud_account_group_to_cleanup in cloud_account_groups_to_cleanup:
     pc_api.cloud_account_group_delete(cloud_account_group_to_cleanup['id'])
 print()
 print('Clean up completed')
+
+
 
