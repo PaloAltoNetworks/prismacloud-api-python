@@ -53,6 +53,11 @@ print('Prisma Cloud Compute API Intelligence:')
 print()
 print(pc_api.statuses_intelligence())
 print()
+
+print('Prisma Cloud API Object:')
+print()
+print(pc_api)
+print()
 ```
 
 #### Prisma Cloud Compute Edition
@@ -74,6 +79,11 @@ pc_api.configure(settings)
 print('Prisma Cloud Compute API Intelligence:')
 print()
 print(pc_api.statuses_intelligence())
+print()
+
+print('Prisma Cloud API Object:')
+print()
+print(pc_api)
 print()
 ```
 

@@ -71,6 +71,7 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
     # Use the Prisma Cloud CSPM API to identify the Prisma Cloud CWP API URL.
 
     def auto_configure_urls(self):
+        self.api = PrismaCloudUtility.normalize_api(self.api)
         if self.api and not self.api_compute:
             if self.api.endswith('.prismacloud.io') or self.api.endswith('.prismacloud.cn'):
                 meta_info = self.meta_info()

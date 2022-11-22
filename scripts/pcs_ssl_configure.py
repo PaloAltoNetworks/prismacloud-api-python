@@ -71,5 +71,5 @@ with open(dst_ca_file, 'w') as custom_ca_file:
             custom_ca_file.write(certificate_string)
     conn.close()
 
-print('Custom CA (bundle) file saved as: %s' % dst_ca_file)
-print("Use it with these scripts by specifying '--ca_bundle %s' on the command line or in your config file" % dst_ca_file)
+print('CA bundle file saved as: %s' % dst_ca_file)
+print("Use it with these scripts by specifying '--verify %s' on the command line or in your config file" % dst_ca_file)
