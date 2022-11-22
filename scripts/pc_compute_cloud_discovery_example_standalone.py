@@ -53,7 +53,7 @@ data['type']            = 'aws'
 data_json = json.dumps(data)
 
 # POST
-response_raw = requests.request(action, api_url, auth=HTTPBasicAuth(PRISMA_CLOUD_API_ACCESS_KEY, PRISMA_CLOUD_API_SECRET_KEY), headers=headers, data=data_json)
+response_raw = requests.request(action, api_url, auth=HTTPBasicAuth(PRISMA_CLOUD_API_ACCESS_KEY, PRISMA_CLOUD_API_SECRET_KEY), headers=headers, data=data_json, timeout=16)
 print(response_raw)
 
 ################################
@@ -68,7 +68,7 @@ api_url = 'https://' + PRISMA_CLOUD_COMPUTE_CONSOLE_URL + PRISMA_CLOUD_COMPUTE_C
 action = 'GET'
 
 # GET
-response_raw = requests.request(action, api_url, auth=HTTPBasicAuth(PRISMA_CLOUD_API_ACCESS_KEY, PRISMA_CLOUD_API_SECRET_KEY), headers=headers)
+response_raw = requests.request(action, api_url, auth=HTTPBasicAuth(PRISMA_CLOUD_API_ACCESS_KEY, PRISMA_CLOUD_API_SECRET_KEY), headers=headers, timeout=16)
 response_data = response_raw.json()
 
 rules_list = response_data['rules']
@@ -92,5 +92,5 @@ data['rules'] = rules_list
 data_json = json.dumps(data)
 
 # POST
-response_raw = requests.request(action, api_url, auth=HTTPBasicAuth(PRISMA_CLOUD_API_ACCESS_KEY, PRISMA_CLOUD_API_SECRET_KEY), headers=headers, data=data_json)
+response_raw = requests.request(action, api_url, auth=HTTPBasicAuth(PRISMA_CLOUD_API_ACCESS_KEY, PRISMA_CLOUD_API_SECRET_KEY), headers=headers, data=data_json, timeout=16)
 print(response_raw)

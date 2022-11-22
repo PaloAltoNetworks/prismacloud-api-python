@@ -41,7 +41,7 @@ data['password'] = PRISMA_CLOUD_API_SECRET_KEY
 data_json = json.dumps(data)
 
 # POST
-response_raw = requests.request(action, api_url, headers=headers, data=data_json)
+response_raw = requests.request(action, api_url, headers=headers, data=data_json, timeout=16)
 response_data = response_raw.json()
 token = response_data['token']
 
@@ -65,5 +65,5 @@ data['roleArn']        = CLOUD_ACCOUNT_ROLE_ARN_FROM_AWS
 data_json = json.dumps(data)
 
 # POST
-response_raw = requests.request(action, api_url, headers=headers, data=data_json)
+response_raw = requests.request(action, api_url, headers=headers, data=data_json, timeout=16)
 print(response_raw)

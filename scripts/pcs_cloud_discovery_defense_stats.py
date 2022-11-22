@@ -1,8 +1,6 @@
 """ Get statistics from cloud discovery """
 
 # pylint: disable=import-error
-import pprint
-
 from prismacloud.api import pc_api, pc_utility
 
 # --Configuration-- #
@@ -74,13 +72,11 @@ for item in discovery:
             aws_lambda += item['total']
             aws_lambda_defended += item['defended']
         elif service == 'aws-ecs':
-#            pprint.pprint(item)
             for entity in item['entities']:
                 print('%s, %s, %s, %s, %s' % (item['accountID'], item['region'], service, item['defended'], entity['runningTasksCount']))
                 aws_ecs += entity['runningTasksCount']
                 aws_ecs_defended += item['defended']
         elif service == 'aws-eks':
-#            pprint.pprint(item)
             if args.detailed:
                 item.pop('collections')
             if args.detailed:
@@ -109,4 +105,3 @@ if args.eks and args.detailed:
     for item in aws_eks_clusters:
         for entity in item['entities']:
             print('%s, %s, %s, %s, %s' % (item['accountID'], item['region'], entity['name'], item['defended'], entity['arn']))
-            
