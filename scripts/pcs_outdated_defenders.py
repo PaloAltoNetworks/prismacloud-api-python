@@ -1,8 +1,7 @@
-""" Get outdated Defenders """
+""" Get Outdated Defenders """
 
-# pylint: disable=import-error
+from packaging import version
 
-from distutils.version import StrictVersion
 from prismacloud.api import pc_api, pc_utility
 
 # --Configuration-- #
@@ -48,7 +47,7 @@ defenders = pc_api.execute_compute('GET', 'api/v1/defenders')
 
 output('Provider, Cloud Account, Region, Defender, Version, Type, Outdated')
 for defender in defenders:
-    outdated = StrictVersion(defender['version']) < StrictVersion(current_version)
+    outdated = version.parse(defender['version']) < version.parse(current_version)
     provider = "Unknown"
     account = "Unknown"
     region = "Unknown"

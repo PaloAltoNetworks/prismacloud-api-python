@@ -1,5 +1,7 @@
 """ Get a list of vulnerable containers and their clusters """
+
 import os
+
 from prismacloud.api import pc_api, pc_utility
 
 # --Configuration-- #
@@ -41,7 +43,7 @@ print()
 print('Searching for CVE: (%s) Limiting Search to Image ID: (%s)' % (args.cve, args.image_id))
 print()
 
-#Image_ID, Registry, Repo, Tag, CVE_ID, Application, Version, path 
+# Image_ID, Registry, Repo, Tag, CVE_ID, Application, Version, path
 vulnerableImageDetails = []
 vulnerableImageDetails.append("Image_ID,Registry,Repo,Tag,CVE_ID,Application,Version,Path\n")
 
@@ -86,8 +88,8 @@ if args.mode in ['deployed', 'all']:
     print(' done.')
     print('Found %s Deployed Images' % len(deployed_images))
     print()
-    #Image_ID, Registry, Repo, Tag, CVE_ID, Application, Version, path 
-    #vulnerableImageDetails = []
+    # Image_ID, Registry, Repo, Tag, CVE_ID, Application, Version, path
+    # vulnerableImageDetails = []
     vulnerableImageDetails.append("Image_ID,Registry,Repo,Tag,CVE_ID,Application,Version,Path\n")
     for image in deployed_images:
         image_id = image['_id']
@@ -100,7 +102,7 @@ if args.mode in ['deployed', 'all']:
         for vulnerability in vulnerabilities:
             if args.cve and vulnerability['cve'] == args.cve:
                 vulnerable = True
-                #check if it contains the java application 
+                # Check if it contains the java application
                 if 'applications' in image:
                     for app in image['applications']:
                         if ((app['name'] == 'java') and ('1.8' not in app['version'])):
@@ -118,9 +120,10 @@ if args.mode in ['deployed', 'all']:
     #print(vulnerableImageDetails)
 
     file_name_and_path = os.path.join(os.getcwd(), 'CVE-2022-22965-WITHOUT-JAVA8.csv')
+    # pylint: disable=broad-except
     try:
         with open(file_name_and_path, 'w') as file:
             for line in vulnerableImageDetails:
                 file.write(line)
     except Exception as ex:
-            print('Failed to write csv file. %s', ex)
+        print('Failed to write csv file. %s', ex)

@@ -76,7 +76,7 @@ def outbound_api_call(data_type:str, data: Union[list, dict]):
     req_headers      = {}
     req_query_params = {}
     req_body_params  = data
-    connect_timeout  = 4
+    req_timeout      = 4
     retry_status_codes = [401, 429, 500, 502, 503, 504]
     retry_limit = 4
     retry_pause = 8
@@ -86,11 +86,11 @@ def outbound_api_call(data_type:str, data: Union[list, dict]):
         profile_log('OUTBOUND_API_CALL', 'FINISHED')
         return
     print(f'        OUTBOUND_API_CALL for {data_type} ...')
-    api_response = requests.request(req_method, req_url, headers=req_headers, params=req_query_params, data=json.dumps(req_body_params), timeout=connect_timeout, verify=False)
+    api_response = requests.request(req_method, req_url, headers=req_headers, params=req_query_params, data=json.dumps(req_body_params), timeout=req_timeout, verify=False)
     if api_response.status_code in retry_status_codes:
         for _ in range(1, retry_limit):
             time.sleep(retry_pause)
-            api_response = requests.request(req_method, req_url, headers=req_headers, params=req_query_params, data=json.dumps(req_body_params))
+            api_response = requests.request(req_method, req_url, headers=req_headers, params=req_query_params, data=json.dumps(req_body_params), timeout=req_timeout, verify=False)
             if api_response.ok:
                 break # break retry loop
     if not api_response.ok:
