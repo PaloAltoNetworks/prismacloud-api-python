@@ -551,7 +551,13 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('POST', 'license/api/v1/usage', body_params=body_params)
 
     def resource_usage_over_time(self, body_params):
-        return self.execute('POST', 'license/api/v1/usage/time_series', body_params=body_params)
+        return self.execute('POST', 'license/api/v1/usage/time_series', body_params=body_params)        
+
+    def resource_usage_by_cloud_type(self, body_params):
+        return self.execute('POST', 'license/api/v2/usage', body_params=body_params)
+
+    def resource_usage_over_time(self, body_params):
+        return self.execute('POST', 'license/api/v2/time_series', body_params=body_params)
 
     """
     Enterprise Settings 
