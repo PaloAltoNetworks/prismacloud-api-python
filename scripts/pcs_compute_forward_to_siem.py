@@ -5,7 +5,6 @@
 # It depends upon the SIEM to deduplicate data, and requires you to modify the `send_data_to_siem()` function for your SIEM API.
 
 import concurrent.futures
-import datetime
 import json
 import inspect
 import time
@@ -13,9 +12,11 @@ import time
 from pathlib import Path
 from typing import Union
 
-import requests
 
+from datetime import datetime, timedelta, timezone
 from dateutil import parser, tz
+
+import requests
 
 # pylint: disable=import-error
 from prismacloud.api import pc_api, pc_utility
@@ -43,9 +44,9 @@ this_parser.add_argument(
     default=DEFAULT_MINUTES_OVERLAP,
     help=f'(Optional) - Minutes of overlap for time period to collect. (Default: {DEFAULT_MINUTES_OVERLAP})')
 this_parser.add_argument(
-    '--no_audit_events',
+    '--audit_events',
     action='store_true',
-    help='(Optional) - Do not collect Audit Events. (Default: disabled)')
+    help='(Optional) - Collect Audit Events. (Default: disabled)')
 this_parser.add_argument(
     '--host_forensic_activities',
     action='store_true',
@@ -59,10 +60,10 @@ this_parser.add_argument(
     action='store_true',
     help='(Optional) - Collect Console Logs. (Default: disabled)')
 this_parser.add_argument(
-    '--console_log_limit',
+    '--console_logs_limit',
     type=int,
     default=DEFAULT_CONSOLE_LOG_LIMIT,
-    help=f'(Optional) - Number of console logs to collect, requires --console_logs. (Default: {DEFAULT_CONSOLE_LOG_LIMIT})')
+    help=f'(Optional) - Number of messages to collect, requires --console_logs. (Default: {DEFAULT_CONSOLE_LOG_LIMIT})')
 args = this_parser.parse_args()
 
 # -- User Defined Functions-- #
@@ -176,31 +177,29 @@ create_output_directory()
 print('Collect Compute Audits, History, and Logs')
 print()
 
-# Date Ranges
+# Dates
 
-date_time_1 = datetime.datetime.now().replace(microsecond=0)
-date_time_0 = date_time_1 - datetime.timedelta(hours=args.hours, minutes=args.minutes_overlap)
-zone_time_1 = date_time_1.astimezone(tz.tzlocal())
-zone_time_0 = zone_time_1 - datetime.timedelta(hours=args.hours, minutes=args.minutes_overlap)
+date_time_1 = datetime.now(timezone.utc).replace(microsecond=0)
+date_time_0 = date_time_1 - timedelta(hours=args.hours, minutes=args.minutes_overlap)
 
-audit_query_params = {
-    'from':  f"{date_time_0.isoformat(sep='T')}Z",
-    'to':    f"{date_time_1.isoformat(sep='T')}Z",
+datetime_range = {
+    'from':  f"{date_time_0.isoformat()}Z".replace('+00:00Z', '.000Z'),
+    'to':    f"{date_time_1.isoformat()}Z".replace('+00:00Z', '.000Z'),
     'sort': 'time'
 }
 
-console_log_query_params = {
-    'lines': args.console_log_limit
+console_logs_datetime_range = {
+    'from':  date_time_0,
+    'to':    date_time_1,
 }
 
-console_log_time_range = {
-    'from':  zone_time_0,
-    'to':    zone_time_1,
+console_logs_query_params = {
+    'lines': args.console_logs_limit
 }
 
 print('Query Period:')
-print(f'    From: {date_time_0}')
-print(f'    To:   {date_time_1}')
+print('    From: %s' % datetime_range['from'])
+print('    To:   %s' % datetime_range['to'])
 print()
 
 # Calculon Compute!
@@ -208,13 +207,13 @@ print()
 outer_futures = []
 with concurrent.futures.ThreadPoolExecutor(OUTER_CONCURRENY) as executor:
 
-    if not args.no_audit_events:
+    if args.audit_events:
         print('Collecting Audits')
         print()
         for this_audit_type in pc_api.compute_audit_types():
             outer_futures.append(executor.submit(
-                    #process_audit_events(this_audit_type, audit_query_params)
-                    process_audit_events, this_audit_type, audit_query_params
+                    # aka: process_audit_events(this_audit_type, datetime_range)
+                    process_audit_events, this_audit_type, datetime_range
                 )
             )
         concurrent.futures.wait(outer_futures)
@@ -224,8 +223,8 @@ with concurrent.futures.ThreadPoolExecutor(OUTER_CONCURRENY) as executor:
         print('Collecting Host Forensic Activity Audits (high-volume/time-intensive, please wait)')
         print()
         outer_futures.append(executor.submit(
-                #process_host_forensic_activities(audit_query_params)
-                process_host_forensic_activities, audit_query_params
+                # aka: process_host_forensic_activities(datetime_range)
+                process_host_forensic_activities, datetime_range
             )
         )
         print()
@@ -234,18 +233,18 @@ with concurrent.futures.ThreadPoolExecutor(OUTER_CONCURRENY) as executor:
         print('Collecting Console History')
         print()
         outer_futures.append(executor.submit(
-                #process_console_history(audit_query_params)
-                process_console_history, audit_query_params
+                # aka: process_console_history(datetime_range)
+                process_console_history, datetime_range
             )
         )
         print()
 
     if args.console_logs:
-        print(f'Collecting Console History (Log Limit: {args.console_log_limit})')
+        print(f'Collecting Console Logs (Limit: {args.console_logs_limit})')
         print()
         outer_futures.append(executor.submit(
-                #process_console_logs(console_log_query_params, console_log_time_range)
-                process_console_logs, console_log_query_params, console_log_time_range
+                # aka: process_console_logs(console_logs_query_params, console_logs_datetime_range)
+                process_console_logs, console_logs_query_params, console_logs_datetime_range
             )
         )
         print()
