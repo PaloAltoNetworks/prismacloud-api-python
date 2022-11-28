@@ -8,16 +8,16 @@ import concurrent.futures
 import json
 import inspect
 import time
-import sys
 
 from pathlib import Path
 from typing import Union
 
-import requests
 
 from datetime import datetime, timedelta, timezone
 from dateutil import parser, tz
- 
+
+import requests
+
 # pylint: disable=import-error
 from prismacloud.api import pc_api, pc_utility
 
