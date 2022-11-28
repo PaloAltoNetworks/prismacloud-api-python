@@ -34,6 +34,9 @@ class PrismaCloudAPICodeSecurityMixin():
                 url = 'https://%s/%s' % (self.api, endpoint)
             if self.token:
                 request_headers['authorization'] = self.token
+            self.debug_print('API URL: %s' % url)
+            self.debug_print('API Query Params: %s' % query_params)
+            self.debug_print('API Body Params: %s' % body_params_json)
             api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
             self.debug_print('API Response Status Code: %s' % api_response.status_code)
             if api_response.status_code in self.retry_status_codes:
@@ -49,11 +52,11 @@ class PrismaCloudAPICodeSecurityMixin():
                     return api_response.content.decode('utf-8')
                 try:
                     result = json.loads(api_response.content)
-                    if result is None:
-                        self.logger.error('JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
-                        if force:
-                            return results # or continue
-                        self.error_and_exit(api_response.status_code, 'JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
+                    #if result is None:
+                    #    self.logger.error('JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
+                    #    if force:
+                    #        return results # or continue
+                    #    self.error_and_exit(api_response.status_code, 'JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                 except ValueError:
                     self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                     if force:
