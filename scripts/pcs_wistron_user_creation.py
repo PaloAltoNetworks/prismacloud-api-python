@@ -1,7 +1,9 @@
-""" Import Users from a CSV file """
+""" Import Account Groups from a CSV file """
 
 # pylint: disable=import-error
 from prismacloud.api import pc_api, pc_utility
+import numpy as np
+import json
 
 # --Configuration-- #
 
@@ -9,16 +11,7 @@ parser = pc_utility.get_arg_parser()
 parser.add_argument(
     'import_file_name',
     type=str,
-    help='Import (CSV) file name for the Users.')
-parser.add_argument(
-    'role_name',
-    type=str,
-    help='Role to assign for the imported Users.')
-parser.add_argument(
-    '--access_keys_allowed',
-    choices=['true', 'false', None],
-    type=str,
-    help='(Optional) - Whether Access Keys are allowed for the imported Users.')
+    help='Import (CSV) file name for the Account Groups.')
 args = parser.parse_args()
 
 # --Initialize-- #
@@ -29,69 +22,45 @@ pc_api.configure(settings)
 
 # --Main-- #
 
-print('API - Getting the current list of Users ...', end='')
-user_list_current = pc_api.user_list_read()
+print('API - Getting the current list of Account Groups ...', end='')
+cloud_account_group_list_current = pc_api.cloud_account_group_list_read()
 print(' done.')
 print()
 
-user_list_to_import = pc_utility.read_csv_file_text(args.import_file_name)
+## --Create User-- #
 
-print('API - Getting the Roles list ...', end='')
-user_role_list = pc_api.user_role_list_read()
-print(' done.')
-
-user_role_id = None
-for user_role in user_role_list:
-    if user_role['name'].lower() == args.role_name.lower():
-        user_role_id = user_role['id']
-        break
-if user_role_id is None:
-    pc_utility.error_and_exit(400, 'Role not found. Please verify the Role name.')
-
-users_duplicate_current_count = 0
-users_duplicate_file_count = 0
-
+cloud_account_group_list_to_import = pc_utility.read_csv_file_text(args.import_file_name)
+cloud_roles_updated = pc_api.user_role_list_read()
+user_list_current = pc_api.user_list_read()
 users_to_import = []
-for user_to_import in user_list_to_import:
-    user_duplicate = False
-    if len(user_list_to_import) > 1:
-        # Remove duplicates from the import file list.
-        for user_to_import_inner in user_list_to_import:
-            if user_to_import['email'].lower() == user_to_import_inner['email'].lower():
-                users_duplicate_file_count = users_duplicate_file_count + 1
-                user_duplicate = True
-                break
-    if not user_duplicate:
-        # Remove duplicates based upon the current user list.
-        for user_current in user_list_current:
-            if user_to_import['email'].lower() == user_current['email'].lower():
-                users_duplicate_current_count = users_duplicate_current_count + 1
-                user_duplicate = True
-                break
-        if not user_duplicate:
-            user = {}
-            user['defaultRoleId'] = user_role_id
-            user['email']     = user_to_import['email']
-            user['firstName'] = user_to_import['firstName']
-            user['lastName']  = user_to_import['lastName']
-            user['roleIds']   = [user_role_id]
-            user['timeZone']  = 'America/Los_Angeles'
-            # TODO: Consider allowing 'roleId' in the import file to override the command line.
-            # if user_to_import['roleId'] is not None:
-            #     user['roleId'] = user_to_import['roleId']
-            if args.access_keys_allowed is not None:
-                user['accessKeysAllowed'] = args.access_keys_allowed
-            # TODO: Consider allowing 'accessKeysAllowed' in the import file to override the command line.
-            # if user_to_import['lastName'] is not None:
-            #     user['accessKeysAllowed'] = user_to_import['accessKeysAllowed']
-            users_to_import.append(user)
 
-print('Users to add: %s' % len(users_to_import))
-print('Users skipped (duplicates in Prisma Cloud): %s' % users_duplicate_current_count)
-print('Users skipped (duplicates in Import File): %s' % users_duplicate_file_count)
 
-print('API - Creating Users ...')
-for user_to_import in users_to_import:
-    print('Adding User: %s' % user_to_import['email'])
-    pc_api.user_create(user_to_import)
-print('Done.')
+print('API - Getting the current Prisma Cloud user list ...', end='')
+print()
+
+for user_to_create in cloud_account_group_list_to_import:
+    user_roles_update = []
+    for user_current in user_list_current:
+        user = {}
+        if user_to_create['username'].lower() == user_current['email'].lower():
+            print('Existing User found with email: %s' % user_to_create['username'].lower())
+            #print('Existing User Roles: %s' % user_current['roleIds'])
+            #print('Existing User Default Role: %s' % user_current['defaultRoleId'])
+            for cloud_role in cloud_roles_updated:
+                if user_to_create['username'].lower() in cloud_role['name']:
+                    if cloud_role['id'] in user_current['roleIds']: 
+                        print('Role Already Mapped to User, No Action Required')
+                    else:
+                        user_roles_update = user_current['roleIds']
+                        user_roles_update += [cloud_role['id']]
+                        user = user_current
+                        user['roleIds'] = user_roles_update
+                        pc_api.user_update(user)
+                        print('User Roles Updated with: %s' % user['roleIds'])
+                    break
+            break
+
+print('done.')
+print()
+
+
