@@ -96,6 +96,7 @@ print()
 user_list_current = pc_api.user_list_read()
 for user_to_create in cloud_account_group_list_to_import:
     user_roles_update = []
+    user_creation_flag = True
     for user_current in user_list_current:
         user = {}
         if user_to_create['ibuowner'].lower() == user_current['email'].lower():
@@ -104,6 +105,7 @@ for user_to_create in cloud_account_group_list_to_import:
             #print('Existing User Default Role: %s' % user_current['defaultRoleId'])
             for cloud_role in cloud_roles_updated:
                 if user_to_create['ibuowner'].lower() in cloud_role['name']:
+                    user_creation_flag = False
                     if cloud_role['id'] in user_current['roleIds']: 
                         print('Role Already Mapped to User, No Action Required')
                     else:
@@ -115,9 +117,21 @@ for user_to_create in cloud_account_group_list_to_import:
                         print('User Roles Updated with: %s' % user['roleIds'])
                     break
             break
-    
-print('done.')
-print()
+    if user_creation_flag:
+        print('Creating User with email: %s' % user_to_create['ibuowner'].lower())
+        user = {}
+        user_roles_update = []
+        for cloud_role in cloud_roles_updated:
+            if user_to_create['ibuowner'].lower() in cloud_role['name']:
+                user_roles_update += [cloud_role['id']]
+                user['roleIds'] = user_roles_update
+                user['defaultRoleId'] = cloud_role['id']
+        user['email']     = user_to_create['ibuowner'].lower()
+        user['firstName'] = user_to_create['firstName']
+        user['lastName']  = user_to_create['lastName']
+        user['timeZone']  = 'America/Los_Angeles'
+        pc_api.user_create(user)
+        print('User Created')
 
 print('Done.')
 

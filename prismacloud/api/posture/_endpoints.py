@@ -40,6 +40,15 @@ class EndpointsPrismaCloudAPIMixin():
 
     def alert_v2_list_read(self, query_params=None, body_params=None):
         return self.execute('POST', 'v2/alert', query_params=query_params, body_params=body_params, paginated=True)
+    
+    def alert_csv_create(self, body_params=None):
+        return self.execute('POST', 'alert/csv', body_params=body_params)
+
+    def alert_csv_status(self, csv_report_id):
+        return self.execute('GET', 'alert/csv/%s/status' % csv_report_id)
+
+    def alert_csv_download(self, csv_report_id):
+        return self.execute('GET', 'alert/csv/%s/download' % csv_report_id)
 
     """
     Policies
