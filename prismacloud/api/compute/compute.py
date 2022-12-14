@@ -58,6 +58,7 @@ class PrismaCloudAPIComputeMixin():
             self.debug_print('API Body Params: %s' % body_params_json)
             api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
             self.debug_print('API Response Status Code: (%s)' % api_response.status_code)
+            self.debug_print('API Response Headers: (%s)' % api_response.headers)
             if api_response.status_code in self.retry_status_codes:
                 for exponential_wait in self.retry_waits:
                     time.sleep(exponential_wait)
@@ -67,6 +68,8 @@ class PrismaCloudAPIComputeMixin():
             if api_response.ok:
                 if not api_response.content:
                     return None
+                if api_response.headers.get('Content-Type') == 'application/x-gzip':
+                    return api_response.content
                 if api_response.headers.get('Content-Type') == 'text/csv':
                     return api_response.content.decode('utf-8')
                 try:
