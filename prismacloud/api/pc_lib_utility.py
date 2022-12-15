@@ -133,7 +133,7 @@ class PrismaCloudUtility():
         # No command line arguments provided, read the default settings file.
         else:
             settings = self.read_settings_file()
-        settings['url'] = self.normalize_api(settings['url'])
+        settings['url'] = self.normalize_url(settings['url'])
         # The 'verify' setting can be a boolean or a string path to a file, as per the 'verify' parameter of requests.request().
         if settings['verify'].lower() == 'true' or settings['verify'] == '':
             settings['verify'] = True
@@ -204,7 +204,7 @@ class PrismaCloudUtility():
             self.error_and_exit(400, 'Cannot create the settings directory (%s)' % self.CONFIG_DIRECTORY)
         settings = {}
         settings['name']        = args.name
-        settings['url']         = self.normalize_api(args.url)
+        settings['url']         = self.normalize_url(args.url)
         settings['identity']    = args.identity
         settings['secret']      = args.secret
         settings['verify']      = args.verify
@@ -258,13 +258,17 @@ class PrismaCloudUtility():
         if not api:
             return ''
         api = api.lower()
-        if '.prismacloud.io' in api:
+        if '.prismacloud.io' in api or '.prismacloud.cn' in api:
             api = api.replace('app', 'api')
             api = api.replace('redlock', 'prismacloud')
         api = api.replace('http://', '')
         api = api.replace('https://', '')
         api = api.rstrip('/')
         return api
+
+    @classmethod
+    def normalize_url(cls, url):
+        return cls.normalize_api(url)
 
     # Double-check action.
 
