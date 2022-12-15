@@ -47,14 +47,13 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
         self.logger             = None
 
     def __repr__(self):
-        return 'Prisma Cloud API:\n  API: %s\n  Compute API: %s\n  API Error Count: %s\n  API Token: %s' % (self.api, self.api_compute, self.logger.error.counter, self.token)
+        return 'Prisma Cloud API:\n  API: (%s)\n  Compute API: (%s)\n  API Error Count: (%s)\n  API Token: (%s)' % (self.api, self.api_compute, self.logger.error.counter, self.token)
 
     def configure(self, settings):
         self.name        = settings.get('name', '')
-        self.api         = settings.get('url', '').lower()
-        self.identity    = settings['identity']
-        self.secret      = settings['secret']
-        self.verify      = settings.get('verify', False)
+        self.identity    = settings.get('identity')
+        self.secret      = settings.get('secret')
+        self.verify      = settings.get('verify', True)
         self.debug       = settings.get('debug', False)
         #
         # self.logger      = settings['logger']
@@ -66,20 +65,18 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
         self.logger.addHandler(filehandler)
         self.logger.error = CallCounter(self.logger.error)
         #
-        self.auto_configure_urls()
-
-    # Use the Prisma Cloud CSPM API to identify the Prisma Cloud CWP API URL.
-
-    def auto_configure_urls(self):
-        self.api = PrismaCloudUtility.normalize_api(self.api)
-        if self.api and not self.api_compute:
-            if self.api.endswith('.prismacloud.io') or self.api.endswith('.prismacloud.cn'):
+        url = PrismaCloudUtility.normalize_url(settings.get('url', ''))
+        if url:
+            if url.endswith('.prismacloud.io') or url.endswith('.prismacloud.cn'):
+                # URL is a Prisma Cloud CSPM API URL.
+                self.api = url
+                # Use the Prisma Cloud CSPM API to identify the Prisma Cloud CWP API URL.
                 meta_info = self.meta_info()
                 if meta_info and 'twistlockUrl' in meta_info:
-                    self.api_compute = PrismaCloudUtility.normalize_api(meta_info['twistlockUrl'])
+                    self.api_compute = PrismaCloudUtility.normalize_url(meta_info['twistlockUrl'])
             else:
-                self.api_compute = PrismaCloudUtility.normalize_api(self.api)
-                self.api = ''
+                # URL is a Prisma Cloud CWP API URL.
+                self.api_compute = PrismaCloudUtility.normalize_url(url)
 
     # Conditional printing.
 
