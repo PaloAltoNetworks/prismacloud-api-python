@@ -148,10 +148,3 @@ while(not report_ready):
         for file_name in file_names:
             shutil.move(os.path.join(current_report_dir, file_name), last_report_dir)
         break
-
-
-
-
-
-
-
