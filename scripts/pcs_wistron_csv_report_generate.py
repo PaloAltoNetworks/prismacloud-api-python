@@ -17,11 +17,11 @@ parser.add_argument(
     type=str,
     default='high',
     help='Alert Serverity Level, Default=High')
-parser.add_argument(
-    'status',
-    type=str,
-    default='open',
-    help='Alert Status, Default = Open')
+#parser.add_argument(
+#    'status',
+#    type=str,
+#    default='open',
+#    help='Alert Status, Default = Open')
 parser.add_argument(
     'type',
     type=str,
@@ -56,7 +56,6 @@ body_params = {
     ],
     "filters":[
         {"operator":"=", "name":"policy.serverity", "value": "%s" % args.severity},
-        {"operator":"=", "name":"alert.status", "value": "%s" % args.status},
         {"operator":"=", "name":"policy.type", "value": "%s" % args.type},
     ],
     "groupBy": [
@@ -82,8 +81,8 @@ print('Creating the Alert Report...', end='')
 print()
 alert_report = pc_api.alert_csv_create(body_params)
 print('Report Created with Report ID: %s' % alert_report['id'])
-today = date.today().strftime("%Y-%m-%d")
-report_filename = "./Report-Current/wistron-report-" + today + ".csv"
+report_time = time.strftime("%Y%m%d-%H%M%S")
+report_filename = "./Report-Current/wistron-report-" + report_time + ".csv"
 print()
 
 report_ready = False
@@ -100,51 +99,83 @@ while(not report_ready):
     time.sleep(2.5)    
     if (alert_report_update['status'] == 'READY_TO_DOWNLOAD'):
         csv_report = pc_api.alert_csv_download(alert_report['id'])
-        file_names = os.listdir(last_report_dir)
+        file_names = os.listdir(current_report_dir)
+
+        # Move Files Generate previously to Repo
+        for file_name in file_names:
+            shutil.move(os.path.join(current_report_dir, file_name), os.path.join(repo_report_dir, file_name))
 
         # Write Download Report File to Current Report Directory
         file = open(report_filename, "w")
         file.write(csv_report)
         file.close()
-        file_names = os.listdir(current_report_dir)
+        print("Alert Report Downloaded...")
+        file_names = os.listdir(last_report_dir)
 
-        # Compare Previous and New Report File to info Folder
-        data1 = pd.read_csv(report_filename)
-        for file_name in file_names:
-            data2 = pd.read_csv(last_report_dir + '/' + file_name)
-        merged_data = pd.concat([data1,data2]).drop_duplicates(keep=False)
-        diff_data = merged_data.groupby('Alert ID')['Alert Status'].apply(' --> '.join).reset_index()
-        diff_df = pd.DataFrame(diff_data)
-        diff_df.to_csv(info_report_dir + '/' + 'wistron-alert-updates-' + today + '.csv',index=None)
+        if len(file_names) != 0:
+            # Compare Previous and New Report File to info Folder
+            data1 = pd.read_csv(report_filename)
+            for file_name in file_names:
+                data2 = pd.read_csv(last_report_dir + '/' + file_name)
+            #merged_data = pd.concat([data1,data2]).drop_duplicates(keep=False)
+            merged_data = pd.concat([data2,data1])
+            diff_data = merged_data.groupby('Alert ID')['Alert Status'].apply('>'.join).reset_index()
+            diff_df = pd.DataFrame(diff_data)
+            diff_df.rename(columns={'Alert Status' : 'Alert Status Change'})
+            diff_csv = 'wistron-alert-updates-' + report_time + '.csv'
+            diff_df.to_csv(info_report_dir + '/' + diff_csv,index=None)
+            print("Comparing with last report...")
 
         # Move Files Generate previously to Repo
         for file_name in file_names:
             shutil.move(os.path.join(last_report_dir, file_name), os.path.join(repo_report_dir, file_name))
 
+        print("Generating report with Wistron Information...")
         report_csv = pd.read_csv(report_filename)
         report_csv.head()
 
         info_csv = pd.read_csv(info_csv_path)
         info_csv.head()
 
-        inner_join = pd.merge(report_csv, 
+        if len(file_names) != 0:
+            alert_status_csv = pd.read_csv(info_report_dir + '/' + diff_csv)
+            alert_status_csv.head()
+            inner_join_1 = pd.merge(report_csv, 
                       info_csv, 
                       on ='Cloud Account Id', 
-                      how ='inner')
-        df = pd.DataFrame(inner_join)
-        df.insert(22,'Service Description',"")
-        df.insert(23,"Remediation status\n1 = 要處理 (請填上 Plan Fix Date)\n2 = 接受風險不處理 (請描述理由-Reason 欄位)\n4 = Further discussion required\n請於11/4 前先 Update 此欄位","")
-        df.insert(24,"Plan Fix Date","")
-        df.insert(25,"Reason","")
-        df.insert(26,"Status \n(C = Completed\nO = Open)","")
+                      how ='left')
+            inner_join_2 = pd.merge(inner_join_1, 
+                      alert_status_csv, 
+                      on ='Alert ID', 
+                      how ='left')
+            df = pd.DataFrame(inner_join_2)
+        else:
+            inner_join_1 = pd.merge(report_csv, 
+                      info_csv, 
+                      on ='Cloud Account Id', 
+                      how ='left')
+            df = pd.DataFrame(inner_join_1)
+            df.insert(22,'Alert Status Change',"")
+
+        df.insert(23,'Service Description',"")
+        df.insert(24,"Remediation status\n1 = 要處理 (請填上 Plan Fix Date)\n2 = 接受風險不處理 (請描述理由-Reason 欄位)\n4 = Further discussion required\n請於11/4 前先 Update 此欄位","")
+        df.insert(25,"Plan Fix Date","")
+        df.insert(26,"Reason","")
+        df.insert(27,"Status \n(C = Completed\nO = Open)","")
 
         # exporting to Excel
-        output_filename = output_report_dir + '/wistron-merged-report-' + today + '.xlsx'
+        output_filename = output_report_dir + '/wistron-merged-report-' + report_time + '.xlsx'
         df.to_excel(output_filename,index = False, header=True)
 
         # displaying the DataFrame
-        tabulate(df, headers = 'keys', tablefmt = 'psql')
+        table = tabulate(df, headers = 'keys', tablefmt = 'psql')
+        f = open(output_report_dir + '/wistron-merged-report-' + report_time + '.txt', "w")
+        f.write(table)
+        f.close()
 
+        print("Report Generation Completed...")
+
+        file_names = os.listdir(current_report_dir)
         for file_name in file_names:
             shutil.move(os.path.join(current_report_dir, file_name), last_report_dir)
         break
