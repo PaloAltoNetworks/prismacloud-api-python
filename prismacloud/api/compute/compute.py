@@ -30,9 +30,12 @@ class PrismaCloudAPIComputeMixin():
         self.suppress_warnings_when_verify_false()
         if not self.token:
             self.login_compute()
-        body_params_json = json.dumps(body_params)
         if not request_headers:
             request_headers = {'Content-Type': 'application/json'}
+        if body_params:
+            body_params_json = json.dumps(body_params)
+        else:
+            body_params_json = None
         # Endpoints that return large numbers of results use a 'Total-Count' response header.
         # Pagination is via query parameters for both GET and POST, and the limit has a maximum of 50.
         offset = 0
@@ -54,6 +57,7 @@ class PrismaCloudAPIComputeMixin():
                     # Authenticate via CWP
                     request_headers['Authorization'] = "Bearer %s" % self.token
             self.debug_print('API URL: %s' % url)
+            self.debug_print('API Request Headers: (%s)' % request_headers)
             self.debug_print('API Query Params: %s' % query_params)
             self.debug_print('API Body Params: %s' % body_params_json)
             api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)

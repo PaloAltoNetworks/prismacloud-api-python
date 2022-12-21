@@ -84,8 +84,12 @@ class PrismaCloudAPIMixin():
                 request_headers = {'Content-Type': 'application/json'}
             if self.token:
                 request_headers['x-redlock-auth'] = self.token
-            body_params_json = json.dumps(body_params)
+            if body_params:
+                body_params_json = json.dumps(body_params)
+            else:
+                body_params_json = None
             self.debug_print('API URL: %s' % url)
+            self.debug_print('API Request Headers: (%s)' % request_headers)
             self.debug_print('API Query Params: %s' % query_params)
             self.debug_print('API Body Params: %s' % body_params_json)
             api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
