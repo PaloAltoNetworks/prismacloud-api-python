@@ -3,6 +3,7 @@
 import sys
 
 from .code_security import *
+from ._checkov_version import *
 from ._errors       import *
 from ._fixes        import *
 from ._repositories import *

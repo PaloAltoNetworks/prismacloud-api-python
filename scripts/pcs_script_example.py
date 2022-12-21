@@ -35,5 +35,12 @@ if pc_api.api_compute:
     print(pc_api.statuses_intelligence())
     print()
 
+if pc_api.api:
+    print()
+    print('Prisma Cloud Code Security API Test:')
+    print()
+    print('Checkov Version: %s' % pc_api.checkov_version())
+    print()
+
 print(pc_api)
 print()
