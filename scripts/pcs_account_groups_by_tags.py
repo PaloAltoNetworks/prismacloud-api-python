@@ -39,11 +39,11 @@ aws_rql   = "config from cloud.resource where api.name = 'aws-organizations-acco
 azure_rql = "config from cloud.resource where cloud.service = 'Azure Subscriptions'"
 gcp_rql   = "config from cloud.resource where api.name = 'gcloud-compute-project-info'"
 
-if cloud_provider == 'aws':
+if args.cloud_provider == 'aws':
     search_params = {'query': aws_rql}
-if cloud_provider == 'azure':
+if args.cloud_provider == 'azure':
     search_params = {'query': azure_rql}
-if cloud_provider == 'gcp':
+if args.cloud_provider == 'gcp':
     search_params = {'query': gcp_rql}
 
 accounts = pc_api.search_config_read(search_params)
