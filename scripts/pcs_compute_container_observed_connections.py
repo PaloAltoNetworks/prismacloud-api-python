@@ -22,7 +22,7 @@ parser.add_argument(
     type=str,
     help='(Optional) - Namespace.')
 parser.add_argument(
-    '-x',
+    '--exclude_external',
     action='store_true',
     help='(Optional) - Exclude connections external to the specified collection and/or namespace.')
 args = parser.parse_args()
@@ -37,20 +37,15 @@ pc_api.validate_api_compute()
 
 # --Main-- #
 
-print('Testing Compute API Access ...', end='')
-intelligence = pc_api.statuses_intelligence()
-print(' done.')
-print()
-
 print('Getting container connections for Cluster: (%s) Collection: (%s) Namespace: (%s).' % (args.cluster, args.collection, args.namespace))
-if args.x:
+if args.exclude_external:
     print('Excluding connections external to the specified collection and/or namespace.')
 print()
 
 # Define variables.
 
 connections = []
-containers = {}
+containers  = {}
 
 # Note: the cluster, collection, and namespace script arguments are singletons,
 # but could be comma-delimited arrays, as the endpoint parameters accept arrays.
@@ -92,7 +87,7 @@ for radar_container in radar_containers:
                 src_name = src_container['imageNames'][0].rsplit('/', 1)[-1]
                 src_namespace = src_container['namespace']
             else:
-                if args.x:
+                if args.exclude_external:
                     # Exclude connections external to the specified collection and/or namespace.
                     continue
                 src_name = 'EXTERNAL TO QUERY'

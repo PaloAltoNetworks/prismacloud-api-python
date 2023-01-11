@@ -1,5 +1,5 @@
 """
-pcs_account_groups_by_tags.py: using cloud provider tags applied to cloud accounts to automatically place them into Prisma Cloud account groups
+Use cloud provider tags applied to cloud accounts to automatically place them into Prisma Cloud Account Groups.
 """
 
 import json
@@ -11,27 +11,20 @@ from prismacloud.api import pc_api, pc_utility
 
 parser = pc_utility.get_arg_parser()
 parser.add_argument(
-    '--cloud_account_name',
+    '--cloud_provider',
     type=str,
-    help='Name of the Cloud Account to get Resources.')
-parser.add_argument(
-    '--concurrency',
-    type=int,
-    default=0,
-    help='(Optional) - Number of concurrent API calls. (1-16)')
-parser.add_argument(
-    '--export_file_name',
-    type=str,
-    help='(Optionl) Export file name for the Resources.')
+    choices=['aws', 'azure', 'gcp'],
+    default='aws',
+    help='Cloud Provider.')
 parser.add_argument(
     '--key',
     type=str,
     default="owner",
-    help='Cloud tag to assign by')
+    help='Tag Key to use to assign Account Groups.')
 parser.add_argument(
-    '--save',
+    '--export_file_name',
     type=str,
-    help='(Optional) Save cloud account data')
+    help='(Optional) Export file name for the list of Cloud Accounts.')
 
 args = parser.parse_args()
 
@@ -42,26 +35,33 @@ pc_api.configure(settings)
 
 # --Main-- #
 
-aws_rql = "config from cloud.resource where api.name = 'aws-organizations-account'"
+aws_rql   = "config from cloud.resource where api.name = 'aws-organizations-account'"
 azure_rql = "config from cloud.resource where cloud.service = 'Azure Subscriptions'"
-gcloud_rql = "config from cloud.resource where api.name = 'gcloud-compute-project-info'"
+gcp_rql   = "config from cloud.resource where api.name = 'gcloud-compute-project-info'"
 
-search_params = {'query': aws_rql}
-aws_accounts = pc_api.search_config_read(search_params)
-if args.save:
-    print('Saving data to %s' % (args.save))
-    with open(args.save, 'w') as outfile:
-        outfile.write(json.dumps(aws_accounts, indent=3))
+if cloud_provider == 'aws':
+    search_params = {'query': aws_rql}
+if cloud_provider == 'azure':
+    search_params = {'query': azure_rql}
+if cloud_provider == 'gcp':
+    search_params = {'query': gcp_rql}
 
-# Get AWS accounts and save correctly tagged accounts
+accounts = pc_api.search_config_read(search_params)
+if args.export_file_name:
+    print('Saving the list of Cloud Accounts to: %s' % (args.export_file_name))
+    with open(args.export_file_name, 'w') as outfile:
+        outfile.write(json.dumps(accounts, indent=3))
 
-tagged_accounts = []
-print('Key tag: %s' % (args.key))
-print('%d accounts found' % (len(aws_accounts)))
-print('Tagged accounts')
-for account in aws_accounts:
+print('TO-DO: Create Account Group (args.key) if it does not exist')
+
+print('%d Cloud Accounts Found' % (len(accounts)))
+print('Tag Key: %s' % (args.key))
+
+print('Matching Cloud Accounts:')
+print()
+for account in accounts:
     account_data = account['data']
     for tag in account_data['tags']:
         if tag['key'] == args.key:
-            tagged_accounts.append(account_data)
-            print('   %s: %s' % (account_data['name'], tag['value']))
+            print('%s: %s' % (account_data['name'], tag['value']))
+            print('TO-DO: Add this Account to Account Group (args.key)')
