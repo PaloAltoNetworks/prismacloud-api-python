@@ -49,24 +49,24 @@ class PrismaCloudUtility():
             help='(Optional) - Prisma Cloud Tenant (or Compute Console) Name')
         get_arg_parser.add_argument(
             '--url',
-            '--api',
-            '--api_compute',
+            '--api',         # DEPRECATED
+            '--api_compute', # DEPRECATED
             default=os.environ.get('PC_URL', ''),
             type=str,
             help='(Required) - Prisma Cloud Tenant (or Compute Console) URL')
         get_arg_parser.add_argument(
             '-i',
             '--identity',
-            '--access_key',
-            '--username',
+            '--access_key', # DEPRECATED
+            '--username',   # DEPRECATED
             default=os.environ.get('PC_IDENTITY', ''),
             type=str,
             help='(Required) - Access Key (or Compute Username)')
         get_arg_parser.add_argument(
             '-s',
             '--secret',
-            '--secret_key',
-            '--password',
+            '--secret_key', # DEPRECATED
+            '--password',   # DEPRECATED
             default=os.environ.get('PC_SECRET', ''),
             type=str,
             help='(Required) - Secret Key (or Compute Password)')

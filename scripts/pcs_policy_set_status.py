@@ -17,6 +17,10 @@ group.add_argument(
     choices=['aws', 'azure', 'gcp', 'oci', 'alibaba_cloud'],
     help='Enable or disable Policies by Cloud Type.')
 group.add_argument(
+    '--compliance_standard',
+    type=str,
+    help='Enable or disable Policies by Compliance Standard.')
+group.add_argument(
     '--policy_severity',
     type=str,
     choices=['low', 'medium', 'high'],
@@ -26,21 +30,17 @@ group.add_argument(
     type=str,
     choices=['config', 'network', 'audit_event', 'anomaly'],
     help='Enable or disable Policies by Policy Type.')
-group.add_argument(
-    '-s',
-    '--compliance_standard',
-    type=str,
-    help='Enable or disable Policies by Compliance Standard.')
 parser.add_argument(
     'status',
     type=str,
     choices=['enable', 'disable'],
-    help='Policy status to set (enable or disable).')
+    help="Policy Status to set ('enable' or 'disable').")
 args = parser.parse_args()
 
 # --Initialize-- #
 
 pc_utility.prompt_for_verification_to_continue(args)
+
 settings = pc_utility.get_settings(args)
 pc_api.configure(settings)
 
