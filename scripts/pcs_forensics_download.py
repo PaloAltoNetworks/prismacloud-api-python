@@ -32,13 +32,20 @@ pc_api.configure(pc_utility.get_settings(args))
 
 # --Main-- #
 
+print('Downloading forensics ...')
+
 data = pc_api.forensic_read(workload_id=args.workload_id, workload_type=args.workload_type, defender_hostname=args.defender_hostname)
 
-if args.workload_type == 'container':
+if args.workload_type in ['container', 'app-embedded']:
     filename = "%s%s" % (args.file, '.tgz')
-    with open(args.file, 'wb') as download:
+    with open(filename, 'wb') as download:
         download.write(data)
-    print('Downloaded forensics bundle to: %s' % filename)
+    print('Downloaded forensic bundle to: %s' % filename)
+if args.workload_type == 'host':
+    filename = "%s%s" % (args.file, '.txt')
+    with open(filename, 'w') as download:
+        download.write(data)
+    print('Downloaded host forensics to: %s' % filename)
 else:
     filename = "%s%s" % (args.file, '.csv')
     with open(filename, 'w') as download:
