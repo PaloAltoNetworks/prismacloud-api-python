@@ -22,7 +22,7 @@ pc_api.configure(pc_utility.get_settings(args))
 
 # --Main-- #
 
-data = pc_api.agentless_logs_list_read()
+data = pc_api.agentless_logs_read()
 
 with open(args.file, 'wb') as download:
     download.write(data)
