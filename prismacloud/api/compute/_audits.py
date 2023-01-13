@@ -19,7 +19,7 @@ class AuditsPrismaCloudAPIComputeMixin:
         query_params = {'hostname': defender_hostname}
         if workload_type in ['container', 'app-embedded']:
             response = self.execute_compute('GET', 'api/v1/profiles/%s/%s/forensic/bundle' % (workload_type, workload_id), query_params=query_params)
-        elif workload_type == 'host': 
+        elif workload_type == 'host':
             response = self.execute_compute('GET', 'api/v1/profiles/%s/%s/forensic/download' % (workload_type, workload_id), query_params=query_params)
         else:
             response = self.execute_compute('GET', 'api/v1/profiles/%s/%s/forensic' % (workload_type, workload_id), query_params=query_params, paginated=True)
