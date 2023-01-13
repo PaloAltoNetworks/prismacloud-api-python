@@ -42,7 +42,7 @@ if args.workload_type in ['container', 'app-embedded']:
         download.write(data)
     print('Downloaded forensic bundle to: %s' % filename)
 elif args.workload_type == 'host':
-    filename = "%s%s" % (args.file, '.txt')
+    filename = "%s%s" % (args.file, '.csv')
     with open(filename, 'w') as download:
         download.write(data)
     print('Downloaded host forensics to: %s' % filename)
