@@ -22,9 +22,11 @@ pc_api.configure(pc_utility.get_settings(args))
 
 # --Main-- #
 
-data = pc_api.agentless_logs_list_read()
+print('Downloading agentless logs ...')
+
+data = pc_api.agentless_logs_read()
 
 with open(args.file, 'wb') as download:
     download.write(data)
 
-print('Downloaded agentless logs to: %s' % args.file)
+print('Saved agentless logs to: %s' % args.file)

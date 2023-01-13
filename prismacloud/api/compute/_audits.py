@@ -1,6 +1,4 @@
-""" Prisma Cloud Compute API Containers Endpoints Class """
-
-# Containers
+""" Prisma Cloud Compute API Audits Endpoints Class """
 
 class AuditsPrismaCloudAPIComputeMixin:
     """ Prisma Cloud Compute API Audit Endpoints Class """
@@ -13,12 +11,26 @@ class AuditsPrismaCloudAPIComputeMixin:
         audits = self.execute_compute('GET', 'api/v1/audits/%s' % audit_type, query_params=query_params, paginated=True)
         return audits
 
-    def audits_ack_incident(self, incident_id, ack_status = True):
-        body_params = {"acknowledged": ack_status}
-        resp = self.execute_compute('PATCH', 'api/v1/audits/incidents/acknowledge/%s' % incident_id, body_params=body_params)
-        return resp
-
     # Other related and undocumented endpoints.
+
+    # Forensics (Here in audits, as this endpoint is also undocumented like audits.)
+
+    def forensic_read(self, workload_id, workload_type, defender_hostname):
+        query_params = {'hostname': defender_hostname}
+        if workload_type in ['container', 'app-embedded']:
+            response = self.execute_compute('GET', 'api/v1/profiles/%s/%s/forensic/bundle' % (workload_type, workload_id), query_params=query_params)
+        elif workload_type == 'host':
+            response = self.execute_compute('GET', 'api/v1/profiles/%s/%s/forensic/download' % (workload_type, workload_id), query_params=query_params)
+        else:
+            response = self.execute_compute('GET', 'api/v1/profiles/%s/%s/forensic' % (workload_type, workload_id), query_params=query_params, paginated=True)
+        return response
+
+    # Monitor / Runtime > Incident Explorer
+
+    def audits_ack_incident(self, incident_id, ack_status=True):
+        body_params = {'acknowledged': ack_status}
+        response = self.execute_compute('PATCH', 'api/v1/audits/incidents/acknowledge/%s' % incident_id, body_params=body_params)
+        return response
 
     # Compute > Monitor > Events
 
