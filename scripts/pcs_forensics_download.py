@@ -41,7 +41,7 @@ if args.workload_type in ['container', 'app-embedded']:
     with open(filename, 'wb') as download:
         download.write(data)
     print('Downloaded forensic bundle to: %s' % filename)
-if args.workload_type == 'host':
+elif args.workload_type == 'host':
     filename = "%s%s" % (args.file, '.txt')
     with open(filename, 'w') as download:
         download.write(data)
