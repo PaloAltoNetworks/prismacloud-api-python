@@ -49,7 +49,7 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
     def __repr__(self):
         return 'Prisma Cloud API:\n  API: (%s)\n  Compute API: (%s)\n  API Error Count: (%s)\n  API Token: (%s)' % (self.api, self.api_compute, self.logger.error.counter, self.token)
 
-    def configure(self, settings):
+    def configure(self, settings, use_meta_info=True):
         self.name        = settings.get('name', '')
         self.identity    = settings.get('identity')
         self.secret      = settings.get('secret')
@@ -71,9 +71,10 @@ class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAP
                 # URL is a Prisma Cloud CSPM API URL.
                 self.api = url
                 # Use the Prisma Cloud CSPM API to identify the Prisma Cloud CWP API URL.
-                meta_info = self.meta_info()
-                if meta_info and 'twistlockUrl' in meta_info:
-                    self.api_compute = PrismaCloudUtility.normalize_url(meta_info['twistlockUrl'])
+                if use_meta_info:
+                    meta_info = self.meta_info()
+                    if meta_info and 'twistlockUrl' in meta_info:
+                        self.api_compute = PrismaCloudUtility.normalize_url(meta_info['twistlockUrl'])
             else:
                 # URL is a Prisma Cloud CWP API URL.
                 self.api_compute = PrismaCloudUtility.normalize_url(url)

@@ -126,7 +126,7 @@ class PrismaCloudUtility():
                 settings['secret'] = args.secret
             if args.verify != '':
                 settings['verify'] = args.verify
-            if args.verify != '':
+            if args.logger != '':
                 settings['logger'] = args.logger
             # These settings are only command line arguments.
             settings['debug'] = args.debug
@@ -134,6 +134,12 @@ class PrismaCloudUtility():
         # No command line arguments provided, read the default settings file.
         else:
             settings = self.read_settings_file()
+        if 'name' not in settings:
+            settings['name'] = ''
+        if 'verify' not in settings:
+            settings['verify'] = ''
+        if 'logger' not in settings:
+            settings['logger'] = ''
         settings['url'] = self.normalize_url(settings['url'])
         # The 'verify' setting can be a boolean or a string path to a file, as per the 'verify' parameter of requests.request().
         if settings['verify'].lower() == 'true' or settings['verify'] == '':
@@ -144,7 +150,7 @@ class PrismaCloudUtility():
         if isinstance(args, argparse.Namespace) and args.save:
             self.write_settings_file(args)
             print()
-            print('Congifiguration saved to: %s' % args.config)
+            print('Configuration saved to: %s' % args.config)
             print()
         # Verify that there are enough settings to continue.
         if settings['url'] == '' or settings['identity'] == '' or settings['secret'] == '':
