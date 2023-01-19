@@ -10,14 +10,14 @@ args = parser.parse_args()
 
 # --Initialize-- #
 
-pc_api.configure(pc_utility.get_settings(args))
+pc_api.configure(pc_utility.get_settings(args), False)
 
 # --Main-- #
 
-# (Sync with get_arg_parser() in pc_lib_utility.py.)
-
-if args.save is False:
+if not args.save:
     print()
+
+    # (Sync with get_arg_parser() in pc_lib_utility.py.)
 
     if pc_api.name:
         print('# Prisma Cloud Tenant (or Compute Console) Name:')
