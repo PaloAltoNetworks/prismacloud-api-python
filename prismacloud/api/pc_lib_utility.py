@@ -39,6 +39,7 @@ class PrismaCloudUtility():
         return package_version_message
 
     # Default command line arguments.
+    # (Sync with pcs_configure.py.)
 
     def get_arg_parser(self):
         get_arg_parser = argparse.ArgumentParser()
