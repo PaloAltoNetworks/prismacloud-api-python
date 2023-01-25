@@ -420,19 +420,5 @@ class PrismaCloudUtility():
     # Exit handler (Error).
 
     @classmethod
-    def error_and_exit(cls, _error_code, error_message=None, system_message=None):
-        print()
-        print()
-        # print('Status Code: %s' % error_code)
-        if error_message is not None:
-            print(error_message)
-        if system_message is not None:
-            print(system_message)
-        print()
-        sys.exit(1)
-
-    # Exit handler (Success).
-
-    @classmethod
-    def success_exit(cls):
-        sys.exit(0)
+    def error_and_exit(cls, error_code, error_message='', system_message=''):
+        raise SystemExit('\n\n%s\n%s\n' % (error_message, system_message))
