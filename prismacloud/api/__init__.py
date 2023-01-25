@@ -11,7 +11,7 @@ __version__ = api_version
 
 MIN_PYTHON = (3, 6)
 if sys.version_info < MIN_PYTHON:
-    sys.exit("Python %s.%s or later is required.\n" % MIN_PYTHON)
+    raise SystemExit("Python %s.%s or later is required.\n" % MIN_PYTHON)
 
 # --Class Instances-- #
 
