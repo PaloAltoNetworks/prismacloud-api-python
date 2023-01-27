@@ -2,9 +2,10 @@
 
 import logging
 
-from .posture import PrismaCloudAPIPosture
-from .code_security import PrismaCloudAPICodeSecurity
-from .compute import PrismaCloudAPICompute
+from .cspm import PrismaCloudAPIPosture
+from .cwpp import PrismaCloudAPICompute
+from .ccs  import PrismaCloudAPICodeSecurity
+
 from .pc_lib_utility import PrismaCloudUtility
 
 # --Description-- #

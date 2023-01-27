@@ -2,7 +2,7 @@
 
 import sys
 
-from .compute      import *
+from .cwpp         import *
 from ._audits      import *
 from ._cloud       import *
 from ._collections import *

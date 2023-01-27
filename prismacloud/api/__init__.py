@@ -2,9 +2,9 @@
 
 import sys
 
-from .pc_lib_api import PrismaCloudAPI
+from .pc_lib_api     import PrismaCloudAPI
 from .pc_lib_utility import PrismaCloudUtility
-from .version import version as api_version
+from .version        import version as api_version
 
 __author__  = 'Palo Alto Networks CSE/SE/SA Teams'
 __version__ = api_version

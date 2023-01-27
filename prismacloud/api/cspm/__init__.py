@@ -2,7 +2,7 @@
 
 import sys
 
-from .posture    import *
+from .cspm       import *
 from ._endpoints import *
 from ._extended  import *
 
