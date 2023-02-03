@@ -518,6 +518,21 @@ class EndpointsPrismaCloudAPIMixin():
             next_page_token = api_response.pop('nextPageToken', None)
         return result
 
+    def search_iam_read(self, search_params):
+        result = []
+        next_page_token = None
+        api_response = self.execute('POST', 'api/v1/permission', body_params=search_params)
+        if 'data' in api_response and 'items' in api_response['data']:
+            result = api_response['data']['items']
+            next_page_token = api_response['data'].pop('nextPageToken', None)
+        while next_page_token:
+            api_response = self.execute(
+                'POST', 'api/v1/permission/page', body_params={'pageToken': next_page_token})
+            if 'items' in api_response:
+                result.extend(api_response['items'])
+            next_page_token = api_response.pop('nextPageToken', None)
+        return result
+
     def search_suggest_list_read(self, query_to_suggest):
         return self.execute('POST', 'search/suggest', body_params=query_to_suggest)
 
