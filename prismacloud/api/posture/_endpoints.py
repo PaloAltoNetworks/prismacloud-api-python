@@ -487,7 +487,7 @@ class EndpointsPrismaCloudAPIMixin():
             next_page_token = api_response['data'].pop('nextPageToken', None)
         while next_page_token:
             api_response = self.execute(
-                'POST', 'search/config/page', body_params={'pageToken': next_page_token})
+                'POST', 'search/config/page', body_params={'limit':1000,'pageToken': next_page_token, 'withResourceJson':'true'})
             if 'items' in api_response:
                 result.extend(api_response['items'])
             next_page_token = api_response.pop('nextPageToken', None)
@@ -512,7 +512,7 @@ class EndpointsPrismaCloudAPIMixin():
             next_page_token = api_response['data'].pop('nextPageToken', None)
         while next_page_token:
             api_response = self.execute(
-                'POST', 'search/config/page', body_params={'pageToken': next_page_token})
+                'POST', 'search/config/page', body_params={'limit':1000,'pageToken': next_page_token})
             if 'items' in api_response:
                 result.extend(api_response['items'])
             next_page_token = api_response.pop('nextPageToken', None)
@@ -527,7 +527,7 @@ class EndpointsPrismaCloudAPIMixin():
             next_page_token = api_response['data'].pop('nextPageToken', None)
         while next_page_token:
             api_response = self.execute(
-                'POST', 'api/v1/permission/page', body_params={'pageToken': next_page_token})
+                'POST', 'api/v1/permission/page', body_params={'limit':1000,'pageToken': next_page_token, 'withResourceJson':'true'})
             if 'items' in api_response:
                 result.extend(api_response['items'])
             next_page_token = api_response.pop('nextPageToken', None)
