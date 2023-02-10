@@ -17,5 +17,5 @@ class SuppressionsPrismaCloudAPIPCCSMixin:
     def suppressions_delete(self, policy_id, rule_id):
         return self.execute_code_security('DELETE', 'code/api/v1/suppressions/%s/justifications/%s' % (policy_id, rule_id))
 
-    def suppressions_justifications_list_read(self, policy_id):
-        return self.execute_code_security('GET', 'code/api/v1/suppressions/%s/justifications' % policy_id)
+    def suppressions_justifications_list_read(self, policy_id, query_params):
+        return self.execute_code_security('GET', 'code/api/v1/suppressions/%s/justifications' % policy_id, query_params=query_params)
