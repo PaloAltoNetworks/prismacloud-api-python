@@ -5,7 +5,7 @@ import urllib.parse
 # Credentials (Manage > Authentication > Credentials store)
 
 
-class CredentialsPrismaCloudAPIComputeMixin:
+class CredentialsPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Credentials Endpoints Class """
 
     def credential_list_read(self):

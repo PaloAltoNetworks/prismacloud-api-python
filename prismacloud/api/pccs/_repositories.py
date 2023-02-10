@@ -2,7 +2,7 @@
 
 # Repositories
 
-class RepositoriesPrismaCloudAPICodeSecurityMixin:
+class RepositoriesPrismaCloudAPIPCCSMixin:
     """ Prisma Cloud Code Security API Repositories Endpoints Class """
 
     def repositories_list_read(self, query_params=None):

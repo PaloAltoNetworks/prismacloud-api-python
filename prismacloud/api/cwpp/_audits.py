@@ -1,6 +1,6 @@
 """ Prisma Cloud Compute API Audits Endpoints Class """
 
-class AuditsPrismaCloudAPIComputeMixin:
+class AuditsPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Audit Endpoints Class """
 
     # The audits/incidents endpoint is the only documented audits endpoint.

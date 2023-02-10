@@ -2,7 +2,7 @@
 
 # Containers
 
-class LogsPrismaCloudAPIComputeMixin:
+class LogsPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Logs Endpoints Class """
 
     # Undocumented endpoints.

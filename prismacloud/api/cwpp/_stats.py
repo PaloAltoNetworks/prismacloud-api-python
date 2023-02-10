@@ -1,6 +1,6 @@
 """ Prisma Cloud Compute API Stats Endpoints Class """
 
-class StatsPrismaCloudAPIComputeMixin:
+class StatsPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Stats Endpoints Class """
 
     def stats_app_firewall_count_read(self):

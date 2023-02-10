@@ -2,7 +2,7 @@
 
 # Fixes
 
-class FixesPrismaCloudAPICodeSecurityMixin:
+class FixesPrismaCloudAPIPCCSMixin:
     """ Prisma Cloud Code Security API Fixes Endpoints Class """
 
     def fixes_list(self, body_params):

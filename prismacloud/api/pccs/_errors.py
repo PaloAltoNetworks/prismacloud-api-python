@@ -2,7 +2,7 @@
 
 # Errors
 
-class ErrorsPrismaCloudAPICodeSecurityMixin:
+class ErrorsPrismaCloudAPIPCCSMixin:
     """ Prisma Cloud Code Security API Errors Endpoints Class """
 
     def errors_files_list(self, criteria):

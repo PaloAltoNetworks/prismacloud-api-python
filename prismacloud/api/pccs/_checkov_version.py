@@ -2,7 +2,7 @@
 
 # Checkov Version
 
-class CheckovVersionPrismaCloudAPICodeSecurityMixin:
+class CheckovVersionPrismaCloudAPIPCCSMixin:
     """ Prisma Cloud Code Security API Checkov Version Endpoint Class """
 
     def checkov_version(self):

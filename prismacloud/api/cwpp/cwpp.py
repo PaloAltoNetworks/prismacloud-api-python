@@ -5,7 +5,7 @@ import time
 
 import requests
 
-class PrismaCloudAPIComputeMixin():
+class PrismaCloudAPICWPPMixin():
     """ Requests and Output """
 
     def login_compute(self):
