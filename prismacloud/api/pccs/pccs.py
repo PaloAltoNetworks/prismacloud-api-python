@@ -5,7 +5,7 @@ import time
 
 import requests
 
-class PrismaCloudAPICodeSecurityMixin():
+class PrismaCloudAPIPCCSMixin():
     """ Requests and Output """
 
     # pylint: disable=too-many-arguments,too-many-branches,too-many-locals,too-many-statements

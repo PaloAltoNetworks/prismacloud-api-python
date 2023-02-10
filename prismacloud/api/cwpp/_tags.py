@@ -2,7 +2,7 @@
 
 # Tags are predefined labels that help you manage your vulnerabilities via the Console UI and Prisma Cloud Compute API.
 
-class TagsPrismaCloudAPIComputeMixin:
+class TagsPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Tags Endpoints Class """
 
     def tags_list_read(self):

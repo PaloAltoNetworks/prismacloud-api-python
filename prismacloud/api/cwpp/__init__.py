@@ -20,9 +20,9 @@ from ._stats       import *
 from ._status      import *
 from ._tags        import *
 
-mixin_classes_as_strings = list(filter(lambda x: x.endswith('PrismaCloudAPIComputeMixin'), dir()))
+mixin_classes_as_strings = list(filter(lambda x: x.endswith('PrismaCloudAPICWPPMixin'), dir()))
 mixin_classes = [getattr(sys.modules[__name__], x) for x in mixin_classes_as_strings]
 
 # pylint: disable=too-few-public-methods
-class PrismaCloudAPICompute(*mixin_classes):
+class PrismaCloudAPICWPP(*mixin_classes):
     """ Prisma Cloud CWP API Class """

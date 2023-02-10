@@ -2,7 +2,7 @@
 
 # Scans
 
-class ScansPrismaCloudAPICodeSecurityMixin:
+class ScansPrismaCloudAPIPCCSMixin:
     """ Prisma Cloud Code Security API Scans Endpoints Class """
 
     def scan(self):

@@ -2,7 +2,7 @@
 
 # Credentials (Defend > Compliance)
 
-class SettingsPrismaCloudAPIComputeMixin:
+class SettingsPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Settings Endpoints Class """
 
     def settings_serverless_scan_read(self):

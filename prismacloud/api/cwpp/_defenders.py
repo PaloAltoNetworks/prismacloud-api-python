@@ -2,7 +2,7 @@
 
 # Containers
 
-class DefendersPrismaCloudAPIComputeMixin:
+class DefendersPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Defenders Endpoints Class """
 
     def defenders_list_read(self, query_params=None):

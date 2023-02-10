@@ -1,6 +1,6 @@
 """ Prisma Cloud Compute API Statuses Endpoints Class """
 
-class StatusPrismaCloudAPIComputeMixin:
+class StatusPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Statuses Endpoints Class """
 
     def statuses_intelligence(self):

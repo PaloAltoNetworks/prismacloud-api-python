@@ -2,7 +2,7 @@
 
 # Suppressions
 
-class SuppressionsPrismaCloudAPICodeSecurityMixin:
+class SuppressionsPrismaCloudAPIPCCSMixin:
     """ Prisma Cloud Code Security API Suppressions Endpoints Class """
 
     def suppressions_list_read(self):

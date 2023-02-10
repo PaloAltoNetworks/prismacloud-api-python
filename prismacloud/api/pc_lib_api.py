@@ -2,9 +2,9 @@
 
 import logging
 
-from .cspm import PrismaCloudAPIPosture
-from .cwpp import PrismaCloudAPICompute
-from .ccs  import PrismaCloudAPICodeSecurity
+from .cspm import PrismaCloudAPICSPM
+from .cwpp import PrismaCloudAPICWPP
+from .pccs import PrismaCloudAPIPCCS
 
 from .pc_lib_utility import PrismaCloudUtility
 
@@ -24,7 +24,7 @@ class CallCounter:
         return self.method(*args, **kwargs)
 
 # pylint: disable=too-many-instance-attributes
-class PrismaCloudAPI(PrismaCloudAPIPosture, PrismaCloudAPICompute, PrismaCloudAPICodeSecurity):
+class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS):
     """ Prisma Cloud API Class """
     # pylint: disable=super-init-not-called
     def __init__(self):

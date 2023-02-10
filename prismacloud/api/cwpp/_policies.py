@@ -2,7 +2,7 @@
 
 # Credentials (Defend > Compliance)
 
-class PoliciesPrismaCloudAPIComputeMixin:
+class PoliciesPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Credentials Endpoints Class """
 
     def policies_cloud_platforms_read(self):

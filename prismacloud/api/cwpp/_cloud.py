@@ -2,7 +2,7 @@
 
 # Cloud
 
-class CloudPrismaCloudAPIComputeMixin:
+class CloudPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Cloud Endpoints Class """
 
     def cloud_discovery_read(self):

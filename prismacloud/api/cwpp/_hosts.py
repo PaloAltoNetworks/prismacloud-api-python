@@ -2,7 +2,7 @@
 
 # Containers
 
-class HostsPrismaCloudAPIComputeMixin:
+class HostsPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Hosts Endpoints Class """
 
     # Running hosts table in Monitor > Vulnerabilities > Hosts > Running Hosts

@@ -2,7 +2,7 @@
 
 # Containers
 
-class CollectionsPrismaCloudAPIComputeMixin:
+class CollectionsPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Collections Endpoints Class """
 
     def collections_list_read(self, query_params=None):

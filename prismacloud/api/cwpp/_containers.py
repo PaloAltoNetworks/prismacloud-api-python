@@ -2,7 +2,7 @@
 
 # Containers
 
-class ContainersPrismaCloudAPIComputeMixin:
+class ContainersPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Containers Endpoints Class """
 
     def containers_list_read(self, image_id=None, query_params=None):
