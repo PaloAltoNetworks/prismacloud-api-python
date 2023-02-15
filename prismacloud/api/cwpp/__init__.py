@@ -9,6 +9,7 @@ from ._collections import *
 from ._containers  import *
 from ._credentials import *
 from ._defenders   import *
+from ._feeds       import *
 from ._hosts       import *
 from ._images      import *
 from ._logs        import *
