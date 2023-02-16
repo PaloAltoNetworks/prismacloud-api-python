@@ -9,6 +9,7 @@ parser = pc_utility.get_arg_parser()
 parser.add_argument(
     '--cloud_account_group_name',
     type=str,
+    required=True,
     help='Name of the Cloud Account Group to inspect.')
 args = parser.parse_args()
 
@@ -24,7 +25,7 @@ cloud_account_groups_list = pc_api.cloud_account_group_list_read()
 print(' done.')
 print()
 
-cloud_account_group = None
+cloud_account_group = ''
 for item in cloud_account_groups_list:
     if item['name'] == args.cloud_account_group_name:
         cloud_account_group = item
