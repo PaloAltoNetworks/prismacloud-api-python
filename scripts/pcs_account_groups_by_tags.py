@@ -2,7 +2,6 @@
 Use cloud provider tags applied to cloud accounts to automatically place them into Prisma Cloud Account Groups.
 """
 
-import json, sys
 
 # pylint: disable=import-error
 from prismacloud.api import pc_api, pc_utility
@@ -30,18 +29,18 @@ pc_api.configure(settings)
 
 # --Helpers --#
 
-def summarize_account_groups(account_groups):
-    result = {}
-    for account_group in account_groups:
-        if 'description' not in account_group:
+def summarize_account_groups(groups):
+    results = {}
+    for group in groups:
+        if 'description' not in group:
             account_group['description'] = ''
-        result[account_group['name']] = {
-            'id':          account_group['id'],
-            'name':        account_group['name'],
-            'description': account_group['description'],
-            'accountIds':  account_group['accountIds']
+        results[groups['name']] = {
+            'id':          group['id'],
+            'name':        group['name'],
+            'description': group['description'],
+            'accountIds':  group['accountIds']
         }
-    return result
+    return results
 
 # --Main-- #
 
