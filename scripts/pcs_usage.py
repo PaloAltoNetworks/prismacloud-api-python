@@ -43,6 +43,13 @@ body_params = {
     'timeRange': {'type':'relative', 'value': {'unit': 'month', 'amount': 1}}
 }
 
+cloud_account_names = [cloud_account['name'] for cloud_account in cloud_account_group['accounts']]
+print('Accounts in Cloud Account Group (%s):' % cloud_account_group['name'])
+print()
+for cloud_account in cloud_account_group['accounts']:
+    print(dict(sorted(cloud_account.items())))
+print()
+
 print('API - Getting the Usage for Cloud Account Group (%s) ...' % cloud_account_group['name'], end='')
 cloud_account_usage = pc_api.resource_usage_over_time(body_params=body_params)
 print(' done.')
@@ -96,5 +103,5 @@ print()
 clouds = cloud_account_usage['dataPoints'][0]['counts'].keys()
 
 for data_points in cloud_account_usage['dataPoints']:
-    print(data_points['counts'])
+    print(dict(sorted(data_points['counts'].items())))
     print()
