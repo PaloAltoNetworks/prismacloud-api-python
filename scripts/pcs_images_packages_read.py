@@ -115,11 +115,17 @@ def parse_images(images, output_mode, search_package_type, search_exact_name, se
                 image_ii = ''
             except TypeError:
                 image_ii = ''
+            if 'applications' in image:
+                applications = image['applications']
+            else:
+                applications = []
             normalized_images[image_id] = {
                 'id':        image_id,
                 'instance':  image_ii,
                 'instances': image['entityInfo']['instances'],
-                'packages':  image['entityInfo']['packages']}
+                'packages':  image['entityInfo']['packages'],
+                'binaries': image['entityInfo']['binaries'],
+                'applications': applications}
         else:
             try:
                 image_ii = '%s %s' % (image['instances'][0]['image'], image['instances'][0]['host'])
@@ -129,11 +135,18 @@ def parse_images(images, output_mode, search_package_type, search_exact_name, se
                 image_ii = ''
             except TypeError:
                 image_ii = ''
+            if 'applications' in image:
+                applications = image['applications']
+            else:
+                applications = []
             normalized_images[image_id] = {
                 'id':        image_id,
                 'instance':  image_ii,
                 'instances': image['instances'],
-                'packages':  image['packages']}
+                'packages':  image['packages'],
+                'binaries': image['binaries'],
+                'applications': applications}
+
     optional_print(mode=search_all_packages)
     for image in normalized_images:
         optional_print('Image', mode=output_mode)
@@ -161,6 +174,24 @@ def parse_images(images, output_mode, search_package_type, search_exact_name, se
                                 images_with_package.append("%s\t%s\t%s\t%s\t%s" % (normalized_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
                         else:
                             images_with_package.append("%s\t%s\t%s\t%s\t%s" % (normalized_images[image]['instance'], packages['pkgsType'], package['name'], package['version'], package_path))
+        for binary in normalized_images[image]['binaries']:
+            if 'path' in binary:
+                optional_print('\tPath: %s' % binary['path'], mode=output_mode)
+                binary_path = binary['path']
+            else:
+                binary_path = ''
+            if package_name_matches(search_exact_name, search_name, binary['name']):
+                images_with_package.append("%s\t%s\t%s\t%s\t%s" % (normalized_images[image]['instance'], 'binary', binary['name'], 'N/A', binary_path))
+
+        for application in normalized_images[image]['applications']:
+            if 'path' in application:
+                optional_print('\tPath: %s' % application['path'], mode=output_mode)
+                application_path = application['path']
+            else:
+                application_path = ''
+            if package_name_matches(search_exact_name, search_name, application['name']):
+                images_with_package.append("%s\t%s\t%s\t%s\t%s" % (normalized_images[image]['instance'], 'application', application['name'], application['version'], application_path))
+
     return images_with_package
 
 # Example response from the API.
@@ -238,7 +269,9 @@ if args.mode in ['registry', 'all']:
 # Monitor > Vulnerabilities/Compliance > Images > Deployed
 if args.mode in ['deployed', 'all']:
     print('Getting Deployed Images ...')
+
     deployed_images = pc_api.images_list_read(image_id=args.image_id, query_params={'filterBaseImage': 'true'})
+
     deployed_images_with_package = parse_images(deployed_images, search_all_packages, args.package_type, args.exact_match_name, search_package_name, args.version_comparison, search_package_version)
     print('Done.')
     print()
