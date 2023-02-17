@@ -30,10 +30,9 @@ parser.add_argument(
     help='(Optional) - ID of the Package (format: name:version) with :version being optional. Example: zipp:3.6.0')
 parser.add_argument(
     '--exact_match_name',
-    type=bool,
-    choices=[True, False],
     default=False,
-    help='(Optional) - True, Package name must exactly match (Default). False, use substring matching of Package name.')
+    action="store_true",
+    help='(Optional) - Package name must exactly match. Otherwise, use substring matching of Package name.')
 parser.add_argument(
     '--version_comparison', # version_comparison_operator
     type=str,
@@ -42,13 +41,12 @@ parser.add_argument(
     help="(Optional) - Package version must be equal (Default), greater than, or less than the version specified in the 'package_id' parameter.")
 parser.add_argument(
     '--output_to_csv',
-    type=bool,
-    choices=[True, False],
     default=False,
+    action="store_true",
     help="(Optional) - Output results to CSV files ('ci.csv', 'registry.csv', 'deployed.csv')."
 )
-
 args = parser.parse_args()
+
 search_package_name    = None
 search_package_version = None
 if args.package_id:
