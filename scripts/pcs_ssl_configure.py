@@ -2,6 +2,8 @@
 
 import argparse
 import socket
+import ssl
+import sys
 import OpenSSL
 
 import certifi
@@ -49,12 +51,30 @@ with open(src_ca_file, 'r') as root_ca_file:
 with open(dst_ca_file, 'w') as custom_ca_file:
     custom_ca_file.write(root_certificates)
     context = OpenSSL.SSL.Context(method=ssl_context_method)
+    if ssl.OPENSSL_VERSION.startswith("OpenSSL 3"):
+        # https://github.com/python/cpython/issues/89051 ("ssl.OP_LEGACY_SERVER_CONNECT missing")
+        # context.set_options(OP_LEGACY_SERVER_CONNECT)
+        context.set_options(0x4)
     context.load_verify_locations(cafile=src_ca_file)
     conn = OpenSSL.SSL.Connection(context, socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM))
     conn.settimeout(5)
     conn.connect((host_name, port))
     conn.setblocking(1)
-    conn.do_handshake()
+
+    try:
+        conn.do_handshake()
+    except: # pylint: disable=bare-except
+        print()
+        print('OpenSSL Error: Unsafe Legacy Renegotiation Disabled')
+        print('To resolve, create an openssl.conf file containing the following content ...')
+        print()
+        print("openssl_conf = openssl_init\n[openssl_init]\nssl_conf = ssl_sect\n\n[ssl_sect]\nsystem_default = system_default_sect\n\n[system_default_sect]\nOptions = UnsafeLegacyRenegotiation")
+        print()
+        print('... then rerun this script using that file:')
+        print('OPENSSL_CONF=./openssl.conf python3 pcs_ssl_configure.py')
+        print()
+        sys.exit(1)
+
     conn.set_tlsext_host_name(host_name.encode())
     for (idx, certificate) in enumerate(conn.get_peer_cert_chain()):
         subject = ''.join("/{0:s}={1:s}".format(name.decode(), value.decode()) for name, value in certificate.get_subject().get_components())
