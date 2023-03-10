@@ -48,6 +48,13 @@ this_parser.add_argument(
     action='store_true',
     help='(Optional) - Collect Audit Events. (Default: disabled)')
 this_parser.add_argument(
+        '--audit_types_filter',
+        dest='audit_types_filter',
+        default=pc_api.compute_audit_types(),
+        nargs='*',
+        type=str,
+        help='(Optional) - List of audit types to filter. Default: %s' % pc_api.compute_audit_types())
+this_parser.add_argument(
     '--host_forensic_activities',
     action='store_true',
     help='(Optional) - Collect Host Forensic Activity. Warning: high-volume/time-intensive. (Default: disabled)')
@@ -64,6 +71,10 @@ this_parser.add_argument(
     type=int,
     default=DEFAULT_CONSOLE_LOG_LIMIT,
     help=f'(Optional) - Number of messages to collect, requires --console_logs. (Default: {DEFAULT_CONSOLE_LOG_LIMIT})')
+this_parser.add_argument(
+    '-v', '--verbose',
+    action='store_true',
+    help='(Optional) - Output data to STDOUT. (Default: disabled)')
 args = this_parser.parse_args()
 
 # -- User Defined Functions-- #
@@ -81,6 +92,8 @@ def outbound_api_call(data_type:str, data: Union[list, dict]):
     retry_status_codes = [401, 429, 500, 502, 503, 504]
     retry_limit = 4
     retry_pause = 8
+    if args.verbose:
+        print(data)
     # Configure req_url to enable the request.
     if not req_url:
         print(f'        OUTBOUND_API_CALL for {data_type} STUB ...')
@@ -211,10 +224,11 @@ with concurrent.futures.ThreadPoolExecutor(OUTER_CONCURRENY) as executor:
         print('Collecting Audits')
         print()
         for this_audit_type in pc_api.compute_audit_types():
-            outer_futures.append(executor.submit(
-                    # aka: process_audit_events(this_audit_type, datetime_range)
-                    process_audit_events, this_audit_type, datetime_range
-                )
+            if this_audit_type in args.audit_types_filter:
+                outer_futures.append(executor.submit(
+                        # aka: process_audit_events(this_audit_type, datetime_range)
+                        process_audit_events, this_audit_type, datetime_range
+                    )
             )
         concurrent.futures.wait(outer_futures)
         print()
