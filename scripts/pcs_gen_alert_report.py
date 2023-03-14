@@ -73,12 +73,12 @@ print()
 alert_report = pc_api.alert_csv_create(body_params)
 print('Report Created with Report ID: %s' % alert_report['id'])
 report_time = time.strftime("%Y%m%d-%H%M%S")
-report_filename = "./Report/wistron-report-" + report_time + ".csv"
+report_filename = "./Reports/wistron-report-" + report_time + ".csv"
 print()
 
 report_ready = False
-report_dir = '../../../Projects/prismacloud-api-python/scripts/Report'
-info_dir = '../../../Projects/prismacloud-api-python/scripts/Report-Info'
+report_dir = '../../../Projects/prismacloud-api-python/scripts/Reports'
+info_dir = '../../../Projects/prismacloud-api-python/scripts/Reports/Info'
 info_filename = info_dir + '/' + 'wistron-info.csv'
 
 while(not report_ready):
