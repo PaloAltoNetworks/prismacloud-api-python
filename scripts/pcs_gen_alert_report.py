@@ -77,8 +77,8 @@ report_filename = "./Reports/wistron-report-" + report_time + ".csv"
 print()
 
 report_ready = False
-report_dir = '../../../Projects/prismacloud-api-python/scripts/Reports'
-info_dir = '../../../Projects/prismacloud-api-python/scripts/Reports/Info'
+report_dir = './Reports'
+info_dir = './Reports/Info'
 info_filename = info_dir + '/' + 'wistron-info.csv'
 
 while(not report_ready):
