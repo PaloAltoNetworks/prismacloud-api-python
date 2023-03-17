@@ -58,6 +58,16 @@ Configuration options include:
 
 Configuration is stored as cleartext JSON, by default in the `~/.prismacloud/` directory, unless you specify an alternative via `--config`.
 
+```json
+{
+    "name":     "Example Tenant",
+    "url":      "api3.prismacloud.io",
+    "identity": "ACCESSKEY_OR_USERNAME",
+    "secret":   "SECRETKEY_OR_PASSWORD",
+    "verify":   "PATHTOCABUNDLE_OR_TRUE_OR_FALSE"
+}
+```
+
 The following environment variables can be used instead of the equivalent command-line options or a configuration file:
 
 ```
