@@ -71,13 +71,11 @@ Configuration is stored as cleartext JSON, by default in the `~/.prismacloud/` d
 The following environment variables can be used instead of the equivalent command-line options or a configuration file:
 
 ```
-settings = {
-    "name":     os.environ.get('PC_NAME'),
-    "url":      os.environ.get('PC_URL'),
-    "identity": os.environ.get('PC_IDENTITY'),
-    "secret":   os.environ.get('PC_SECRET'),
-    "verify":   os.environ.get('PC_VERIFY')
-}
+"name":     os.environ.get('PC_NAME')
+"url":      os.environ.get('PC_URL')
+"identity": os.environ.get('PC_IDENTITY')
+"secret":   os.environ.get('PC_SECRET')
+"verify":   os.environ.get('PC_VERIFY')
 ```
 
 
