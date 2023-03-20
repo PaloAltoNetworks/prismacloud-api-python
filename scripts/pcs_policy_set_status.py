@@ -23,13 +23,33 @@ group.add_argument(
 group.add_argument(
     '--policy_severity',
     type=str,
-    choices=['low', 'medium', 'high'],
+    choices=['informational', 'low', 'medium', 'high', 'critical'],
     help='Enable or disable Policies by Policy Severity.')
 group.add_argument(
     '--policy_type',
     type=str,
-    choices=['config', 'network', 'audit_event', 'anomaly'],
+    choices=['config', 'network', 'audit_event', 'anomaly', 'iam', 'workload_incident', 'workload_vulnerability', 'data', 'attack_path'],
     help='Enable or disable Policies by Policy Type.')
+group.add_argument(
+    '--policy_subtype',
+    type=str,
+    choices=['run', 'build'],
+    help='Enable or disable Policies by Subtype')
+group.add_argument(
+    '--policy_descriptor',
+    type=str,
+    choices=['PC-ALL-ALL', 'PC-AWS', 'PC-GCP', 'PC-AZR' 'PC-OCI', 'PC-ALB', 'Blank'],
+    help='Enable or disable Policies by Policy Descriptor.')
+group.add_argument(
+    '--policy_label',
+    type=str,
+    choices=['Prisma_Cloud'],
+    help='Enable or disable Policies by Policy Labels.')
+group.add_argument(
+    '--policy_mode',
+    type=str,
+    choices=['Default', 'Custom'],
+    help='Enable or disable Policies by Mode - Default or Custom')
 parser.add_argument(
     'status',
     type=str,
@@ -89,12 +109,43 @@ else:
             if policy['enabled'] is not specified_policy_status:
                 if policy_type == policy['policyType']:
                     policy_list_to_update.append(policy)
+    elif args.policy_subtype is not None:
+        policy_subtype = args.policy_subtype.lower()
+        for policy in policy_list:
+            if policy['enabled'] is not specified_policy_status:
+                if policy_subtype in policy['policySubTypes']:
+                    policy_list_to_update.append(policy)
+    elif args.policy_mode is not None:
+        policy_mode = args.policy_mode.lower()
+        for policy in policy_list:
+            if policy['enabled'] is not specified_policy_status:
+                if policy_mode == policy['policyMode']:
+                    policy_list_to_update.append(policy)
+    elif args.policy_label is not None:
+        policy_label = args.policy_label
+        for policy in policy_list:
+            if policy['enabled'] is not specified_policy_status:
+                if policy_label in policy['labels']:
+                    policy_list_to_update.append(policy)
+    elif args.policy_descriptor is not None:
+        policy_descriptor = args.policy_descriptor
+        for policy in policy_list:
+            if policy['enabled'] is not specified_policy_status:
+                if "policyUpi" in policy:
+                    if policy['policyUpi'].startswith(policy_descriptor):
+                        policy_list_to_update.append(policy)
+                else: #Add to list is if Policy Descriptor is Blank
+                    policy_list_to_update.append(policy)
 
 if policy_list_to_update:
-    print('API - Updating Policies ...')
+    print('API - Updating %s Policies ...' % len(policy_list_to_update))
+    counter=0
     for policy in policy_list_to_update:
+        counter+=1
         print('API - Updating Policy: %s' % policy['name'])
         pc_api.policy_status_update(policy['policyId'], specified_policy_status_string)
+        if counter % 10 == 0:
+            print('Progress: %.0f%% ' % (int(counter) / int(len(policy_list_to_update))*100))
     print('Done.')
     print()
 else:
