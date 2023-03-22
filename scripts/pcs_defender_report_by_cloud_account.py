@@ -18,7 +18,7 @@ pc_api.configure(settings)
 
 # --Main-- #
 
-defenders = pc_api.execute_compute('GET', 'api/v1/defenders')
+defenders = pc_api.defenders_list_read()
 accounts = {' Unknown Unknown': 0}
 
 for defender in defenders:
