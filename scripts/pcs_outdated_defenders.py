@@ -1,5 +1,4 @@
 """ Get Outdated Defenders """
-
 from packaging import version
 
 from prismacloud.api import pc_api, pc_utility
@@ -15,13 +14,24 @@ parser.add_argument(
 parser.add_argument(
     '--quiet',
     action="store_true",
-    help="(Optional) - Suppress console output"
+    help="(Optional) - Suppress console output to screen"
 )
 parser.add_argument(
     '--all',
     action="store_true",
-    help="(Optional) - Print All Defenders"
+    help="(Optional) - Print All Defenders, otherwise only print outdated"
 )
+parser.add_argument(
+    '--summary',
+    action="store_true",
+    help="(Optional) - Only Print summary information"
+)
+parser.add_argument(
+    '--disconnected',
+    action="store_true",
+    help="(Optional) - Only Print summary information"
+)
+
 args = parser.parse_args()
 
 # --Helpers-- #
@@ -52,12 +62,17 @@ current_version = pc_api.execute_compute('GET', 'api/v1/version')
 
 output('Current Console Version: %s' % current_version)
 
-#query_params do not seem to work with the api
-defenders = pc_api.defenders_list_read(query_params={'connected': 'true'})
+if args.disconnected:
+    status="false"
+else:
+    status="true"
+
+defenders = pc_api.defenders_list_read(query_params={'connected': status })
 
 output('Total Defenders in Console: %s ' % len(defenders))
+if not args.summary:
+    output('Provider, Cloud Account, Region, Defender, Version, Type, Outdated')
 
-output('Provider, Cloud Account, Region, Defender, Version, Type, Outdated')
 count=0
 for defender in defenders:
     count+=1
@@ -70,7 +85,7 @@ for defender in defenders:
     
     if not args.all and outdated is False:
         continue
-
-    output('%s, %s, %s, %s, %s, %s, %s' % (provider, account, region, defender['hostname'], defender['version'], defender['type'], outdated))
+    if not args.summary:
+        output('%s, %s, %s, %s, %s, %s, %s' % (provider, account, region, defender['hostname'], defender['version'], defender['type'], outdated))
 
 output('Total Defenders in List: %s ' % count)
