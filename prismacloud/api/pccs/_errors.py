@@ -19,3 +19,12 @@ class ErrorsPrismaCloudAPIPCCSMixin:
 
     def fixed_resource_code(self, criteria):
         return self.execute_code_security('POST', 'code/api/v1/errors/getFixedCode', body_params=criteria)
+
+    def resources_list(self, body_params=None):
+        return self.execute_code_security('POST', 'code/api/v2/errors/branch_scan/resources', body_params=body_params)
+
+    def policies_list(self, resource_uuid, body_params=None):
+        return self.execute_code_security('POST', 'code/api/v2/errors/branch_scan/resources/%s/policies' % resource_uuid, body_params=body_params)
+
+    def vulnerabilities_list(self, resource_uuid, query_params):
+        return self.execute_code_security('GET', 'code/api/v2/summaries/resource/%s/Vulnerabilities' % resource_uuid, query_params=query_params)
