@@ -10,6 +10,10 @@ import json
 # --Configuration-- #
 
 parser = pc_utility.get_arg_parser()
+parser.add_argument(
+    'week',
+    type=int,
+    help="number of week before today")
 args = parser.parse_args()
 
 # --Initialize-- #
@@ -20,7 +24,7 @@ pc_api.configure(settings)
 
 dt = datetime.datetime(year=2022, month=1, day=1)
 start_ts = time.mktime(dt.timetuple())*1000
-end_ts = time.time()*1000
+end_ts = time.mktime((datetime.datetime.today() - datetime.timedelta(weeks=args.week)).timetuple())*1000
 #dt = datetime.datetime(year=2023, month=1, day=31)
 #end_ts = time.mktime(dt.timetuple())*1000
 
