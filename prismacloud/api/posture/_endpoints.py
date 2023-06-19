@@ -89,7 +89,7 @@ class EndpointsPrismaCloudAPIMixin():
 
     def policy_delete(self, policy_id):
         return self.execute('DELETE', 'policy/%s' % policy_id)
-
+    
     """
     Saved Searches
 

@@ -1,0 +1,233 @@
+name,cloud,parent,type,id
+OCI_HR_PSDR,oci,ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq,tenant,ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq
+comp-psft-db - ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq - lf7cgq,oci,ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq,compartment,ocid1.compartment.oc1..aaaaaaaagaxclvv4qsjb37r6fjbyaoq4u2cktey2ghh5ndslzh3oqblf7cgq
+comp-dr-drill - ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq - qr4lba,oci,ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq,compartment,ocid1.compartment.oc1..aaaaaaaajkwu4adxxrhikobh24icdotw6k4eislpd2oqb7lxkqlyk2qr4lba
+comp-network - ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq - sjhzha,oci,ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq,compartment,ocid1.compartment.oc1..aaaaaaaafe3qit72fklyzplbj7njyzscuzinjre3hgv3isms4lb5fosjhzha
+comp-public-drill - ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq - lhigda,oci,ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq,compartment,ocid1.compartment.oc1..aaaaaaaayoqw2ysmcigw7hg7zyoefasxanjm33dxtgwa3b62267z4plhigda
+ODACompartment - ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq - u2xusa,oci,ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq,compartment,ocid1.compartment.oc1..aaaaaaaalulbyndhbdkhlblb2ow5duh66yjebkeik5lekziqruu5z4u2xusa
+comp-mgmt - ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq - bsop4a,oci,ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq,compartment,ocid1.compartment.oc1..aaaaaaaadabcxu44lng3sv2zz7mcbnlcg2idyzgjxdetvwhor4qoxdbsop4a
+comp-public - ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq - uklasq,oci,ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq,compartment,ocid1.compartment.oc1..aaaaaaaahmih7a3364wftcumfgsxnkv4oag3b7rcpex3khbwxsgmtluklasq
+comp-dr - ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq - 6r6cgq,oci,ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq,compartment,ocid1.compartment.oc1..aaaaaaaa5yhjc46mbeslrpyqwbbfr4u2ja3qnlh6ms6bmxna43q3cj6r6cgq
+comp-psft-app-drill - ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq - lo6veq,oci,ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq,compartment,ocid1.compartment.oc1..aaaaaaaa5r7qrffbbi4pn6stz5wq5lfsxnakp6ifhgjspix44iqko4lo6veq
+comp-psft-db-drill - ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq - 5nh6wa,oci,ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq,compartment,ocid1.compartment.oc1..aaaaaaaag7jmxjq5nnztuttetyhmi6gqkgnzkspez7y2gjhge4oita5nh6wa
+ManagedCompartmentForPaaS - ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq - ge7pgq,oci,ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq,compartment,ocid1.compartment.oc1..aaaaaaaaudv4kmiylmcpfb77i2ljolvvzypfjzh5f6crqw6ibfhumgge7pgq
+comp-psft-app - ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq - hslipa,oci,ocid1.tenancy.oc1..aaaaaaaagpv57qwynovixlqm77uyd5bfdw6m5eavevxrudwurrjaky3xjmzq,compartment,ocid1.compartment.oc1..aaaaaaaahiuwpm6dmvbg5xiitdlbldrb26kw62x7do3cm4roby7p77hslipa
+Wistron Corp.,azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,tenant,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+HRDXPZ-QAS - wistron-HRDXPZ-qas (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-HRDXPZ-qas::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+WWSPDB-PRD - wistron-WWSPDB-prd (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-WWSPDB-prd::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+GPM-DEV - wistron-GPM-dev (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-GPM-dev::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+GPM - wistron-GPM (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-GPM::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+GPM-QAS - wistron-GPM-qas (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-GPM-qas::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+FINDW-PRD - wistron-FINDW-prd (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-FINDW-prd::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+WILES - wistron-WILES (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-WILES::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+CIM-QAS - wistron-CIM-qas (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-CIM-qas::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+CIM - wistron-CIM (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-CIM::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+Decommissioned - wistron-decommissioned (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-decommissioned::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+WistronIT - WistronIT (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,WistronIT::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+SDM-PRD - wistron-sdm-prd (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-sdm-prd::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+SDM-DEV - wistron-sdm-dev (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-sdm-dev::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+WILES-QAS - wistron-WILES-qas (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-WILES-qas::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+GPM-PRD - wistron-GPM-prd (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-GPM-prd::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+BWPHIS - wistron-BWPHIS (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-BWPHIS::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+BWPHIS-DEV - wistron-BWPHIS-dev (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-BWPHIS-dev::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+FINDW-QAS - wistron-FINDW-qas (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-FINDW-qas::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+B2BWM-QAS - wistron-B2BWM-qas (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-B2BWM-qas::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+B2BWM-PRD - wistron-B2BWM-prd (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-B2BWM-prd::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+WWSPDB-QAS - wistron-WWSPDB-qas (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-WWSPDB-qas::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+ARM-QAS - wistron-ARM-qas (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-ARM-qas::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+BWPHIS-PRD - wistron-BWPHIS-prd (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-BWPHIS-prd::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+WWSPDB - wistron-WWSPDB (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-WWSPDB::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+HRDXPZ - wistron-HRDXPZ (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-HRDXPZ::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+ARM-PRD - wistron-ARM-prd (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-ARM-prd::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+ARM-DEV - wistron-ARM-dev (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-ARM-dev::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+WILES-PRD - wistron-WILES-prd (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-WILES-prd::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+SDM - wistron-sdm (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-sdm::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+ARM - wistron-ARM (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-ARM::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+FINDW-DEV - wistron-FINDW-dev (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-FINDW-dev::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+FINDW - wistron-FINDW (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-FINDW::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+WWSPDB-DEV - wistron-WWSPDB-dev (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-WWSPDB-dev::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+HRDXPZ-PRD - wistron-HRDXPZ-prd (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-HRDXPZ-prd::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+datafabric-dev - wistron-datafabric-dev (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-datafabric-dev::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+B2BWM-DEV - wistron-B2BWM-dev (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-B2BWM-dev::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+B2BWM - wistron-B2BWM (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-B2BWM::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+Scott Test - Scott (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,Scott::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+HRDX-DEV - wistron-HRDX-dev (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-HRDX-dev::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+HRDX-QAS - wistron-HRDX-qas (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-HRDX-qas::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+Identity - wistron-identity (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-identity::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+WISTRON - wistron (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+APIM-DEV - wistron-APIM-dev (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-APIM-dev::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+APIM - wistron-APIM (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-APIM::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+APIM-QAS - wistron-APIM-qas (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-APIM-qas::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+APIM-PRD - wistron-APIM-prd (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-APIM-prd::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+SDM-QAS - wistron-sdm-qas (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-sdm-qas::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+welfare - wistron-welfare (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-welfare::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+datafabric - wistron-datafabric (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-datafabric::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+Landing Zones - wistron-landing-zones (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-landing-zones::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+Sandboxes - wistron-sandboxes (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-sandboxes::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+Platform - wistron-platform (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-platform::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+Connectivity - wistron-connectivity (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-connectivity::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+Management - wistron-management (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-management::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+HRDXPZ-DEV - wistron-HRDXPZ-dev (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-HRDXPZ-dev::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+EPRO-DEV - wistron-EPRO-dev (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-EPRO-dev::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+EPRO-QAS - wistron-EPRO-qas (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-EPRO-qas::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+welfare-DEV - wistron-welfare-dev (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-welfare-dev::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+HRDX - wistron-HRDX (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-HRDX::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+EPRO-PRD - wistron-EPRO-prd (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-EPRO-prd::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+HRDX-PRD - wistron-HRDX-prd (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-HRDX-prd::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+AdminPortal-DEV - wistron-AdminPortal-dev (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-AdminPortal-dev::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+EPRO - wistron-EPRO (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-EPRO::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+AdminPortal - wistron-AdminPortal (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-AdminPortal::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+welfare-QAS - wistron-welfare-qas (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-welfare-qas::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+welfare-PRD - wistron-welfare-prd (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-welfare-prd::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+AdminPortal-QAS - wistron-AdminPortal-qas (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-AdminPortal-qas::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+AdminPortal-PRD - wistron-AdminPortal-prd (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,management_group,wistron-AdminPortal-prd::de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b
+Azure 訂用帳戶 1 - 89ffb9bf (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,89ffb9bf-7864-4dbc-ab57-b50134c6361c
+免费试用 - cf576749 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,cf576749-2020-4b75-bbea-f0b783394d56
+AZRWHQS4SubSystemTestQ - 4dbef194 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,4dbef194-d0db-4c3f-bb04-34a32f89d073
+EBG_R360 - b4f488c9 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,b4f488c9-77a5-4fc2-9b97-1d534ec987d0
+AZRWHQHRDXD - 1bccceed (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,1bccceed-7af4-4e0c-af0a-d9f3c76cb1f2
+免費試用 - 5b243d6b (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,5b243d6b-2f10-450d-b977-4ab5371cadb3
+Azure subscription 1 - 2f35dc0d (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,2f35dc0d-dfd6-4ae9-aab4-12999312dd85
+AZRWHQWILESQ - fd8cfeba (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,fd8cfeba-65c1-4404-b0e2-46d2b4e5024d
+免费试用 - 1e32834f (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,1e32834f-4354-49ec-8935-71a6b4abbf99
+AZRWHQARLENTESTSP2401D - b2ad63a2 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,b2ad63a2-9b24-4944-820c-06d454a60d92
+Azure subscription 1 - e5255ae0 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,e5255ae0-37f7-408d-ab4f-546e4a4ba025
+AZRWHQBWPHISD - 1405a7b6 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,1405a7b6-c0de-41b9-8807-d90a42d67286
+Azure subscription 1 - fe3de5ba (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,fe3de5ba-a20b-436a-b5ec-f3642409592f
+Azure subscription 1 - 11863c81 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,11863c81-fe38-48f0-999a-f529fb72bd04
+AZRSBGSPACED - d03b7cf0 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,d03b7cf0-929d-41eb-8ad3-d7bc4c9a2a90
+Armstrong-WistronIT POC - c046bfbc (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,c046bfbc-dabf-44b0-ab8c-35794dec0ca1
+AZRWHQCOGD - a5641867 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,a5641867-cc62-43ec-9df1-6de2b4a5ca74
+AZRCorpAVTSDMQ - 29cc6785 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,29cc6785-64b1-4fae-a632-419a5259c13b
+AZRRemoteExpertP - 5f76318a (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,5f76318a-ae05-44bc-874b-9c1a28e1c5c8
+AZRCASITP - 57b071ca (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,57b071ca-f899-4242-bbda-1b98b55f8f0b
+AZRAutoTestingP - 71a6abfc (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,71a6abfc-ff9d-4e53-b9f3-75be79d49d35
+AZRWHQBWPHISP - 987e2132 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,987e2132-3237-4372-8f7e-d68446805339
+AZRCASITD - 3a6ddb20 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,3a6ddb20-44e5-469b-8c81-aa58c46634f9
+AZRWHQWILESP - 060f257d (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,060f257d-4ce8-4527-8a55-a87daf14bb20
+AZRRemoteExpertD - 3ae7bdcc (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,3ae7bdcc-c84a-404b-947f-9e9ff5ad833a
+Free Trial - 22c5b7e5 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,22c5b7e5-a11e-46cd-b4be-7244ea16650d
+SWPC-WVD - c9af05e4 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,c9af05e4-e3ab-470e-aeec-37a501159c0e
+AZRWHQFINDWP - 7c71c74b (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,7c71c74b-a3ee-457d-8fe6-683bb8a33ed8
+AZRWHQCOGQ - 0fee804a (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,0fee804a-77f9-47e7-93c0-199d76771ae4
+AZRWHQARLENTESTSP2401Q - e2adf225 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,e2adf225-00f1-474a-8afa-0fd992e48b72
+AZRWHQJB0000DEVD - b5d6eccc (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,b5d6eccc-3041-4895-bd2b-882551670379
+Armstrong-WTi40 - 701baf3f (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,701baf3f-29da-429d-839b-69663ff93900
+Data Governance-ML6400 - 0dabc006 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,0dabc006-c2e3-4ca5-96cf-6aa4336d4acc
+免费试用 - 34b3784f (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,34b3784f-d2b6-463b-af86-338da3d43397
+HCM - 1e8e0013 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,1e8e0013-db33-4646-a1c3-d6757a42e77f
+AZRWHQCAFCONNP - a7f7f0ad (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,a7f7f0ad-f6ba-4a65-995f-d991597db09c
+Finance BI - 9ca8ec88 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,9ca8ec88-3a97-4ebf-b982-0a7424e90283
+AZRWHQB2BWMP - e383792c (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,e383792c-aebd-4583-8afb-518b60f163ec
+AZRWHQRA23D0606Z3D - 21bb78ee (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,21bb78ee-048b-4fd2-b8be-aa868cecd6d4
+AZRWHQCAFIDP - af15201e (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,af15201e-ff6f-4b71-b87f-856dcdcbdd58
+AZRWHQFINDWQ - 13cc138b (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,13cc138b-fe83-4443-8f71-f8145d75cd33
+AZRWHQARMD - 205bcdd3 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,205bcdd3-1a36-4cc2-b817-ae1532d12700
+AZRRemoteExpertQ - 7407b294 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,7407b294-44b9-4132-a9a1-70c33109ef0f
+AZRWHQSP10QASTEST66Q - 781f9a27 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,781f9a27-bf05-4934-8084-750451bcdcd6
+AZRWHQdatafabricD - 85aabfdb (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,85aabfdb-f941-4966-9175-1d50accabf17
+apitest2 - ad03311b (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,ad03311b-c837-40ec-a1a7-c42d9b31eae1
+AZRWHQSentinalP - 4e573a34 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,4e573a34-5fbf-40cd-81e7-4ca123a3d708
+CIM_ML8000 - 1a2a334d (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,1a2a334d-816e-4e85-a8e5-64536e7b9e6b
+AZRSBGSPACEQ - f947117c (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,f947117c-3854-4c0f-8d0d-c7b402690f17
+AZRWHQARMP - a0855925 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,a0855925-529d-4800-acb5-5bc124bb2ff3
+AZRB2BWMPOCD - 71560969 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,71560969-963a-419c-93f6-e5a65a9d6944
+AZRWHQB2BWMQ - f917019c (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,f917019c-44fb-40ef-b04c-b0c3f66bde07
+AZRWHQHRDXQ - 669c5f52 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,669c5f52-2a12-4dd4-b158-677f31248d83
+AZRWHQARMQ - f6230fa2 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,f6230fa2-eb4c-4a92-9fd4-e8053258ee96
+AZRSRED - 29dc0ab5 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,29dc0ab5-0e15-483c-8f57-c9720c6ca506
+wicopautotest - 67cdd468 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,67cdd468-1377-4d0d-b6a1-5fdc549c7abc
+AZRWHQSP10QASTEST66Q - b4cd83fa (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,b4cd83fa-1e8c-4a4c-85af-2068c0fb9cff
+AZRWHQAPIMQ - b2bbe7bf (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,b2bbe7bf-732a-4a5f-9dc0-2f9e782ddcf2
+AZRWHQCAFMGMTP - d80611ac (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,d80611ac-bfa1-4198-88ff-3acd8de0d88d
+azrmcpd - 5ea419a3 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,5ea419a3-a8e9-4377-ba63-2cc9dc93e81f
+azrmcpq - 0c457518 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,0c457518-298d-467d-b4a3-afdcaf4d4fbf
+AZRCorpAVTSDMP - 91e325d4 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,91e325d4-ebec-4acc-9ccb-965e903ae6da
+AZRAutoTestingQ - ee585383 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,ee585383-271d-48d3-8675-dc2c28ad114f
+AZRWHQSP10QASTEST86D - 1453b272 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,1453b272-e7ec-4950-b204-9ce188824e8d
+azrmcpp - 60d6a46a (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,60d6a46a-c355-4acc-a5b6-0bacdd3a092e
+WF Cloud - dceb78ab (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,dceb78ab-444d-427b-8ee7-2550e0002e3b
+AZRVD2AdminD - e9b7cced (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,e9b7cced-5727-4281-b7dd-78b88c031368
+AZRWHQB2BWMD - 71c38313 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,71c38313-723c-42b8-a0bb-bf4614cef5ed
+wicoptest - cb0e5dbe (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,cb0e5dbe-28e5-469e-81b1-fdbf4d6627b5
+Data Fabric POC - Alex - 814c2899 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,814c2899-663d-4b14-a11a-aee653195d01
+AZRWHQFINDWD - 4ffd2686 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,4ffd2686-d522-450d-906f-3793fee94192
+AZRCorpAVTSDMD - 3d9661f3 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,3d9661f3-c4cf-45ec-94f9-5fe2f541c3e7
+DCC Cloud - 04a4d099 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,04a4d099-8670-4e80-874a-3c04ce7cafce
+AZRWHQCAFSBOXD - 7f4ea0c8 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,7f4ea0c8-2756-46e9-971d-ed31263f8362
+Wistron IT - e8af2018 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,e8af2018-a480-4f0c-aeac-b21b5a69a8d0
+AZRWHQAPIMD - cfc0a665 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,cfc0a665-0a4d-41b2-bf9b-0adfd01b9c92
+MLD_Cloudadm - c5d86198 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,c5d86198-7f3e-4130-b69c-d5631f59fd85
+VDA_Cloud - 3279308e (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,3279308e-4ac4-4dc8-b66c-9500fc814d21
+WOMS3_ML7000 - 51ac6a52 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,51ac6a52-175a-46b4-813a-d990e3e32aa6
+VD1-azure - 97257a70 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,97257a70-7bd6-449b-bf88-4121d2925b4a
+Armstrong - a8051c92 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,a8051c92-2937-44b0-a0b2-12453afa4a3c
+SI2_2S0000 - a187b4e6 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,a187b4e6-5a61-49c1-aa6f-1a8a567632c6
+WMXi40 - c3dd8a7b (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,c3dd8a7b-effa-4e11-bd85-fefd99074de2
+S360_Azure - 707fcb1f (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,707fcb1f-32c6-40b9-bd10-0fe027d565ab
+WMX_Azure01 - 669084b1 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,669084b1-7255-4f84-80b3-74bf9518b158
+AZRWHQGPMQ - a748e1d9 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,a748e1d9-c9ea-47ef-9865-4e0f29df50b5
+AZRWHQGPMD - dae72ce3 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,dae72ce3-afcc-46ad-9925-06928484b4aa
+AZRWHQEDAP - c6bb3b6a (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,c6bb3b6a-11c7-4dcc-a139-2556007fde62
+WSD-SSOT - 185eedc7 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,185eedc7-5b46-4c47-9d27-2a9d22da80e8
+AZRWHQWiLESSBGQ - 51026b69 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,51026b69-eeac-4fcf-b368-1e0d44080f47
+R360WT - ed7216af (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,ed7216af-e52d-4c2d-9655-6fa3451e5ac0
+AZRWHQAdminPortalQ - bb3765bd (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,bb3765bd-9290-4664-8be9-5d00cc984f3a
+AZRWHQAdminPortalD - 39e2a33b (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,39e2a33b-b714-472e-b610-0ec177dda160
+AZRWHQAdminPortalP - 012c7b2a (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,012c7b2a-9ee2-4ccf-b1fe-0848df438c93
+AZRWHQWWSPDBD - 377f8604 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,377f8604-6ec2-4283-ac46-35e718267e52
+Azure 订阅 1 - 68d32f91 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,68d32f91-dff7-443e-9ee4-25e4188d2e04
+AZRWHQWWSPDBQ - 566f7d5a (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,566f7d5a-12c2-4fad-a778-18667c13ae17
+AZRWHQWWSPDBP - cfc0621e (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,cfc0621e-bdff-4375-b005-eeb0d3e14507
+AZRWHQHRDXPZQ - d7e447f8 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,d7e447f8-5f74-486c-9664-d5aef822c8ba
+AZRWHQEDAQ - 426f5dc4 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,426f5dc4-9c25-4cb6-9a74-82662589705a
+AZRWHQeproP - 82647745 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,82647745-5d21-475a-a68c-3c60c279ca02
+AZRWHQeproQ - ae66d199 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,ae66d199-921d-407f-a1fa-420c82590685
+AZRWHQeproD - 0f2d6771 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,0f2d6771-295b-494d-952c-b3ceb85df946
+AZRWHQAPIMP - 20447853 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,20447853-e354-4f9b-a868-9ea8b790d13a
+AZRWHQWelfareQ - 17f78706 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,17f78706-8546-43df-a8ef-8373fb2c64a0
+AZRWHQWelfareD - 692f1fa3 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,692f1fa3-8d21-40ae-84b6-b7b857cbceb6
+AZRWHQHRDXP - 289151c2 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,289151c2-0ca6-4ebe-afae-3f97d09198ba
+AZRWHQCIMQ - 618aa6c9 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,618aa6c9-e55f-43ee-96c8-c4ede252a7f0
+AZRWHQHRDXPZP - 3f8c7719 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,3f8c7719-75ba-40af-b873-bdfa1ec08210
+AZRWHQGPMP - c22c3108 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,c22c3108-6e52-4af9-bac2-496859e13aff
+AZRWHQHRDXPZD - 8d539684 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,8d539684-bce2-41a0-9fdf-5541258161d0
+VD0_FW - a3a07cdf (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,a3a07cdf-d288-4ef3-ad5d-2a3fcc94fd0e
+AZRWHQWelfareP - 4711b573 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,4711b573-7db0-4852-8049-63843767d8fc
+AZRWHQWiLESSBGD - c039b341 (Wistron Corp.),azure,de0795e0-d7c0-4eeb-b9bb-bc94d8980d3b,account,c039b341-7601-4f02-865f-1f4428042eb5
+Medtechdatai.com,gcp,9.47231E+11,organization,9.47231E+11
+digitalpathology-315501 - 449797272158,gcp,9.47231E+11,account,digitalpathology-315501
+aimodels-168 - 362022569851,gcp,9.47231E+11,account,aimodels-168
+h365-305309 - 911503905436,gcp,9.47231E+11,account,h365-305309
+wmt-env-77341 - 359711413332,gcp,9.47231E+11,account,wmt-env-77341
+icu-dashboard-319601 - 920487013560,gcp,9.47231E+11,account,icu-dashboard-319601
+commonmodule-314805 - 47646230255,gcp,9.47231E+11,account,commonmodule-314805
+kdams-306501 - 482178999124,gcp,9.47231E+11,account,kdams-306501
+vghks-phase1-20210922 - 848310815017,gcp,9.47231E+11,account,vghks-phase1-20210922
+pcc-vghtpe - 1085355194284,gcp,9.47231E+11,account,pcc-vghtpe
+eda-poc-341303,gcp,,masterServiceAccount,eda-poc-341303
+Angleasy,gcp,,masterServiceAccount,angleasy
+app4gym-305301,gcp,,masterServiceAccount,app4gym-305301
+iVogue II,gcp,,masterServiceAccount,sixth-vine-319702
+vaima-310508,gcp,,masterServiceAccount,vaima-310508
+Wistron-PD-WiWall,aws,,account,3.6271E+11
+wistron-ev-charger,aws,,account,7.51895E+11
+Wisron-8SU-ICT,aws,,account,4.12972E+11
+wmt-wicc-kmsh,aws,,account,7.21739E+11
+Wistron-VDA-Gitlab,aws,,account,3.99486E+11
+Wistron-VDA-Dev,aws,,account,9.85242E+11
+Wistron-VD1300-PRD,aws,,account,6.37046E+11
+Wistron-VD2-MED-DATA,aws,,account,5.25156E+11
+wistron_pd_ara,aws,,account,9.90565E+11
+IT-POC_02,aws,,account,8.36428E+11
+wistron-ns,aws,,account,6.56753E+11
+wistron-VDA-winerve2npi_sit,aws,,account,9.69797E+11
+wistron_cto_wisleep_mc,aws,,account,1.86587E+11
+wistron-cto-wisleep,aws,,account,9.30964E+11
+AWS-Wistron-Portal,aws,,account,3833415136
+Wistron IT_adm,aws,,account,4.42304E+11
+wistron-vcc-viyage,aws,,account,7.80931E+11
+wistron_cto_wisleep_ey,aws,,account,1.85668E+11
+wistron_esg_portal,aws,,account,6.54464E+11
+Wistron-VDA-winerve2npi,aws,,account,4.24402E+11
+Wistron-WMT-website,aws,,account,5.43628E+11
