@@ -88,7 +88,7 @@ output_aws['insertTs'] = output_aws['insertTs'].apply(lambda x: (pd.Timestamp(x*
 
 # python3 ./pcs_rql_query_vm.py 'config from cloud.resource where api.name = "aws-ec2-describe-instances" AND resource.status = Active addcolumn privateIpAddress publicIpAddress'
 
-search_params['query'] = 'config from cloud.resource where api.name = "gcloud-compute-instances-list" addcolumn $.networkInterfaces[*].networkIP networkInterfaces[*].accessConfigs[*].natIP '
+search_params['query'] = 'config from cloud.resource where api.name = "gcloud-compute-instances-list" AND resource.status = Active addcolumn $.networkInterfaces[*].networkIP networkInterfaces[*].accessConfigs[*].natIP '
 
 print('API - Getting the RQL results ...', end='')
 result_list = pc_api.search_config_read(search_params=search_params)
