@@ -29,3 +29,4 @@ ENV/
 env.bak/
 venv.bak/
 ENV.bak/
+scripts/Reports/
