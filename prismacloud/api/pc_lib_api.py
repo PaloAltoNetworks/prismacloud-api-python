@@ -61,7 +61,6 @@ class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS)
         self.verify      = settings.get('verify', True)
         self.debug       = settings.get('debug', False)
         self.user_agent  = settings.get('user_agent', self.user_agent)
-        print(self.user_agent)
         #
         # self.logger      = settings['logger']
         self.logger = logging.getLogger(__name__)
