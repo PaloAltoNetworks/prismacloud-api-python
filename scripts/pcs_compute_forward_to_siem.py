@@ -100,6 +100,9 @@ def outbound_api_call(data_type:str, data: Union[list, dict]):
         profile_log('OUTBOUND_API_CALL', 'FINISHED')
         return
     print(f'        OUTBOUND_API_CALL for {data_type} ...')
+    # Add User-Agent to the headers
+    req_headers['User-Agent'] = self.user_agent
+
     api_response = requests.request(req_method, req_url, headers=req_headers, params=req_query_params, data=json.dumps(req_body_params), timeout=req_timeout, verify=False)
     if api_response.status_code in retry_status_codes:
         for _ in range(1, retry_limit):

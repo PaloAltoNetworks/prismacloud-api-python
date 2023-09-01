@@ -40,6 +40,9 @@ headers = {'Content-Type': 'application/json'}
 api_url = 'https://' + PRISMA_CLOUD_COMPUTE_CONSOLE_URL + PRISMA_CLOUD_COMPUTE_CONSOLE_API_VERSION + '/credentials'
 action  = 'POST'
 
+# Add User-Agent to the headers
+request_headers['User-Agent'] = self.user_agent
+
 # Set the POST
 data = {}
 data['_id']             = PRISMA_CLOUD_CREDENTIAL_FRIENDLY_NAME
@@ -67,6 +70,9 @@ headers = {'Content-Type': 'application/json'}
 api_url = 'https://' + PRISMA_CLOUD_COMPUTE_CONSOLE_URL + PRISMA_CLOUD_COMPUTE_CONSOLE_API_VERSION + '/policies/cloud-platforms'
 action = 'GET'
 
+# Add User-Agent to the headers
+request_headers['User-Agent'] = self.user_agent
+
 # GET
 response_raw = requests.request(action, api_url, auth=HTTPBasicAuth(PRISMA_CLOUD_API_ACCESS_KEY, PRISMA_CLOUD_API_SECRET_KEY), headers=headers, timeout=16)
 response_data = response_raw.json()
@@ -77,6 +83,9 @@ rules_list = response_data['rules']
 headers = {'Content-Type': 'application/json'}
 api_url = 'https://' + PRISMA_CLOUD_COMPUTE_CONSOLE_URL + PRISMA_CLOUD_COMPUTE_CONSOLE_API_VERSION + '/policies/cloud-platforms'
 action = 'PUT'
+
+# Add User-Agent to the headers
+request_headers['User-Agent'] = self.user_agent
 
 # Set the POST
 new_policy_object = {}
