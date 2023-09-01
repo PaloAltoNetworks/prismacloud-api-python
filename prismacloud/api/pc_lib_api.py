@@ -7,6 +7,7 @@ from .cwpp import PrismaCloudAPICWPP
 from .pccs import PrismaCloudAPIPCCS
 
 from .pc_lib_utility import PrismaCloudUtility
+from .version import version  # Import version from your version.py
 
 # --Description-- #
 
@@ -46,6 +47,9 @@ class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS)
         #
         self.error_log          = 'error.log'
         self.logger             = None
+        # Set User-Agent
+        default_user_agent = f"PrismaCloudAPI/{version}"  # Dynamically set default User-Agent
+        self.user_agent = default_user_agent
 
     def __repr__(self):
         return 'Prisma Cloud API:\n  API: (%s)\n  Compute API: (%s)\n  API Error Count: (%s)\n  API Token: (%s)' % (self.api, self.api_compute, self.logger.error.counter, self.token)
@@ -56,6 +60,8 @@ class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS)
         self.secret      = settings.get('secret')
         self.verify      = settings.get('verify', True)
         self.debug       = settings.get('debug', False)
+        self.user_agent  = settings.get('user_agent', self.user_agent)
+        print(self.user_agent)
         #
         # self.logger      = settings['logger']
         self.logger = logging.getLogger(__name__)

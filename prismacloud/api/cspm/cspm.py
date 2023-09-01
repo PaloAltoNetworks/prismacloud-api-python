@@ -20,6 +20,8 @@ class PrismaCloudAPIMixin():
             url = 'https://%s/login' % self.api
         action = 'POST'
         request_headers = {'Content-Type': 'application/json'}
+        # Add User-Agent to the headers
+        request_headers['User-Agent'] = self.user_agent
         body_params_json = json.dumps({'username': self.identity, 'password': self.secret})
         # try:
         #     api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.verify, timeout=self.timeout)
@@ -48,6 +50,8 @@ class PrismaCloudAPIMixin():
         url = 'https://%s/auth_token/extend' % self.api
         action = 'GET'
         request_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
+        # Add User-Agent to the headers
+        request_headers['User-Agent'] = self.user_agent
         api_response = requests.request(action, url, headers=request_headers, verify=self.verify, timeout=self.timeout)
         if api_response.status_code in self.retry_status_codes:
             for exponential_wait in self.retry_waits:
@@ -91,6 +95,8 @@ class PrismaCloudAPIMixin():
             self.debug_print('API Request Headers: (%s)' % request_headers)
             self.debug_print('API Query Params: %s' % query_params)
             self.debug_print('API Body Params: %s' % body_params_json)
+            # Add User-Agent to the headers
+            request_headers['User-Agent'] = self.user_agent
             api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
             self.debug_print('API Response Status Code: %s' % api_response.status_code)
             self.debug_print('API Response Headers: (%s)' % api_response.headers)

@@ -35,6 +35,8 @@ class PrismaCloudAPICWPPMixin():
             body_params_json = json.dumps(body_params)
         else:
             body_params_json = None
+        # Set User Agent
+        request_headers['User-Agent'] = "W"
         # Endpoints that return large numbers of results use a 'Total-Count' response header.
         # Pagination is via query parameters for both GET and POST, and the limit has a maximum of 50.
         offset = 0
@@ -59,6 +61,8 @@ class PrismaCloudAPICWPPMixin():
             self.debug_print('API Request Headers: (%s)' % request_headers)
             self.debug_print('API Query Params: %s' % query_params)
             self.debug_print('API Body Params: %s' % body_params_json)
+            # Add User-Agent to the headers
+            request_headers['User-Agent'] = self.user_agent
             api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
             self.debug_print('API Response Status Code: (%s)' % api_response.status_code)
             self.debug_print('API Response Headers: (%s)' % api_response.headers)
