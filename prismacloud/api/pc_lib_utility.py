@@ -17,6 +17,15 @@ try:
 except NameError:
     pass
 
+try:
+    from pathlib import Path
+    homefolder = str(Path.home())
+except:
+    if "USERPROFILE" in os.environ:
+        homefolder = os.environ["USERPROFILE"]
+    else:
+        homefolder = os.environ["HOME"]
+        
 # --Description-- #
 
 # Prisma Cloud Helper library.
@@ -26,7 +35,7 @@ except NameError:
 class PrismaCloudUtility():
     """ Prisma Cloud Utility Class """
 
-    CONFIG_DIRECTORY = os.path.join(os.environ['HOME'], '.prismacloud')
+    CONFIG_DIRECTORY = os.path.join(homefolder, '.prismacloud')
     DEFAULT_CONFIG_FILE = os.path.join(CONFIG_DIRECTORY, 'credentials.json')
 
     @classmethod
