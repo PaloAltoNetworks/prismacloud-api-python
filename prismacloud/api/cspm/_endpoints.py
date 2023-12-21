@@ -538,6 +538,14 @@ class EndpointsPrismaCloudAPIMixin():
             next_page_token = api_response.pop('nextPageToken', None)
         return result
 
+    def search_iam_source_to_granter(self, search_params):
+        search_url = 'api/v1/permission/graph/source_to_granter'
+        return self.execute('POST', search_url, body_params=search_params)
+
+    def search_iam_granter_to_dest(self, search_params):
+        search_url = 'api/v1/permission/graph/granter_to_dest'
+        return self.execute('POST', search_url, body_params=search_params)
+
     def search_suggest_list_read(self, query_to_suggest):
         return self.execute('POST', 'search/suggest', body_params=query_to_suggest)
 
