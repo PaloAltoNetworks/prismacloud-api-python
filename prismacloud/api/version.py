@@ -1,3 +1,1 @@
-""" version file """
-
-version = '5.2.9'
+version = "5.2.9"
