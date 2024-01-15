@@ -1,6 +1,4 @@
-# https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
-
-name: Upload Python Package
+name: Manual Deploy
 
 on: workflow_dispatch
 
