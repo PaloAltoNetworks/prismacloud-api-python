@@ -19,3 +19,7 @@ class RegistryPrismaCloudAPICWPPMixin:
     def registry_scan(self, body_params=None):
         result = self.execute_compute('POST', 'api/v1/registry/scan', body_params=body_params)
         return result
+
+    def registry_scan_select(self, body_params=None):
+        result = self.execute_compute('POST', 'api/v1/registry/scan/select', body_params=body_params)
+        return result
