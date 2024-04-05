@@ -84,10 +84,10 @@ else:
 
 # Safeguards.
 
-if current_access_key['id'].lower() == pc_api.username.lower():
+if current_access_key['id'].lower() == pc_api.identity.lower():
     pc_utility.error_and_exit(500, 'This script cannot rotate its own Access Key')
 
-if previous_access_key and previous_access_key['id'].lower() == pc_api.username.lower():
+if previous_access_key and previous_access_key['id'].lower() == pc_api.identity.lower():
     pc_utility.error_and_exit(500, 'This script cannot rotate its own Access Key')
 
 if current_access_key['username'].lower() == current_user['email'].lower():
