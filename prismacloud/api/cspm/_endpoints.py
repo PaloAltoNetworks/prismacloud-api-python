@@ -351,7 +351,26 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('GET', 'v2/inventory', query_params=query_params)
 
     def asset_inventory_list_read_post(self, body_params=None):
-        return self.execute('POST', 'v2/inventory', body_params=body_params)
+        return self.execute('POST', 'v2/inventory', body_params=body_params)    
+    
+    """
+    Asset (Resources) Inventory V3
+
+    [x] LIST
+    [ ] CREATE
+    [ ] READ
+    [ ] UPDATE
+    [ ] DELETE
+    Additional:
+    [x] LIST (v3)
+    [x] LIST WITH FILTERS(v3)
+    """
+
+    def asset_inventory_list_read_v3(self, query_params=None):
+        return self.execute('GET', 'v3/inventory', query_params=query_params)
+
+    def asset_inventory_list_read_postv_3(self, body_params=None):
+        return self.execute('POST', 'v3/inventory', body_params=body_params)
 
     """
     (Assets) Resources
