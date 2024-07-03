@@ -216,8 +216,7 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('PUT', 'v2/user/%s' % user['email'], body_params=user)
 
     def user_delete(self, user_id):
-        return self.execute('DELETE', 'user/%s' % user_id)
-    
+        return self.execute('DELETE', 'user/%s' % user_id)    
     
     def user_bypass_sso(self, body_params):
         return self.execute('PUT', 'user/saml/bypass', body_params=body_params)
