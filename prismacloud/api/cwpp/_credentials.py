@@ -19,10 +19,10 @@ class CredentialsPrismaCloudAPICWPPMixin:
 
     def credential_list_delete(self, cred):
         return self.execute_compute(
-            'DELETE', '/api/v1/credentials/%s' % urllib.parse.quote(cred)
+            'DELETE', 'api/v1/credentials/%s' % urllib.parse.quote(cred)
         )
 
     def credential_list_usages_read(self, cred):
         return self.execute_compute(
-            'GET', '/api/v1/credentials/%s/usages' % urllib.parse.quote(cred)
+            'GET', 'api/v1/credentials/%s/usages' % urllib.parse.quote(cred)
         )
