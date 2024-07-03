@@ -455,7 +455,7 @@ class EndpointsPrismaCloudAPIMixin():
     Resource Lists
 
     [x] LIST
-    [ ] CREATE
+    [X] CREATE
     [ ] READ
     [ ] UPDATE
     [x] DELETE
@@ -466,6 +466,9 @@ class EndpointsPrismaCloudAPIMixin():
 
     def resource_list_delete(self, resource_list_id):
         return self.execute('DELETE', 'v1/resource_list/%s' % resource_list_id)
+    
+    def resource_list_create(self, resource_list_to_add):
+        return self.execute('POST', 'v1/resource_list', body_params=resource_list_to_add)
 
     """
     Compliance Reports
