@@ -49,6 +49,7 @@ class EndpointsPrismaCloudAPIMixin():
 
     def alert_csv_download(self, csv_report_id):
         return self.execute('GET', 'alert/csv/%s/download' % csv_report_id)
+    
 
     """
     Policies
@@ -216,6 +217,10 @@ class EndpointsPrismaCloudAPIMixin():
 
     def user_delete(self, user_id):
         return self.execute('DELETE', 'user/%s' % user_id)
+    
+    
+    def user_bypass_sso(self, body_params):
+        return self.execute('PUT', 'user/saml/bypass', body_params=body_params)
 
     """
     User Roles
@@ -461,7 +466,7 @@ class EndpointsPrismaCloudAPIMixin():
     [x] DELETE
     """
 
-    def resource_list_list_read(self):
+    def resource_list_read(self):
         return self.execute('GET', 'v1/resource_list')
 
     def resource_list_delete(self, resource_list_id):
@@ -469,6 +474,25 @@ class EndpointsPrismaCloudAPIMixin():
     
     def resource_list_create(self, resource_list_to_add):
         return self.execute('POST', 'v1/resource_list', body_params=resource_list_to_add)
+
+    """
+    Adoption Advisor
+
+    [x] LIST
+    [X] CREATE
+    [ ] READ
+    [X] UPDATE
+    [X] DELETE
+    """
+
+    def adoptionadvisor_report_read(self):
+        return self.execute('GET', 'adoptionadvisor/report')
+
+    def adoptionadvisor_report_delete(self, report_id):
+        return self.execute('DELETE', 'adoptionadvisor/report/%s' % report_id)
+    
+    def adoptionadvisor_report_create(self, report_to_add):
+        return self.execute('POST', 'adoptionadvisor/report', body_params=report_to_add)
 
     """
     Compliance Reports
@@ -617,6 +641,26 @@ class EndpointsPrismaCloudAPIMixin():
 
     def resource_usage_over_time_v2(self, body_params):
         return self.execute('POST', 'license/api/v2/time_series', body_params=body_params)
+
+    """
+    SSO SAML
+
+    [X] LIST
+    [X] CREATE
+    [X] READ
+    [X] UPDATE
+    [ ] DELETE
+    """
+
+    def saml_config_read(self):
+        return self.execute('GET', 'authn/v1/saml/config')
+    
+    def saml_config_create(self, body_params):
+        return self.execute('POST', 'authn/v1/saml/config', body_params=body_params)
+
+    def saml_config_update(self, body_params):
+        return self.execute('PUT', 'authn/v1/saml/config', body_params=body_params)
+
 
     """
     Enterprise Settings 
