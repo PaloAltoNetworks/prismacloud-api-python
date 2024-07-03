@@ -1,9 +1,9 @@
-""" Prisma Cloud Code Security enforcement-rules Endpoints Class """
+""" Prisma Cloud Code Security API Enforcement Rules Endpoints Class """
 
 # enforcement-rules
 
-class SuppressionsPrismaCloudAPIPCCSMixin:
-    """ Prisma Cloud Code Security API Suppressions Endpoints Class """
+class RulesPrismaCloudAPIPCCSMixin:
+    """ Prisma Cloud Code Security API Enforcement Rules Endpoints Class """
 
     def enforcement_rules_read(self):
         return self.execute_code_security('GET', 'code/api/v1/enforcement-rules')
