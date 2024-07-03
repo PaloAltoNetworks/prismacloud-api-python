@@ -7,6 +7,7 @@ from ._checkov_version import *
 from ._errors          import *
 from ._fixes           import *
 from ._repositories    import *
+from ._rules           import *
 from ._scans           import *
 from ._suppressions    import *
 from ._packages        import *

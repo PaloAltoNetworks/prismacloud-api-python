@@ -17,22 +17,27 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
+
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
         pip install pylint
         pip install -r requirements.txt
         pip install build
+
     - name: Test API
       run: |
         pylint prismacloud/api
+
     - name: Test Scripts
       run: |
         python -m build
-        pip install dist/prismacloud_api-*
+        # pip install dist/prismacloud_api-*
+        pip install dist/prismacloud_api-*.whl  # Only install the wheel file
         pip install -r scripts/requirements.txt
         pylint scripts/*.py
