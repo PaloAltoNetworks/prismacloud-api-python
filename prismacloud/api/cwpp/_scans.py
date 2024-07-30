@@ -11,3 +11,7 @@ class ScansPrismaCloudAPICWPPMixin:
         else:
             images = self.execute_compute('GET', 'api/v1/scans?filterBaseImage=true', paginated=True)
         return images
+
+    def scans_download(self, query_params=None):
+        scans = self.execute_compute('GET', 'api/v1/scans/download?', query_params=query_params)
+        return scans

@@ -12,3 +12,7 @@ class DefendersPrismaCloudAPICWPPMixin:
     def defenders_names_list_read(self, query_params=None):
         defenders = self.execute_compute('GET', 'api/v1/defenders/names', query_params=query_params, paginated=True)
         return defenders
+
+    def defenders_download(self, query_params=None):
+        defenders = self.execute_compute('GET', 'api/v1/defenders/download?', query_params=query_params)
+        return defenders

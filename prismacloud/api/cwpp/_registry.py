@@ -5,6 +5,10 @@
 class RegistryPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Images Endpoints Class """
 
+    def registry_download(self, query_params=None):
+        registries = self.execute_compute('GET', 'api/v1/registry/download?', query_params=query_params)
+        return registries
+
     def registry_list_read(self, image_id=None):
         if image_id:
             images = self.execute_compute('GET', 'api/v1/registry?id=%s&filterBaseImage=true' % image_id)
