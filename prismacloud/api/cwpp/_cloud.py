@@ -23,4 +23,4 @@ class CloudPrismaCloudAPICWPPMixin:
         return self.execute_compute('GET', 'api/v1/cloud/discovery/vms', query_params=query_params, paginated=True)
 
     def cloud_discovery_entities(self, query_params=None):
-        return self.execute_compute('GET', 'api/v1/cloud/discovery/entities', query_params=query_params)
+        return self.execute_compute('GET', 'api/v1/cloud/discovery/entities', query_params=query_params, paginated=True)
