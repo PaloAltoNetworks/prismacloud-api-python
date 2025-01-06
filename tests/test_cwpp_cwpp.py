@@ -105,7 +105,7 @@ class TestCasePrismaCloudAPICWPPMixin(unittest.TestCase):
 
     @responses.activate(registry=registries.OrderedRegistry)
     def test_execute_compute_retry_failed_for_credentials_list(self):
-        self.pc_api.retry_waits = [1, 1]
+        self.pc_api.retry_number = 2
         get_creds_responses = [
             responses.get(
                 'https://example.prismacloud.io/api/v1/credentials',
