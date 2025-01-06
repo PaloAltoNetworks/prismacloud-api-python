@@ -1,12 +1,10 @@
 import unittest
-from unittest import mock
 import json
-from prismacloud.api.pc_lib_api import PrismaCloudAPI
-from tests.data import SETTINGS, META_INFO, CREDENTIALS, ONE_HOST
 
 import responses
 from responses import registries, matchers
-from requests import exceptions
+from prismacloud.api.pc_lib_api import PrismaCloudAPI
+from tests.data import SETTINGS, META_INFO, CREDENTIALS, ONE_HOST
 
 
 class TestCasePrismaCloudAPICWPPMixin(unittest.TestCase):
