@@ -42,7 +42,7 @@ class PrismaCloudAPIMixin():
 
     def extend_login(self):
         self.suppress_warnings_when_verify_false()
-        self.debug_print('Extending API Token')
+        self.debug_print('Extending CSPM API Token')
         url = f'https://{self.api}/auth_token/extend'
         action = 'GET'
         request_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}

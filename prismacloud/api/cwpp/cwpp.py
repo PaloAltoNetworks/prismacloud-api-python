@@ -22,7 +22,7 @@ class PrismaCloudAPICWPPMixin():
     def check_extend_login_compute(self):
         # There is no extend for CWP, just logon again.
         if not self.token or (int(time.time() - self.token_timer) > self.token_limit):
-            self.debug_print('Extending API Token')
+            self.debug_print('Extending CWPP API Token')
             self.login_compute()
 
     # def _check_
