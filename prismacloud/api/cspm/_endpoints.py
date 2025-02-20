@@ -650,7 +650,6 @@ class EndpointsPrismaCloudAPIMixin():
         if 'items' in api_response:
             yield from api_response['items']
             next_page_token = api_response.pop('nextPageToken', None)
-            logging.debug(f"Total items: {api_response.pop('totalRows', 'unknown')}")
         while paginate and next_page_token:
             body_params['nextPageToken'] = next_page_token
             api_response = self.execute('POST', f'search/api/v2/config', body_params=body_params)
