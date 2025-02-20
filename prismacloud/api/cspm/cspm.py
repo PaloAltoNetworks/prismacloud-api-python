@@ -1,6 +1,7 @@
 """ Requests and Output """
 
 import json
+import logging
 import time
 
 import requests
@@ -41,7 +42,8 @@ class PrismaCloudAPIMixin():
 
     def extend_login(self):
         self.suppress_warnings_when_verify_false()
-        url = 'https://%s/auth_token/extend' % self.api
+        self.debug_print('Extending API Token')
+        url = f'https://{self.api}/auth_token/extend'
         action = 'GET'
         request_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
         # Add User-Agent to the headers
@@ -52,8 +54,9 @@ class PrismaCloudAPIMixin():
             self.token = api_response.get('token')
             self.token_timer = time.time()
         else:
-            self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (url, api_response.text))
-        self.debug_print('Extending API Token')
+            logging.warning(f'HTTP error code {api_response.status_code} - API ({url}) responded with an error - lets try to login again\n {api_response.text}')
+            # try to login again
+            self.login()
 
     # pylint: disable=too-many-arguments, too-many-branches, too-many-locals
     def execute(self, action, endpoint, query_params=None, body_params=None, request_headers=None, force=False, paginated=False):
