@@ -46,6 +46,7 @@ class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS)
         self.token_limit        = 590 # aka 9 minutes
         self.retry_status_codes = [425, 429, 500, 502, 503, 504]
         self.retry_waits        = [1, 2, 4, 8, 16, 32]
+        self.retry_allowed_methods = frozenset(["GET", "POST"])
         self.max_workers        = 8
         #
         self.error_log          = 'error.log'
@@ -55,7 +56,8 @@ class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS)
         self.user_agent = default_user_agent
         # use a session
         self.session = requests.session()
-        retries = Retry(total=6, backoff_factor=1, status_forcelist=self.retry_status_codes)
+        retries = Retry(total=6, status=6, backoff_factor=1, status_forcelist=self.retry_status_codes,
+                        allowed_methods=self.retry_allowed_methods)
         self.session_adapter = HTTPAdapter(max_retries=retries)
         # s.mount('http://', )
 
