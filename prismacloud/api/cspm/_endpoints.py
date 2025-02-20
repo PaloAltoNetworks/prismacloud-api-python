@@ -1,4 +1,7 @@
 """ Prisma Cloud API Endpoints Class """
+import logging
+import pprint
+
 
 # TODO: Split into multiple files, one per endpoint ...
 
@@ -49,7 +52,6 @@ class EndpointsPrismaCloudAPIMixin():
 
     def alert_csv_download(self, csv_report_id):
         return self.execute('GET', 'alert/csv/%s/download' % csv_report_id)
-    
 
     """
     Policies
@@ -154,7 +156,8 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('GET', 'compliance/%s/requirement' % compliance_standard_id)
 
     def compliance_standard_requirement_create(self, compliance_standard_id, compliance_requirement_to_add):
-        return self.execute('POST', 'compliance/%s/requirement' % compliance_standard_id, body_params=compliance_requirement_to_add)
+        return self.execute('POST', 'compliance/%s/requirement' % compliance_standard_id,
+                            body_params=compliance_requirement_to_add)
 
     """
     Compliance Standard Requirements Sections
@@ -170,7 +173,8 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('GET', 'compliance/%s/section' % compliance_requirement_id)
 
     def compliance_standard_requirement_section_create(self, compliance_requirement_id, compliance_section_to_add):
-        return self.execute('POST', 'compliance/%s/section' % compliance_requirement_id, body_params=compliance_section_to_add)
+        return self.execute('POST', 'compliance/%s/section' % compliance_requirement_id,
+                            body_params=compliance_section_to_add)
 
     """
     Compliance Standard Requirements Policies
@@ -216,8 +220,8 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('PUT', 'v2/user/%s' % user['email'], body_params=user)
 
     def user_delete(self, user_id):
-        return self.execute('DELETE', 'user/%s' % user_id)    
-    
+        return self.execute('DELETE', 'user/%s' % user_id)
+
     def user_bypass_sso(self, body_params):
         return self.execute('PUT', 'user/saml/bypass', body_params=body_params)
 
@@ -355,8 +359,8 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('GET', 'v2/inventory', query_params=query_params)
 
     def asset_inventory_list_read_post(self, body_params=None):
-        return self.execute('POST', 'v2/inventory', body_params=body_params)    
-    
+        return self.execute('POST', 'v2/inventory', body_params=body_params)
+
     """
     Asset (Resources) Inventory V3
 
@@ -470,7 +474,7 @@ class EndpointsPrismaCloudAPIMixin():
 
     def resource_list_delete(self, resource_list_id):
         return self.execute('DELETE', 'v1/resource_list/%s' % resource_list_id)
-    
+
     def resource_list_create(self, resource_list_to_add):
         return self.execute('POST', 'v1/resource_list', body_params=resource_list_to_add)
 
@@ -489,7 +493,7 @@ class EndpointsPrismaCloudAPIMixin():
 
     def adoptionadvisor_report_delete(self, report_id):
         return self.execute('DELETE', 'adoptionadvisor/report/%s' % report_id)
-    
+
     def adoptionadvisor_report_create(self, report_to_add):
         return self.execute('POST', 'adoptionadvisor/report', body_params=report_to_add)
 
@@ -535,21 +539,126 @@ class EndpointsPrismaCloudAPIMixin():
     [ ] DELETE
     """
 
-    def search_config_read(self, search_params):
-        result = []
+    def search_config_read(self, query, search_id=None, search_name=None, search_description=None, limit=100,
+                           with_resource_json=None, time_range=None, sort=None, heuristic_search=None,
+                           paginate=True):
+        """
+        Perform Config Search
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/search-config/>`_
+        """
+        # if time_range is None:
+        #     time_range = dict(type="relative", value=dict(unit="hour", amount=24))
+        body_params = dict(query=query, id=search_id, searchName=search_name, searchDescription=search_description,
+                           limit=limit, withResourceJson=with_resource_json, timeRange=time_range, sort=sort,
+                           heuristicSearch=heuristic_search)
+        for k, v in dict(body_params).items():
+            if v is None:
+                del body_params[k]
         next_page_token = None
-        api_response = self.execute(
-            'POST', 'search/config', body_params=search_params)
+        # https://pan.dev/prisma-cloud/api/cspm/search-config/
+        api_response = self.execute('POST', 'search/config', body_params=body_params)
+        # logging.debug(pprint.pformat(api_response))
         if 'data' in api_response and 'items' in api_response['data']:
-            result = api_response['data']['items']
+            yield from api_response['data']['items']
             next_page_token = api_response['data'].pop('nextPageToken', None)
-        while next_page_token:
-            api_response = self.execute(
-                'POST', 'search/config/page', body_params={'limit': 1000, 'pageToken': next_page_token, 'withResourceJson': 'true'})
+        while paginate and next_page_token:
+            body_params['pageToken'] = next_page_token
+            # https://pan.dev/prisma-cloud/api/cspm/search-config-page/
+            # logging.debug("paging %s", pprint.pformat(body_params))
+            api_response = self.execute('POST', 'search/config/page', body_params=body_params)
+            # logging.debug(pprint.pformat(api_response))
             if 'items' in api_response:
-                result.extend(api_response['items'])
+                yield from api_response['items']
             next_page_token = api_response.pop('nextPageToken', None)
-        return result
+        return
+
+    def search_config_read_by_query(self, query, skip_search_creation=None, skip_results=None, limit=100,
+                                    with_resource_json=None, time_range=None,
+                                    sort=None, next_page_token=None, paginate=True):
+        """
+        Perform Config Search by Query
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/search-config-by-query/>`_
+        """
+        # if time_range is None:
+        #     time_range = dict(type="relative", value=dict(unit="hour", amount=24))
+        body_params = dict(query=query, skipSearchCreation=skip_search_creation, limit=limit,
+                           withResourceJson=with_resource_json, timeRange=time_range,
+                           skipResult=skip_results,
+                           sort=sort,
+                           nextPageToken=next_page_token)
+        for k, v in dict(body_params).items():
+            if v is None:
+                del body_params[k]
+        next_page_token = None
+        api_response = self.execute('POST', f'search/api/v1/config', body_params=body_params)
+        if 'items' in api_response:
+            yield from api_response['items']
+            next_page_token = api_response.pop('nextPageToken', None)
+        while paginate and next_page_token:
+            body_params['nextPageToken'] = next_page_token
+            api_response = self.execute('POST', f'search/api/v1/config', body_params=body_params)
+            if 'items' in api_response:
+                yield from api_response['items']
+            next_page_token = api_response.pop('nextPageToken', None)
+        return
+
+    def search_config_read_by_search_id(self, search_id, limit=100, with_resource_json=None, time_range=None,
+                                        sort=None, next_page_token=None, paginate=True):
+        """
+        Perform Config Search by Search Id
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/search-config-by-search-id/>`_
+        """
+        # if time_range is None:
+        #     time_range = dict(type="relative", value=dict(unit="hour", amount=24))
+        body_params = dict(limit=limit, withResourceJson=with_resource_json, timeRange=time_range, sort=sort,
+                           nextPageToken=next_page_token)
+        for k, v in dict(body_params).items():
+            if v is None:
+                del body_params[k]
+        next_page_token = None
+        api_response = self.execute('POST', f'search/api/v1/config/{search_id}', body_params=body_params)
+        if 'items' in api_response:
+            yield from api_response['items']
+            next_page_token = api_response.pop('nextPageToken', None)
+        while paginate and next_page_token:
+            body_params['nextPageToken'] = next_page_token
+            api_response = self.execute('POST', f'search/api/v1/config/{search_id}', body_params=body_params)
+            if 'items' in api_response:
+                yield from api_response['items']
+            next_page_token = api_response.pop('nextPageToken', None)
+        return
+
+    def search_config_read_v2(self, query, start_time=None, skip_results=None, limit=100,
+                                    with_resource_json=None, # time_range=None,
+                                    sort=None, next_page_token=None, paginate=True):
+        """
+        Perform Config Search V2
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/search-config-v-2/>`_
+        """
+        # if time_range is None:
+        #     time_range = dict(type="relative", value=dict(unit="hour", amount=24))
+        body_params = dict(query=query, limit=limit, startTime=start_time,
+                           withResourceJson=with_resource_json, # timeRange=time_range,
+                           skipResult=skip_results,
+                           sort=sort,
+                           nextPageToken=next_page_token)
+        for k, v in dict(body_params).items():
+            if v is None:
+                del body_params[k]
+        next_page_token = None
+        api_response = self.execute('POST', f'search/api/v2/config', body_params=body_params)
+        if 'items' in api_response:
+            yield from api_response['items']
+            next_page_token = api_response.pop('nextPageToken', None)
+            logging.debug(f"Total items: {api_response.pop('totalRows', 'unknown')}")
+        while paginate and next_page_token:
+            body_params['nextPageToken'] = next_page_token
+            api_response = self.execute('POST', f'search/api/v2/config', body_params=body_params)
+            if 'items' in api_response:
+                yield from api_response['items']
+            next_page_token = api_response.pop('nextPageToken', None)
+        return
+
 
     def search_network_read(self, search_params, filtered=False):
         search_url = 'search'
@@ -586,7 +695,8 @@ class EndpointsPrismaCloudAPIMixin():
             next_page_token = api_response['data'].pop('nextPageToken', None)
         while next_page_token:
             api_response = self.execute(
-                'POST', 'api/v1/permission/page', body_params={'limit': 1000, 'pageToken': next_page_token, 'withResourceJson': 'true'})
+                'POST', 'api/v1/permission/page',
+                body_params={'limit': 1000, 'pageToken': next_page_token, 'withResourceJson': 'true'})
             if 'items' in api_response:
                 result.extend(api_response['items'])
             next_page_token = api_response.pop('nextPageToken', None)
@@ -653,13 +763,12 @@ class EndpointsPrismaCloudAPIMixin():
 
     def saml_config_read(self):
         return self.execute('GET', 'authn/v1/saml/config')
-    
+
     def saml_config_create(self, body_params):
         return self.execute('POST', 'authn/v1/saml/config', body_params=body_params)
 
     def saml_config_update(self, body_params):
         return self.execute('PUT', 'authn/v1/saml/config', body_params=body_params)
-
 
     """
     Enterprise Settings 
