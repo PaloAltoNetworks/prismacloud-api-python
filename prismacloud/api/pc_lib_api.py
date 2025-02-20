@@ -2,6 +2,9 @@
 
 import logging
 
+import requests
+from requests.adapters import HTTPAdapter, Retry
+
 from .cspm import PrismaCloudAPICSPM
 from .cwpp import PrismaCloudAPICWPP
 from .pccs import PrismaCloudAPIPCCS
@@ -50,6 +53,11 @@ class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS)
         # Set User-Agent
         default_user_agent = f"PrismaCloudAPI/{version}"  # Dynamically set default User-Agent
         self.user_agent = default_user_agent
+        # use a session
+        self.session = requests.session()
+        retries = Retry(total=6, backoff_factor=1, status_forcelist=self.retry_status_codes)
+        self.session_adapter = HTTPAdapter(max_retries=retries)
+        # s.mount('http://', )
 
     def __repr__(self):
         return 'Prisma Cloud API:\n  API: (%s)\n  Compute API: (%s)\n  API Error Count: (%s)\n  API Token: (%s)' % (self.api, self.api_compute, self.logger.error.counter, self.token)
@@ -76,17 +84,23 @@ class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS)
             if url.endswith('.prismacloud.io') or url.endswith('.prismacloud.cn'):
                 # URL is a Prisma Cloud CSPM API URL.
                 self.api = url
+                self.session.mount(f"https://{url}", self.session_adapter)
+                self.debug_print(f"Mounted retry adapter on API {url}")
                 # Use the Prisma Cloud CSPM API to identify the Prisma Cloud CWP API URL.
                 if use_meta_info:
                     meta_info = self.meta_info()
                     if meta_info and 'twistlockUrl' in meta_info:
                         self.api_compute = PrismaCloudUtility.normalize_url(meta_info['twistlockUrl'])
+                        self.session.mount(f"https://{self.api_compute}", self.session_adapter)
+                        self.debug_print(f"Mounted retry adapter on API Compute {self.api_compute}")
             else:
                 # URL is a Prisma Cloud CWP API URL.
                 self.api_compute = PrismaCloudUtility.normalize_url(url)
+                self.session.mount(f"https://{self.api_compute}", self.session_adapter)
+                self.debug_print(f"Mounted retry adapter on API Compute {self.api_compute}")
 
     # Conditional printing.
 
     def debug_print(self, message):
         if self.debug:
-            print(message)
+            logging.debug(message)

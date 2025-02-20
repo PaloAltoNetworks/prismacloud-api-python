@@ -14,21 +14,23 @@ class PrismaCloudAPICWPPMixin():
             self.login()
         elif self.api_compute:
             # Login via CWP.
-            self.login('https://%s/api/v1/authenticate' % self.api_compute)
+            self.login(f'https://{self.api_compute}/api/v1/authenticate')
         else:
             self.error_and_exit(418, "Specify a Prisma Cloud URL or Prisma Cloud Compute URL")
-        self.debug_print('New API Token: %s' % self.token)
+        self.debug_print(f'New API Token: {self.token}')
 
-    def extend_login_compute(self):
+    def check_extend_login_compute(self):
         # There is no extend for CWP, just logon again.
-        self.debug_print('Extending API Token')
-        self.login_compute()
+        if not self.token or (int(time.time() - self.token_timer) > self.token_limit):
+            self.debug_print('Extending API Token')
+            self.login_compute()
+
+    # def _check_
 
     # pylint: disable=too-many-arguments,too-many-branches,too-many-locals,too-many-statements
     def execute_compute(self, action, endpoint, query_params=None, body_params=None, request_headers=None, force=False, paginated=False):
         self.suppress_warnings_when_verify_false()
-        if not self.token:
-            self.login_compute()
+        self.check_extend_login_compute()
         if not request_headers:
             request_headers = {'Content-Type': 'application/json'}
         if body_params:
@@ -44,8 +46,7 @@ class PrismaCloudAPICWPPMixin():
         more = False
         results = []
         while offset == 0 or more is True:
-            if int(time.time() - self.token_timer) > self.token_limit:
-                self.extend_login_compute()
+            self.check_extend_login_compute()
             if paginated:
                 url = 'https://%s/%s?limit=%s&offset=%s' % (self.api_compute, endpoint, limit, offset)
             else:
@@ -63,22 +64,25 @@ class PrismaCloudAPICWPPMixin():
             self.debug_print('API Body Params: %s' % body_params_json)
             # Add User-Agent to the headers
             request_headers['User-Agent'] = self.user_agent
-            api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
+            api_response = self.session.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
             self.debug_print('API Response Status Code: (%s)' % api_response.status_code)
             self.debug_print('API Response Headers: (%s)' % api_response.headers)
-            if api_response.status_code in self.retry_status_codes:
-                for exponential_wait in self.retry_waits:
-                    time.sleep(exponential_wait)
-                    api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
-                    if api_response.ok:
-                        break # retry loop
+            # if api_response.status_code in self.retry_status_codes:
+            #     for exponential_wait in self.retry_waits:
+            #         time.sleep(exponential_wait)
+            #         api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
+            #         if api_response.ok:
+            #             break # retry loop
             if api_response.ok:
                 if not api_response.content:
-                    return None
+                    yield None
+                    return
                 if api_response.headers.get('Content-Type') == 'application/x-gzip':
-                    return api_response.content
+                    yield api_response.content
+                    return
                 if api_response.headers.get('Content-Type') == 'text/csv':
-                    return api_response.content.decode('utf-8')
+                    yield api_response.content.decode('utf-8')
+                    return
                 try:
                     result = json.loads(api_response.content)
                     #if result is None:
@@ -89,23 +93,26 @@ class PrismaCloudAPICWPPMixin():
                 except ValueError:
                     self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                     if force:
-                        return results # or continue
+                        yield from results # or continue
+                        return
                     self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                 if 'Total-Count' in api_response.headers:
                     self.debug_print('Retrieving Next Page of Results: Offset/Total Count: %s/%s' % (offset, api_response.headers['Total-Count']))
                     total_count = int(api_response.headers['Total-Count'])
                     if total_count > 0:
-                        results.extend(result)
+                        # results.extend(result)
+                        yield from result
                     offset += limit
                     more = bool(offset < total_count)
                 else:
-                    return result
+                    yield result
+                    return
             else:
                 self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (url, api_response.status_code, query_params, body_params))
                 if force:
-                    return results
+                    return
                 self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
-        return results
+        return
 
     # The Compute API setting is optional.
 
@@ -118,3 +125,12 @@ class PrismaCloudAPICWPPMixin():
     @classmethod
     def error_and_exit(cls, error_code, error_message='', system_message=''):
         raise SystemExit('\n\nStatus Code: %s\n%s\n%s\n' % (error_code, error_message, system_message))
+
+    # various API
+
+    def version(self):
+        return next(self.execute_compute('GET', 'api/v1/version'))
+
+    def ping(self):
+        # unauthenticated call
+        return self.session.get(f'https://{self.api_compute}/api/v1/_ping').text

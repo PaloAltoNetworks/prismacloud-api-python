@@ -16,13 +16,13 @@ version = mod.version
 setuptools.setup(
     name='prismacloud-api',
     version=version,
-    author='Tom Kishel',
-    author_email='tkishel@paloaltonetworks.com',
-    description='Prisma Cloud API SDK for Python',
+    author='Loic Jaquemet',
+    author_email='trolldbois',
+    description='Prisma Cloud API SDK for Python - loic version',
     keywords="prisma cloud api",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/PaloAltoNetworks/prismacloud-api-python',
+    url='https://github.com/trolldbois/prismacloud-api-python',
     packages=setuptools.find_namespace_packages(exclude=['scripts']),
     classifiers=[
         'Programming Language :: Python :: 3',

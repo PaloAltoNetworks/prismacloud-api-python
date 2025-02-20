@@ -42,15 +42,15 @@ class PrismaCloudAPIPCCSMixin():
             self.debug_print('API Body Params: %s' % body_params_json)
             # Add User-Agent to the headers
             request_headers['User-Agent'] = self.user_agent
-            api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
+            api_response = self.session.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
             self.debug_print('API Response Status Code: %s' % api_response.status_code)
             self.debug_print('API Response Headers: (%s)' % api_response.headers)
-            if api_response.status_code in self.retry_status_codes:
-                for exponential_wait in self.retry_waits:
-                    time.sleep(exponential_wait)
-                    api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
-                    if api_response.ok:
-                        break # retry loop
+            # if api_response.status_code in self.retry_status_codes:
+            #     for exponential_wait in self.retry_waits:
+            #         time.sleep(exponential_wait)
+            #         api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
+            #         if api_response.ok:
+            #             break # retry loop
             if api_response.ok:
                 if not api_response.content:
                     return None

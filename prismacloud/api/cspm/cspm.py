@@ -17,33 +17,27 @@ class PrismaCloudAPIMixin():
     def login(self, url=None):
         self.suppress_warnings_when_verify_false()
         if not url:
-            url = 'https://%s/login' % self.api
+            url = f'https://{self.api}/login'
         action = 'POST'
         request_headers = {'Content-Type': 'application/json'}
         # Add User-Agent to the headers
         request_headers['User-Agent'] = self.user_agent
         body_params_json = json.dumps({'username': self.identity, 'password': self.secret})
-        # try:
-        #     api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.verify, timeout=self.timeout)
-        # except requests.exceptions.Timeout:
-        #     # continue in a retry loop
-        # except requests.exceptions.RequestException as ex:
-        #     self.error_and_exit(api_response.status_code, 'API (%s) raised an exception\n%s' % (url, ex))
-        api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.verify, timeout=self.timeout)
-        if api_response.status_code in self.retry_status_codes:
-            for exponential_wait in self.retry_waits:
-                time.sleep(exponential_wait)
-                api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.verify, timeout=self.timeout)
-                if api_response.ok:
-                    break # retry loop
+        api_response = self.session.request(action, url, headers=request_headers, data=body_params_json, verify=self.verify, timeout=self.timeout)
+        # use a requests retry adapter
+        # if api_response.status_code in self.retry_status_codes:
+        #     for exponential_wait in self.retry_waits:
+        #         time.sleep(exponential_wait)
+        #         api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.verify, timeout=self.timeout)
+        #         if api_response.ok:
+        #             break # retry loop
         if api_response.ok:
             api_response = json.loads(api_response.content)
             self.token = api_response.get('token')
             self.token_timer = time.time()
         else:
             self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (url, api_response.text))
-        if self.debug:
-            print('New API Token: %s' % self.token)
+        self.debug_print('New API Token: %s' % self.token)
 
     def extend_login(self):
         self.suppress_warnings_when_verify_false()
@@ -52,21 +46,14 @@ class PrismaCloudAPIMixin():
         request_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
         # Add User-Agent to the headers
         request_headers['User-Agent'] = self.user_agent
-        api_response = requests.request(action, url, headers=request_headers, verify=self.verify, timeout=self.timeout)
-        if api_response.status_code in self.retry_status_codes:
-            for exponential_wait in self.retry_waits:
-                time.sleep(exponential_wait)
-                api_response = requests.request(action, url, headers=request_headers, verify=self.verify, timeout=self.timeout)
-                if api_response.ok:
-                    break # retry loop
+        api_response = self.session.request(action, url, headers=request_headers, verify=self.verify, timeout=self.timeout)
         if api_response.ok:
             api_response = json.loads(api_response.content)
             self.token = api_response.get('token')
             self.token_timer = time.time()
         else:
             self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (url, api_response.text))
-        if self.debug:
-            print('Extending API Token')
+        self.debug_print('Extending API Token')
 
     # pylint: disable=too-many-arguments, too-many-branches, too-many-locals
     def execute(self, action, endpoint, query_params=None, body_params=None, request_headers=None, force=False, paginated=False):
@@ -97,15 +84,15 @@ class PrismaCloudAPIMixin():
             self.debug_print('API Body Params: %s' % body_params_json)
             # Add User-Agent to the headers
             request_headers['User-Agent'] = self.user_agent
-            api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
+            api_response = self.session.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
             self.debug_print('API Response Status Code: %s' % api_response.status_code)
             self.debug_print('API Response Headers: (%s)' % api_response.headers)
-            if api_response.status_code in self.retry_status_codes:
-                for exponential_wait in self.retry_waits:
-                    time.sleep(exponential_wait)
-                    api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
-                    if api_response.ok:
-                        break # retry loop
+            # if api_response.status_code in self.retry_status_codes:
+            #     for exponential_wait in self.retry_waits:
+            #         time.sleep(exponential_wait)
+            #         api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
+            #         if api_response.ok:
+            #             break # retry loop
             if api_response.ok:
                 if not api_response.content:
                     return None
@@ -128,8 +115,7 @@ class PrismaCloudAPIMixin():
                 if paginated:
                     results.extend(result['items'])
                     if 'nextPageToken' in result and result['nextPageToken']:
-                        if self.debug:
-                            print('Retrieving Next Page of Results')
+                        self.debug_print('Retrieving Next Page of Results')
                         body_params = {'pageToken': result['nextPageToken']}
                         more = True
                     else:
