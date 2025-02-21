@@ -207,7 +207,10 @@ class EndpointsPrismaCloudAPIMixin():
     [x] DELETE
     """
 
-    def user_list_read(self):
+    def user_list_read_v3(self):
+        return self.execute('GET', 'v3/user')
+
+    def user_list_read_v2(self):
         return self.execute('GET', 'v2/user')
 
     def user_create(self, user):
@@ -222,7 +225,16 @@ class EndpointsPrismaCloudAPIMixin():
     def user_delete(self, user_id):
         return self.execute('DELETE', 'user/%s' % user_id)
 
-    def user_bypass_sso(self, body_params):
+    def user_list_user_emails(self):
+        return self.execute('GET', 'user/name')
+
+    def user_list_email_domains(self):
+        return self.execute('GET', 'user/domain')
+
+    def user_list_bypass_sso(self):
+        return self.execute('GET', 'user/saml/bypass')
+
+    def user_update_bypass_sso(self, body_params):
         return self.execute('PUT', 'user/saml/bypass', body_params=body_params)
 
     """
