@@ -8,7 +8,7 @@ class ServerlessPrismaCloudAPICWPPMixin:
    
     # Download serverless function scan results
     def serverless_download(self, query_params=None):
-        result = self.execute_compute('GET', 'api/v1/serverless/download?', query_params=query_params)
+        result = next(self.execute_compute('GET', 'api/v1/serverless/download?', query_params=query_params))
         return result
    
     # Start serverless function scan

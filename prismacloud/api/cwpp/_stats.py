@@ -12,7 +12,7 @@ class StatsPrismaCloudAPICWPPMixin:
         return self.execute_compute('GET', 'api/v1/stats/compliance?', query_params=query_params)
 
     def stats_compliance_download(self, query_params=None):
-        return self.execute_compute('GET', 'api/v1/stats/compliance/download?', query_params=query_params)
+        return next(self.execute_compute('GET', 'api/v1/stats/compliance/download?', query_params=query_params))
 
     def stats_compliance_refresh(self, query_params=None):
         # Refreshes the current day's list and counts of compliance issues, as well as the list of affected running resources.
@@ -41,14 +41,14 @@ class StatsPrismaCloudAPICWPPMixin:
         return self.execute_compute('GET', 'api/v1/stats/vulnerabilities?', query_params=query_params, paginated=True)
 
     def stats_vulnerabilities_download(self, query_params=None):
-        return self.execute_compute('GET', 'api/v1/stats/vulnerabilities/download?', query_params=query_params)
+        return next(self.execute_compute('GET', 'api/v1/stats/vulnerabilities/download?', query_params=query_params))
 
     def stats_vulnerabilities_impacted_resources_read(self, query_params=None):
         # Generates a list of impacted resources for a specific vulnerability. This endpoint returns a list of all deployed images, registry images, hosts, and serverless functions affected by a given CVE.
         return self.execute_compute('GET', 'api/v1/stats/vulnerabilities/impacted-resources?', query_params=query_params)
 
     def stats_vulnerabilities_impacted_resources_download(self, query_params=None):
-        return self.execute_compute('GET', 'api/v1/stats/vulnerabilities/impacted-resources/download?', query_params=query_params)
+        return next(self.execute_compute('GET', 'api/v1/stats/vulnerabilities/impacted-resources/download?', query_params=query_params))
 
     def stats_vulnerabilities_refresh(self, query_params=None):
         # Refreshes the current day's CVE counts and CVE list, as well as their descriptions.

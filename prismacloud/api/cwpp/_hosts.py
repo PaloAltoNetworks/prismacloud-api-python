@@ -15,7 +15,7 @@ class HostsPrismaCloudAPICWPPMixin:
         return hosts
 
     def hosts_download(self, query_params=None):
-        hosts = self.execute_compute('GET', 'api/v1/hosts/download?', query_params=query_params)
+        hosts = next(self.execute_compute('GET', 'api/v1/hosts/download?', query_params=query_params))
         return hosts
 
     def hosts_scan(self):

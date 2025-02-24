@@ -13,5 +13,5 @@ class ContainersPrismaCloudAPICWPPMixin:
         return containers
 
     def containers_download(self, query_params=None):
-        containers = self.execute_compute('GET', 'api/v1/containers/download?', query_params=query_params)
+        containers = next(self.execute_compute('GET', 'api/v1/containers/download?', query_params=query_params))
         return containers

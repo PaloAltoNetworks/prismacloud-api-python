@@ -14,5 +14,5 @@ class DefendersPrismaCloudAPICWPPMixin:
         return defenders
 
     def defenders_download(self, query_params=None):
-        defenders = self.execute_compute('GET', 'api/v1/defenders/download?', query_params=query_params)
+        defenders = next(self.execute_compute('GET', 'api/v1/defenders/download?', query_params=query_params))
         return defenders

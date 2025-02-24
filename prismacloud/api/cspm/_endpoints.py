@@ -51,7 +51,7 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('GET', 'alert/csv/%s/status' % csv_report_id)
 
     def alert_csv_download(self, csv_report_id):
-        return self.execute('GET', 'alert/csv/%s/download' % csv_report_id)
+        return next(self.execute('GET', 'alert/csv/%s/download' % csv_report_id))
 
     """
     Policies
@@ -531,7 +531,7 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('DELETE', 'report/%s' % report_id)
 
     def compliance_report_download(self, report_id):
-        return self.execute('GET', 'report/%s/download' % report_id)
+        return next(self.execute('GET', 'report/%s/download' % report_id))
         # TODO:
         # if response_status == 204:
         #    # download pending
