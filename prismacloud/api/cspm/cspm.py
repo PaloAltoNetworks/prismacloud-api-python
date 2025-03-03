@@ -18,24 +18,18 @@ class PrismaCloudAPIMixin():
     def login(self, url=None):
         self.suppress_warnings_when_verify_false()
         if not url:
+            # CSPM
             url = f'https://{self.api}/login'
-        action = 'POST'
-        request_headers = {'Content-Type': 'application/json'}
-        # Add User-Agent to the headers
-        request_headers['User-Agent'] = self.user_agent
+        # remove previous tokens
+        if 'x-redlock-auth' in self.session.headers:
+            del self.session.headers['x-redlock-auth']
         body_params_json = json.dumps({'username': self.identity, 'password': self.secret})
-        api_response = self.session.request(action, url, headers=request_headers, data=body_params_json, verify=self.verify, timeout=self.timeout)
-        # use a requests retry adapter
-        # if api_response.status_code in self.retry_status_codes:
-        #     for exponential_wait in self.retry_waits:
-        #         time.sleep(exponential_wait)
-        #         api_response = requests.request(action, url, headers=request_headers, data=body_params_json, verify=self.verify, timeout=self.timeout)
-        #         if api_response.ok:
-        #             break # retry loop
+        api_response = self.session.post(url, data=body_params_json, verify=self.verify, timeout=self.timeout)
         if api_response.ok:
-            api_response = json.loads(api_response.content)
+            api_response = api_response.json()
             self.token = api_response.get('token')
             self.token_timer = time.time()
+            self.session.headers['x-redlock-auth'] = self.token
         else:
             self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (url, api_response.text))
         self.debug_print('New API Token: %s' % self.token)
@@ -44,22 +38,59 @@ class PrismaCloudAPIMixin():
         self.suppress_warnings_when_verify_false()
         self.debug_print('Extending CSPM API Token')
         url = f'https://{self.api}/auth_token/extend'
-        action = 'GET'
-        request_headers = {'Content-Type': 'application/json', 'x-redlock-auth': self.token}
-        # Add User-Agent to the headers
-        request_headers['User-Agent'] = self.user_agent
-        api_response = self.session.request(action, url, headers=request_headers, verify=self.verify, timeout=self.timeout)
+        api_response = self.session.get(url, verify=self.verify, timeout=self.timeout)
         if api_response.ok:
-            api_response = json.loads(api_response.content)
+            api_response = api_response.json()
             self.token = api_response.get('token')
             self.token_timer = time.time()
+            self.session.headers['x-redlock-auth'] = self.token
         else:
             logging.warning(f'HTTP error code {api_response.status_code} - API ({url}) responded with an error - lets try to login again\n {api_response.text}')
             # try to login again
             self.login()
 
     # pylint: disable=too-many-arguments, too-many-branches, too-many-locals
-    def execute(self, action, endpoint, query_params=None, body_params=None, request_headers=None, force=False, paginated=False):
+    def execute(self, action, endpoint, query_params=None, body_params=None, request_headers=None, force=False):
+        self.suppress_warnings_when_verify_false()
+        if not self.token:
+            self.login()
+        if int(time.time() - self.token_timer) > self.token_limit:
+            self.extend_login()
+        # Endpoints that return large numbers of results use a 'nextPageToken' (and a 'totalRows') key.
+        # Pagination appears to be specific to "List Alerts V2 - POST" and the limit has a maximum of 10000.
+        url = f'https://{self.api}/{endpoint}'
+        if body_params:
+            body_params_json = json.dumps(body_params)
+        else:
+            body_params_json = None
+        self.debug_print('API URL: %s' % url)
+        self.debug_print('API Request Headers: (%s)' % request_headers)
+        self.debug_print('API Query Params: %s' % query_params)
+        self.debug_print('API Body Params: %s' % body_params_json)
+        api_response = self.session.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
+        self.debug_print('API Response Status Code: %s' % api_response.status_code)
+        self.debug_print('API Response Headers: (%s)' % api_response.headers)
+        if api_response.ok:
+            if not api_response.content:
+                return None
+            if api_response.headers.get('Content-Type') == 'application/x-gzip':
+                return api_response.content
+            if api_response.headers.get('Content-Type') == 'text/csv':
+                return api_response.content.decode('utf-8')
+            try:
+                result = api_response.json()
+            except ValueError:
+                self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
+                if force:
+                    return None
+                self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
+            return result
+        else:
+            self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (url, api_response.status_code, query_params, body_params))
+            self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
+        return None
+
+    def execute_paginated(self, action, endpoint, query_params=None, body_params=None, request_headers=None, paginated=False):
         self.suppress_warnings_when_verify_false()
         if not self.token:
             self.login()
@@ -72,11 +103,7 @@ class PrismaCloudAPIMixin():
         while more is True:
             if int(time.time() - self.token_timer) > self.token_limit:
                 self.extend_login()
-            url = 'https://%s/%s' % (self.api, endpoint)
-            if not request_headers:
-                request_headers = {'Content-Type': 'application/json'}
-            if self.token:
-                request_headers['x-redlock-auth'] = self.token
+            url = f'https://{self.api}/{endpoint}'
             if body_params:
                 body_params_json = json.dumps(body_params)
             else:
@@ -90,12 +117,6 @@ class PrismaCloudAPIMixin():
             api_response = self.session.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
             self.debug_print('API Response Status Code: %s' % api_response.status_code)
             self.debug_print('API Response Headers: (%s)' % api_response.headers)
-            # if api_response.status_code in self.retry_status_codes:
-            #     for exponential_wait in self.retry_waits:
-            #         time.sleep(exponential_wait)
-            #         api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
-            #         if api_response.ok:
-            #             break # retry loop
             if api_response.ok:
                 if not api_response.content:
                     return None
@@ -104,16 +125,9 @@ class PrismaCloudAPIMixin():
                 if api_response.headers.get('Content-Type') == 'text/csv':
                     return api_response.content.decode('utf-8')
                 try:
-                    result = json.loads(api_response.content)
-                    #if result is None:
-                    #    self.logger.error('JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
-                    #    if force:
-                    #        return results # or continue
-                    #    self.error_and_exit(api_response.status_code, 'JSON returned None, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
+                    result = api_response.json()
                 except ValueError:
                     self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
-                    if force:
-                        return results # or continue
                     self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                 if paginated:
                     results.extend(result['items'])
@@ -127,11 +141,8 @@ class PrismaCloudAPIMixin():
                     return result
             else:
                 self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (url, api_response.status_code, query_params, body_params))
-                if force:
-                    return results
                 self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
         return results
-
     # Exit handler (Error).
 
     @classmethod

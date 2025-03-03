@@ -56,10 +56,16 @@ class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS)
         self.user_agent = default_user_agent
         # use a session
         self.session = requests.session()
+        self.session_compute = requests.session()
         retries = Retry(total=6, status=6, backoff_factor=1, status_forcelist=self.retry_status_codes,
                         allowed_methods=self.retry_allowed_methods)
         self.session_adapter = HTTPAdapter(max_retries=retries)
-        # s.mount('http://', )
+        # CSPM
+        self.session.headers['User-Agent'] = self.user_agent
+        self.session.headers['Content-Type'] = 'application/json'
+        # CWP
+        self.session_compute.headers['User-Agent'] = self.user_agent
+        self.session_compute.headers['Content-Type'] = 'application/json'
 
     def __repr__(self):
         return 'Prisma Cloud API:\n  API: (%s)\n  Compute API: (%s)\n  API Error Count: (%s)\n  API Token: (%s)' % (self.api, self.api_compute, self.logger.error.counter, self.token)
@@ -100,6 +106,8 @@ class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS)
                 self.api_compute = PrismaCloudUtility.normalize_url(url)
                 self.session.mount(f"https://{self.api_compute}", self.session_adapter)
                 self.debug_print(f"Mounted retry adapter on API Compute {self.api_compute}")
+        if not self.api and not self.api_compute:
+            self.error_and_exit(418, "Specify a Prisma Cloud URL or Prisma Cloud Compute URL")
 
     # Conditional printing.
 
