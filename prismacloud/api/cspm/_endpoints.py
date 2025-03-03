@@ -42,7 +42,7 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('POST', 'alert', query_params=query_params, body_params=body_params)
 
     def alert_v2_list_read(self, query_params=None, body_params=None):
-        return self.execute('POST', 'v2/alert', query_params=query_params, body_params=body_params, paginated=True)
+        return self.execute_paginated('POST', 'v2/alert', query_params=query_params, body_params=body_params, paginated=True)
 
     def alert_csv_create(self, body_params=None):
         return self.execute('POST', 'alert/csv', body_params=body_params)
@@ -51,7 +51,7 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('GET', 'alert/csv/%s/status' % csv_report_id)
 
     def alert_csv_download(self, csv_report_id):
-        return next(self.execute('GET', 'alert/csv/%s/download' % csv_report_id))
+        return self.execute('GET', 'alert/csv/%s/download' % csv_report_id)
 
     """
     Policies
@@ -531,7 +531,7 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('DELETE', 'report/%s' % report_id)
 
     def compliance_report_download(self, report_id):
-        return next(self.execute('GET', 'report/%s/download' % report_id))
+        return self.execute('GET', 'report/%s/download' % report_id)
         # TODO:
         # if response_status == 204:
         #    # download pending

@@ -6,10 +6,10 @@ class CollectionsPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Collections Endpoints Class """
 
     def collections_list_read(self, query_params=None):
-        return self.execute_compute('GET', 'api/v1/collections', query_params=query_params, paginated=True)
+        return self.execute_compute_paginated('GET', 'api/v1/collections', query_params=query_params, paginated=True)
 
     def collection_usages(self, collection_id):
-        return self.execute_compute('GET', 'api/v1/collections/%s/usages' % collection_id, paginated=True)
+        return self.execute_compute_paginated('GET', 'api/v1/collections/%s/usages' % collection_id, paginated=True)
 
     # Note: No response is returned upon successful execution of POST, PUT, and DELETE.
     # You must verify the collection via collections_list_read() or the Console.

@@ -6,13 +6,13 @@ class DefendersPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Defenders Endpoints Class """
 
     def defenders_list_read(self, query_params=None):
-        defenders = self.execute_compute('GET', 'api/v1/defenders', query_params=query_params, paginated=True)
+        defenders = self.execute_compute_paginated('GET', 'api/v1/defenders', query_params=query_params, paginated=True)
         return defenders
 
     def defenders_names_list_read(self, query_params=None):
-        defenders = self.execute_compute('GET', 'api/v1/defenders/names', query_params=query_params, paginated=True)
+        defenders = self.execute_compute_paginated('GET', 'api/v1/defenders/names', query_params=query_params, paginated=True)
         return defenders
 
     def defenders_download(self, query_params=None):
-        defenders = next(self.execute_compute('GET', 'api/v1/defenders/download?', query_params=query_params))
+        defenders = self.execute_compute('GET', 'api/v1/defenders/download?', query_params=query_params)
         return defenders

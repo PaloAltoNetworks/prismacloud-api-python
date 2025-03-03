@@ -77,7 +77,7 @@ class PrismaCloudAPICWPPMixin():
             self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
         return
 
-    def execute_compute_paginated(self, action, endpoint, query_params=None, body_params=None, paginated=False):
+    def execute_compute_paginated(self, action, endpoint, query_params=None, body_params=None, paginated=True):
         self.suppress_warnings_when_verify_false()
         self.check_extend_login_compute()
         if body_params:

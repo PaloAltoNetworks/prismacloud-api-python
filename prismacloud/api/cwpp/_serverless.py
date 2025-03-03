@@ -3,12 +3,12 @@ class ServerlessPrismaCloudAPICWPPMixin:
 
     # Get serverless function scan results
     def serverless_list_read(self, query_params=None):
-        result = self.execute_compute('GET', 'api/v1/serverless', query_params=query_params, paginated=True)
+        result = self.execute_compute_paginated('GET', 'api/v1/serverless', query_params=query_params, paginated=True)
         return result
    
     # Download serverless function scan results
     def serverless_download(self, query_params=None):
-        result = next(self.execute_compute('GET', 'api/v1/serverless/download?', query_params=query_params))
+        result = self.execute_compute('GET', 'api/v1/serverless/download?', query_params=query_params)
         return result
    
     # Start serverless function scan
