@@ -8,6 +8,5 @@ class VMsPrismaCloudAPICWPPMixin:
 
     # VM Image table in Monitor > Vulnerabilities > Hosts > VMs
     def vms_list_read(self, query_params=None):
-        vms = self.execute_compute(
-            'GET', 'api/v1/vms', query_params=query_params, paginated=True)
+        vms = self.execute_compute_paginated('GET', 'api/v1/vms', query_params=query_params)
         return vms

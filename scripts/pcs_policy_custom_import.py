@@ -6,7 +6,7 @@ import time
 import requests
 
 # pylint: disable=import-error
-from prismacloud.api import pc_api, pc_utility
+from prismacloudapi import pc_api, pc_utility
 
 # --Configuration-- #
 
