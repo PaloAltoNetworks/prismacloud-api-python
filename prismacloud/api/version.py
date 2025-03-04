@@ -1,1 +1,3 @@
-version = "5.2.27"
+import importlib.metadata
+version = importlib.metadata.version("prismacloud")
+# version = "5.2.27"
