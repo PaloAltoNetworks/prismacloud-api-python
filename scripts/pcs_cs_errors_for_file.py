@@ -1,7 +1,7 @@
 """ Returns a list of potential Code Security policy violations for the specified file path """
 
 # pylint: disable=import-error
-from prismacloud.api import pc_api, pc_utility
+from prismacloudapi import pc_api, pc_utility
 
 # --Configuration-- #
 

@@ -5,7 +5,7 @@ import unittest
 import mock
 
 # pylint: disable=import-error
-from prismacloud.api import pc_api
+from prismacloudapi import pc_api
 
 class TestPrismaCloudAPI(unittest.TestCase):
     """ Unit Tests with Mocking """
@@ -51,7 +51,7 @@ class TestPrismaCloudAPI(unittest.TestCase):
     }
 
     # Decorator
-    @mock.patch('prismacloud.api.pc_utility.get_settings')
+    @mock.patch('prismacloudapi.pc_utility.get_settings')
     def test_pc_api_configure(self, get_settings):
         get_settings.return_value = self.SETTINGS
         settings = get_settings()
@@ -60,7 +60,7 @@ class TestPrismaCloudAPI(unittest.TestCase):
 
     # With
     def test_pc_api_current_user(self):
-        with mock.patch('prismacloud.api.PrismaCloudAPI.execute') as pc_api_execute:
+        with mock.patch('prismacloudapi.PrismaCloudAPI.execute') as pc_api_execute:
             pc_api_execute.return_value = self.USER_PROFILE
             result = pc_api.current_user()
             self.assertEqual('Example User', result['displayName'])
