@@ -13,7 +13,7 @@ class RegistryPrismaCloudAPICWPPMixin:
         return  self.execute_compute('GET', 'api/v1/registry?id=%s&filterBaseImage=true' % image_id)
 
     def registry_list_read(self):
-        images = self.execute_compute_paginated('GET', 'api/v1/registry?filterBaseImage=true', paginated=True)
+        images = self.execute_compute_paginated('GET', 'api/v1/registry?filterBaseImage=true')
         return images
 
     def registry_list_image_names(self, query_params=None):

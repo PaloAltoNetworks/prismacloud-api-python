@@ -9,7 +9,7 @@ class ErrorsPrismaCloudAPIPCCSMixin:
         return self.execute_code_security('POST', 'code/api/v1/errors/files', body_params=criteria)
 
     def errors_file_list(self, criteria):
-        return self.execute_code_security_paginated('POST', 'code/api/v1/errors/file', body_params=criteria, paginated=True)
+        return self.execute_code_security_paginated('POST', 'code/api/v1/errors/file', body_params=criteria)
 
     def errors_list_last_authors(self, query_params=None):
         return self.execute_code_security('GET', 'code/api/v1/errors/gitBlameAuthors', query_params=query_params)

@@ -39,10 +39,12 @@ class EndpointsPrismaCloudAPIMixin():
     """
 
     def alert_list_read(self, query_params=None, body_params=None):
+        # returns items directly
         return self.execute('POST', 'alert', query_params=query_params, body_params=body_params)
 
     def alert_v2_list_read(self, query_params=None, body_params=None):
-        return self.execute_paginated('POST', 'v2/alert', query_params=query_params, body_params=body_params, paginated=True)
+        # returns items in results['items']. But really does not respect paginatin request.
+        return self.execute_paginated('POST', 'v2/alert', query_params=query_params, body_params=body_params)
 
     def alert_csv_create(self, body_params=None):
         return self.execute('POST', 'alert/csv', body_params=body_params)
@@ -119,6 +121,76 @@ class EndpointsPrismaCloudAPIMixin():
 
     def saved_search_delete(self, saved_search_id):
         return self.execute('DELETE', 'search/history/%s' % saved_search_id)
+
+    """
+    Compliance Posture
+
+    [x] LIST
+    [ ] CREATE
+    [ ] READ
+    [ ] UPDATE
+    [ ] DELETE
+    """
+    def compliance_posture_statistics(self):
+        """Get Compliance Statistics Breakdown V2
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-compliance-posture-v-2/>`_
+        """
+        return self.execute('GET', 'v2/compliance/posture')
+
+    def compliance_posture_statistics_post(self, body_params):
+        """Get Compliance Statistics Breakdown V2"""
+        return self.execute('POST', 'v2/compliance/posture', body_params=body_params)
+
+    def compliance_posture_statistics_for_standard(self, compliance_id):
+        """Get Compliance Statistics for Standard ID V2
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-compliance-posture-for-standard-v-2/>`_
+        """
+        return self.execute('GET', f'v2/compliance/posture/{compliance_id}')
+
+    def compliance_posture_statistics_for_standard_post(self, compliance_id, body_params):
+        """Get Compliance Statistics for Standard ID V2"""
+        return self.execute('POST', f'v2/compliance/posture/{compliance_id}', body_params=body_params)
+
+    def compliance_posture_statistics_for_requirement(self, compliance_id, requirement_id):
+        """Get Compliance Statistics for Requirement ID V2
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-compliance-posture-for-requirement-v-2/>`_
+        """
+        return self.execute('GET', f'v2/compliance/posture/{compliance_id}/{requirement_id}')
+
+    def compliance_posture_statistics_for_requirement_post(self, compliance_id, requirement_id, body_params):
+        """Get Compliance Statistics for Requirement ID V2"""
+        return self.execute('POST', f'v2/compliance/posture/{compliance_id}/{requirement_id}', body_params=body_params)
+
+    def compliance_posture_trend(self):
+        """Get Compliance Trend V2
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-compliance-posture-trend-for-standard-v-2/>`_
+        """
+        return self.execute('GET', 'v2/compliance/posture/trend')
+
+    def compliance_posture_trend_post(self, body_params):
+        """Get Compliance Trend V2"""
+        return self.execute('POST', 'v2/compliance/posture/trend', body_params=body_params)
+
+    def compliance_posture_trend_for_standard(self, compliance_id):
+        """Get Compliance Trend for Standard ID V2
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-compliance-posture-trend-for-standard-v-2/>`_
+        """
+        return self.execute('GET', f'v2/compliance/posture/trend/{compliance_id}')
+
+    def compliance_posture_trend_for_standard_post(self, compliance_id, body_params):
+        """Get Compliance Trend for Standard ID V2"""
+        return self.execute('POST', f'v2/compliance/posture/trend/{compliance_id}', body_params=body_params)
+
+    def compliance_posture_trend_for_requirement(self, compliance_id, requirement_id):
+        """Get Compliance Trend for Requirement ID V2
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-compliance-posture-trend-for-requirement-v-2/>`_
+        """
+        return self.execute('GET', f'v2/compliance/posture/trend/{compliance_id}/{requirement_id}')
+
+    def compliance_posture_trend_for_requirement_post(self, compliance_id, requirement_id, body_params):
+        """Get Compliance Trend for Requirement ID V2 """
+        return self.execute('POST', f'v2/compliance/posture/trend/{compliance_id}/{requirement_id}', body_params=body_params)
+
 
     """
     Compliance Standards
@@ -471,6 +543,11 @@ class EndpointsPrismaCloudAPIMixin():
     def integration_delete(self, integration_id):
         return self.execute('DELETE', 'integration/%s' % integration_id)
 
+    def integration_list(self, tenant_id):
+        # use
+        return self.execute('GET', f'v1/tenant/{tenant_id}/integration')
+
+
     """
     Resource Lists
 
@@ -531,15 +608,29 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('DELETE', 'report/%s' % report_id)
 
     def compliance_report_download(self, report_id):
-        return self.execute('GET', 'report/%s/download' % report_id)
-        # TODO:
-        # if response_status == 204:
-        #    # download pending
-        #    pass
-        # elif response_status == 200:
-        #    # download ready
-        #    pass
-        # else:
+        """
+        Download Report
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/download-report/>`_
+        """
+        return self.execute('GET', f'report/{report_id}/download')
+
+    def compliance_report_history(self, report_id):
+        return self.execute('GET', f'report/{report_id}/history')
+
+    def compliance_report_type_list(self):
+        """
+        Get Report Types
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-report-types/>`_
+        """
+        return self.execute('GET', 'report/type')
+
+    def compliance_report_type_get(self, report_id):
+        """
+        Get Report Config
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-specified-report/>`_
+        """
+        return self.execute('GET', f'report/type/{report_id}')
+
 
     """
     Search
@@ -683,13 +774,13 @@ class EndpointsPrismaCloudAPIMixin():
         search_url = 'search/event'
         if subsearch and subsearch in ['aggregate', 'filtered']:
             search_url = 'search/event/%s' % subsearch
-        api_response = self.execute(
+        api_response = self.execute_paginated(
             'POST', search_url, body_params=search_params)
         if 'data' in api_response and 'items' in api_response['data']:
             result = api_response['data']['items']
             next_page_token = api_response['data'].pop('nextPageToken', None)
         while next_page_token:
-            api_response = self.execute(
+            api_response = self.execute_paginated(
                 'POST', 'search/config/page', body_params={'limit': 1000, 'pageToken': next_page_token})
             if 'items' in api_response:
                 result.extend(api_response['items'])
@@ -699,13 +790,13 @@ class EndpointsPrismaCloudAPIMixin():
     def search_iam_read(self, search_params):
         result = []
         next_page_token = None
-        api_response = self.execute(
+        api_response = self.execute_paginated(
             'POST', 'api/v1/permission', body_params=search_params)
         if 'data' in api_response and 'items' in api_response['data']:
             result = api_response['data']['items']
             next_page_token = api_response['data'].pop('nextPageToken', None)
         while next_page_token:
-            api_response = self.execute(
+            api_response = self.execute_paginated(
                 'POST', 'api/v1/permission/page',
                 body_params={'limit': 1000, 'pageToken': next_page_token, 'withResourceJson': 'true'})
             if 'items' in api_response:
@@ -781,6 +872,41 @@ class EndpointsPrismaCloudAPIMixin():
     def saml_config_update(self, body_params):
         return self.execute('PUT', 'authn/v1/saml/config', body_params=body_params)
 
+    def oidc_config_read(self):
+        """
+        Get OIDC Configuration
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-oauth-2-config/>`_
+        """
+        return self.execute('GET', 'authn/v1/oauth2/config')
+
+    """
+    Permission groups 
+    """
+    def permission_group_list(self):
+        """
+        Get All Permission Groups
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-all/>`_
+        """
+        return self.execute('GET', 'authz/v1/permission_group')
+
+    def permission_group_get(self, group_id, include_associated_roles: bool=None):
+        """
+        Get Permission Group by ID
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-1/>`_
+        """
+        query_params = dict()
+        if include_associated_roles:
+            query_params=dict(includeAssociatedRoles=include_associated_roles)
+        return self.execute('GET', f'authz/v1/permission_group/{group_id}', query_params=query_params)
+
+    def permission_group_feature_list(self):
+        """
+        Get All Active Features
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-features/>`_
+        """
+        return self.execute('GET', 'authz/v1/feature')
+
+
     """
     Enterprise Settings 
 
@@ -823,3 +949,51 @@ class EndpointsPrismaCloudAPIMixin():
 
     def check(self):
         return self.execute('GET', 'check')
+
+    """
+    Background jobs, Reports
+    """
+    def report_metadata(self, query_params=None):
+        """
+        This endpoint is available on the Prisma Cloud Darwin release only.
+
+        Get Reports Metadata
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/list-reports/>`_
+        """
+        return self.execute('GET', 'report-service/api/v1/report', query_params=query_params)
+
+
+
+    """
+    Notifications Templates
+    """
+    def templates_list(self):
+        """
+        List Templates
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-all-templates-v-1/>`_
+        """
+        return self.execute('GET', f'api/v1/tenant/{self.tenant_id}/template')
+
+    def templates_get(self, template_id):
+        """
+        Get Template
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-template-v-1/>`_
+        """
+        return self.execute('GET', f'api/v1/tenant/{self.tenant_id}/template/{template_id}')
+
+    """
+    Cloud Ingested Logs
+    """
+    def aws_eventbridge_configuration_for_account(self, tenant_id, account_id):
+        """
+        Get AWS Eventbridge configuration details
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-eventbridge-configuration-details/>`_
+        """
+        return self.execute('GET', f'audit_logs/v2/tenant/{tenant_id}/aws_accounts/{account_id}/eventbridge_config')
+
+    def aws_eventbridge_configuration_for_account(self, account_id):
+        """
+        Fetch AWS S3 Flow Log details
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-aws-s-3-flowlog/>`_
+        """
+        return self.execute('GET', f'cloud-accounts-manager/v1/cloud-accounts/aws/{account_id}/features/aws-flow-logs/s3')

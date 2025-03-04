@@ -8,7 +8,7 @@ class AuditsPrismaCloudAPICWPPMixin:
     # Reference: https://prisma.pan.dev/api/cloud/cwpp/audits
 
     def audits_list_read(self, audit_type='incidents', query_params=None):
-        audits = self.execute_compute_paginated('GET', 'api/v1/audits/%s' % audit_type, query_params=query_params, paginated=True)
+        audits = self.execute_compute_paginated('GET', 'api/v1/audits/%s' % audit_type, query_params=query_params)
         return audits
 
     # Other related and undocumented endpoints.
@@ -22,7 +22,7 @@ class AuditsPrismaCloudAPICWPPMixin:
         elif workload_type == 'host':
             response = self.execute_compute('GET', 'api/v1/profiles/%s/%s/forensic/download' % (workload_type, workload_id), query_params=query_params)
         else:
-            response = self.execute_compute_paginated('GET', 'api/v1/profiles/%s/%s/forensic' % (workload_type, workload_id), query_params=query_params, paginated=True)
+            response = self.execute_compute_paginated('GET', 'api/v1/profiles/%s/%s/forensic' % (workload_type, workload_id), query_params=query_params)
         return response
 
     # Monitor / Runtime > Incident Explorer
@@ -63,7 +63,7 @@ class AuditsPrismaCloudAPICWPPMixin:
     # Hosts > Host Activities
 
     def host_forensic_activities_list_read(self, query_params=None):
-        audits = self.execute_compute_paginated('GET', 'api/v1/forensic/activities', query_params=query_params, paginated=True)
+        audits = self.execute_compute_paginated('GET', 'api/v1/forensic/activities', query_params=query_params)
         return audits
 
     # Compute > Manage > History

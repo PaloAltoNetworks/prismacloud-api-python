@@ -9,7 +9,7 @@ class ScansPrismaCloudAPICWPPMixin:
         return self.execute_compute('GET', 'api/v1/scans?imageID=%s&filterBaseImage=true' % image_id)
 
     def scans_list_read(self):
-        images = self.execute_compute_paginated('GET', 'api/v1/scans?filterBaseImage=true', paginated=True)
+        images = self.execute_compute_paginated('GET', 'api/v1/scans?filterBaseImage=true')
         return images
 
     def scans_download(self, query_params=None):

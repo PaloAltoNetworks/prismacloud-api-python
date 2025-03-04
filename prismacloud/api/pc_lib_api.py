@@ -41,9 +41,12 @@ class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS)
         self.debug              = False
         #
         self.timeout            = None # timeout=(16, 300)
+        self.tenant_id          = None
         self.token              = None
         self.token_timer        = 0
         self.token_limit        = 590 # aka 9 minutes
+        self.token_compute      = None
+        self.token_compute_timer= 0
         self.retry_status_codes = [425, 429, 500, 502, 503, 504]
         self.retry_waits        = [1, 2, 4, 8, 16, 32]
         self.retry_allowed_methods = frozenset(["GET", "POST"])

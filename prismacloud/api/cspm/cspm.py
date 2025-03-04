@@ -30,6 +30,8 @@ class PrismaCloudAPIMixin():
             self.token = api_response.get('token')
             self.token_timer = time.time()
             self.session.headers['x-redlock-auth'] = self.token
+            # save tenant_id
+            self.tenant_id = api_response['customerNames'][0]['prismaId']
         else:
             self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (url, api_response.text))
         self.debug_print('New API Token: %s' % self.token)
@@ -90,7 +92,7 @@ class PrismaCloudAPIMixin():
             self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
         return None
 
-    def execute_paginated(self, action, endpoint, query_params=None, body_params=None, request_headers=None, paginated=True):
+    def execute_paginated(self, action, endpoint, query_params=None, body_params=None, request_headers=None):
         self.suppress_warnings_when_verify_false()
         if not self.token:
             self.login()
@@ -98,8 +100,8 @@ class PrismaCloudAPIMixin():
             self.extend_login()
         # Endpoints that return large numbers of results use a 'nextPageToken' (and a 'totalRows') key.
         # Pagination appears to be specific to "List Alerts V2 - POST" and the limit has a maximum of 10000.
+        returned_count = 0
         more = True
-        results = []
         while more is True:
             if int(time.time() - self.token_timer) > self.token_limit:
                 self.extend_login()
@@ -112,37 +114,40 @@ class PrismaCloudAPIMixin():
             self.debug_print('API Request Headers: (%s)' % request_headers)
             self.debug_print('API Query Params: %s' % query_params)
             self.debug_print('API Body Params: %s' % body_params_json)
-            # Add User-Agent to the headers
-            request_headers['User-Agent'] = self.user_agent
             api_response = self.session.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
             self.debug_print('API Response Status Code: %s' % api_response.status_code)
             self.debug_print('API Response Headers: (%s)' % api_response.headers)
             if api_response.ok:
                 if not api_response.content:
-                    return None
+                    return
                 if api_response.headers.get('Content-Type') == 'application/x-gzip':
-                    return api_response.content
+                    # return api_response.content
+                    raise RuntimeError("please use .execute instead of execute_paginated")
                 if api_response.headers.get('Content-Type') == 'text/csv':
-                    return api_response.content.decode('utf-8')
+                    #return api_response.content.decode('utf-8')
+                    raise RuntimeError("please use .execute instead of execute_paginated")
                 try:
                     result = api_response.json()
                 except ValueError:
                     self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                     self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
-                if paginated:
-                    results.extend(result['items'])
-                    if 'nextPageToken' in result and result['nextPageToken']:
-                        self.debug_print('Retrieving Next Page of Results')
-                        body_params = {'pageToken': result['nextPageToken']}
-                        more = True
-                    else:
-                        more = False
+                    return
+                if 'totalRows' in result:
+                    total_count = int(result['totalRows'])
+                    self.debug_print(f'Retrieved Next Page of Results: Offset/Total Count: {returned_count}/{total_count}')
+                    returned_count += len(result['items'])
+                #
+                yield from result['items']
+                if 'nextPageToken' in result and result['nextPageToken']:
+                    self.debug_print('Retrieving Next Page of Results')
+                    body_params = {'pageToken': result['nextPageToken']}
+                    more = True
                 else:
-                    return result
+                    more = False
             else:
                 self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (url, api_response.status_code, query_params, body_params))
                 self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
-        return results
+        return
     # Exit handler (Error).
 
     @classmethod

@@ -77,7 +77,7 @@ class PrismaCloudAPICWPPMixin():
             self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
         return
 
-    def execute_compute_paginated(self, action, endpoint, query_params=None, body_params=None, paginated=True):
+    def execute_compute_paginated(self, action, endpoint, query_params=None, body_params=None):
         self.suppress_warnings_when_verify_false()
         self.check_extend_login_compute()
         if body_params:
@@ -85,17 +85,13 @@ class PrismaCloudAPICWPPMixin():
         else:
             body_params_json = None
         # Endpoints that return large numbers of results use a 'Total-Count' response header.
-        # Pagination is via query parameters for both GET and POST, and the limit has a maximum of 50.
+        # Pagination is via query parameters for both GET and POST, and the limit has a maximum of 100.
         offset = 0
-        limit = 50
-        more = False
-        results = []
-        while offset == 0 or more is True:
+        limit = 100
+        more = True
+        while more is True:
             self.check_extend_login_compute()
-            if paginated:
-                url = 'https://%s/%s?limit=%s&offset=%s' % (self.api_compute, endpoint, limit, offset)
-            else:
-                url = 'https://%s/%s' % (self.api_compute, endpoint)
+            url = f'https://{self.api_compute}/{endpoint}?limit={limit}&offset={offset}'
             self.debug_print('API URL: %s' % url)
             self.debug_print('API Request Headers: (%s)' % self.session_compute.headers)
             self.debug_print('API Query Params: %s' % query_params)
@@ -103,37 +99,36 @@ class PrismaCloudAPICWPPMixin():
             api_response = self.session_compute.request(action, url, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
             self.debug_print('API Response Status Code: (%s)' % api_response.status_code)
             self.debug_print('API Response Headers: (%s)' % api_response.headers)
-            # if api_response.status_code in self.retry_status_codes:
-            #     for exponential_wait in self.retry_waits:
-            #         time.sleep(exponential_wait)
-            #         api_response = requests.request(action, url, headers=request_headers, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
-            #         if api_response.ok:
-            #             break # retry loop
             if api_response.ok:
                 if not api_response.content:
-                    yield None
                     return
                 if api_response.headers.get('Content-Type') == 'application/x-gzip':
-                    yield api_response.content
-                    return
+                    # return api_response.content
+                    raise RuntimeError("please use .execute instead of execute_paginated")
                 if api_response.headers.get('Content-Type') == 'text/csv':
-                    yield api_response.content.decode('utf-8')
-                    return
+                    # return api_response.content.decode('utf-8')
+                    raise RuntimeError("please use .execute instead of execute_paginated")
                 try:
-                    result = api_response.json()
+                    results = api_response.json()
                 except ValueError:
                     self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                     self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                 if 'Total-Count' in api_response.headers:
-                    self.debug_print('Retrieving Next Page of Results: Offset/Total Count: %s/%s' % (offset, api_response.headers['Total-Count']))
                     total_count = int(api_response.headers['Total-Count'])
-                    if total_count > 0:
-                        yield from result
-                    offset += limit
-                    more = bool(offset < total_count)
+                    self.debug_print(f'Retrieving Next Page of Results: Offset/Total Count: {offset}/{total_count}')
                 else:
-                    yield result
+                    self.debug_print("No Pagination headers - please use .execute instead of execute_paginated")
+                    if results:
+                        yield from results
                     return
+                    # raise RuntimeError("please use .execute instead of execute_paginated")
+                if not results:
+                    return
+                self.debug_print(f"Got {len(results)} results")
+                if total_count > 0:
+                    yield from results
+                offset += len(results)
+                more = bool(offset < total_count)
             else:
                 self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (url, api_response.status_code, query_params, body_params))
                 self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))

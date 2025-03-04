@@ -7,11 +7,11 @@ class HostsPrismaCloudAPICWPPMixin:
 
     # Running hosts table in Monitor > Vulnerabilities > Hosts > Running Hosts
     def hosts_list_read(self, query_params=None):
-        hosts = self.execute_compute_paginated('GET', 'api/v1/hosts', query_params=query_params, paginated=True)
+        hosts = self.execute_compute_paginated('GET', 'api/v1/hosts', query_params=query_params)
         return hosts
 
     def hosts_info_list_read(self, query_params=None):
-        hosts = self.execute_compute_paginated('GET', 'api/v1/hosts/info', query_params=query_params, paginated=True)
+        hosts = self.execute_compute_paginated('GET', 'api/v1/hosts/info', query_params=query_params)
         return hosts
 
     def hosts_download(self, query_params=None):
