@@ -2,12 +2,8 @@
 
 import sys
 
-from .pc_lib_api     import PrismaCloudAPI
-from .pc_lib_utility import PrismaCloudUtility
-from .version        import version as api_version
-
-__author__  = 'Palo Alto Networks CSE/SE/SA Teams'
-__version__ = api_version
+from prismacloud.pc_lib_api import PrismaCloudAPI
+from prismacloud.pc_lib_utility import PrismaCloudUtility
 
 MIN_PYTHON = (3, 6)
 if sys.version_info < MIN_PYTHON:

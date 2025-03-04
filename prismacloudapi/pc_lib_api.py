@@ -78,7 +78,7 @@ class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS)
         self.identity    = settings.get('identity')
         self.secret      = settings.get('secret')
         self.verify      = settings.get('verify', True)
-        self.debug       = settings.get('debug', False)
+        self.debug       = True # settings.get('debug', False) # FIXME
         self.user_agent  = settings.get('user_agent', self.user_agent)
         #
         # self.logger      = settings['logger']

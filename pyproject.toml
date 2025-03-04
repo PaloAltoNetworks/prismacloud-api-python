@@ -3,7 +3,7 @@ requires = ["setuptools>=56.2", "setuptools_scm[toml]>=7"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "prismacloud-api"
+name = "prismacloudapi"
 authors = [
     { name = "Loic Jaquemet", email = "loic.jaquemet+python@gmail.com" },
     { name = "Tom Kishel", email = "tkishel@paloaltonetworks.com" }
@@ -11,7 +11,7 @@ authors = [
 maintainers = [{ name = "Loic Jaquemet", email = "loic.jaquemet+python@gmail.com" }]
 license = { text = "License :: OSI Approved :: MIT License" }
 description = "Prisma Cloud API SDK for Python - loic version"
-keywords = ["prisma", "cloud", "api", "prismacloud"]
+keywords = ["prisma", "cloud", "api", "prismacloud", "prismacloudapi"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
