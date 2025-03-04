@@ -8,7 +8,6 @@ import json
 import os
 import sys
 
-from .version import version as api_version
 
 try:
     # pylint: disable=redefined-builtin

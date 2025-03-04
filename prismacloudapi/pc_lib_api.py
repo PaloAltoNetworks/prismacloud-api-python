@@ -10,7 +10,11 @@ from .cwpp import PrismaCloudAPICWPP
 from .pccs import PrismaCloudAPIPCCS
 
 from .pc_lib_utility import PrismaCloudUtility
-from .version import version  # Import version from your version.py
+
+import importlib.metadata
+version = importlib.metadata.version("prismacloudapi")
+
+
 
 # --Description-- #
 
@@ -55,8 +59,7 @@ class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS)
         self.error_log          = 'error.log'
         self.logger             = None
         # Set User-Agent
-        default_user_agent = f"PrismaCloudAPI/{version}"  # Dynamically set default User-Agent
-        self.user_agent = default_user_agent
+        self.user_agent = f"PrismaCloudAPI/{version}"  # Dynamically set default User-Agent
         # use a session
         self.session = requests.session()
         self.session_compute = requests.session()
