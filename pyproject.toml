@@ -11,6 +11,7 @@ authors = [
 maintainers = [{ name = "Loic Jaquemet", email = "loic.jaquemet+python@gmail.com" }]
 license = { text = "License :: OSI Approved :: MIT License" }
 description = "Prisma Cloud API SDK for Python - loic version"
+readme = "README.md"
 keywords = ["prisma", "cloud", "api", "prismacloud", "prismacloudapi"]
 classifiers = [
     "Programming Language :: Python :: 3",
