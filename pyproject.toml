@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "prismacloud-api"
 version = "5.3.0"
 dependencies = []
+dynamic = ["description", "readme", "requires-python", "classifiers", "authors"]
 
 [project.optional-dependencies]
 test = ["coverage==7.6.10", "responses==0.25.3"]
