@@ -43,15 +43,14 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install build
           pip install pylint
-          pip install -r requirements.txt
+          pip install -r requirements_test.txt
       - name: Test API
         run: |
           pylint prismacloud/api
-      - name: Build
+      - name: Tests with coverage
         run: |
-          python -m build
+          coverage run -m unittest discover -v -s "./tests" -p "test*.py"
       - name: Publish
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
