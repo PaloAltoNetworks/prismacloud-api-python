@@ -19,3 +19,6 @@ class RepositoriesPrismaCloudAPIPCCSMixin:
 
     def repositories_list_read_v2(self, query_params=None):
         return self.execute_code_security('GET', 'code/api/v2/repositories', query_params=query_params)
+
+    def vcs_repositories_list_read(self, query_params=None):
+        return self.execute_code_security('POST', 'code/api/v1/vcs-repository/repositories', query_params=query_params)
