@@ -2,5 +2,9 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "prismacloud-api"
+dependencies = []
+
 [project.optional-dependencies]
 test = ["coverage==7.6.10", "responses==0.25.3"]
