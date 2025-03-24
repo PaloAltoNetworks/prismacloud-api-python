@@ -38,6 +38,9 @@ class EndpointsPrismaCloudAPIMixin():
     [x] LIST (v2)
     """
 
+    def alert_filter_suggest(self):
+        return self.execute('GET', 'filter/alert/suggest')
+
     def alert_list_read(self, query_params=None, body_params=None):
         # returns items directly
         return self.execute('POST', 'alert', query_params=query_params, body_params=body_params)
@@ -54,6 +57,10 @@ class EndpointsPrismaCloudAPIMixin():
 
     def alert_csv_download(self, csv_report_id):
         return self.execute('GET', 'alert/csv/%s/download' % csv_report_id)
+
+    def alert_count_by_policy(self, query_params):
+        return self.execute('GET', 'alert/policy')
+
 
     """
     Policies
@@ -604,8 +611,21 @@ class EndpointsPrismaCloudAPIMixin():
     def compliance_report_create(self, report_to_add):
         return self.execute('POST', 'report', body_params=report_to_add)
 
+    def compliance_report_create_v2(self, name, cloud_type, locale=None,  target=None, type=None):
+        body_params = dict(name=name, cloudType=cloud_type)
+        if locale:
+            body_params['locale'] = locale
+        if target:
+            body_params['target'] = target
+        if type:
+            body_params['type'] = type
+        return self.execute('POST', 'v2/report', body_params=body_params)
+
+    def compliance_report_get_config(self, report_id):
+        return self.execute('GET', f'report/{report_id}')
+
     def compliance_report_delete(self, report_id):
-        return self.execute('DELETE', 'report/%s' % report_id)
+        return self.execute('DELETE', f'report/{report_id}')
 
     def compliance_report_download(self, report_id):
         """
@@ -630,6 +650,52 @@ class EndpointsPrismaCloudAPIMixin():
         `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-specified-report/>`_
         """
         return self.execute('GET', f'report/type/{report_id}')
+
+    def compliance_report_filter_suggest(self):
+        """
+        Get Report filter suggest
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-report-filters-and-options/>`_
+        """
+        return self.execute('GET', f'filter/report/suggest')
+
+    def jobs_report_metadata(self, report_types=None):
+        """
+        This endpoint is available on the Prisma Cloud Darwin release only.
+
+        Get Reports Metadata
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/list-reports/>`_
+        """
+        query_params = {}
+        if report_types:
+            query_params['report_types'] = report_types
+        return self.execute('GET', 'report-service/api/v1/report', query_params=query_params)
+
+    def jobs_report_metadata_by_id(self, report_id):
+        """
+        This endpoint is available on the Prisma Cloud Darwin release only.
+
+        Background jobs - Get Reports - by report id
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-report-metadata-by-id/>`_
+        """
+        return self.execute('GET', f'report-service/api/v1/report/{report_id}')
+
+    def jobs_report_status(self, report_id):
+        """
+        This endpoint is available on the Prisma Cloud Darwin release only.
+
+        Background jobs - Get Reports - get status
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-report-status-by-id/>`_
+        """
+        return self.execute('GET', f'report-service/api/v1/report/{report_id}/status')
+
+    def jobs_report_download(self, report_id):
+        """
+        This endpoint is available on the Prisma Cloud Darwin release only.
+
+        Background jobs - Get Reports - download
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/download-report-by-id/>`_
+        """
+        return self.execute('GET', f'report-service/api/v1/report/{report_id}/download')
 
 
     """
@@ -949,19 +1015,6 @@ class EndpointsPrismaCloudAPIMixin():
 
     def check(self):
         return self.execute('GET', 'check')
-
-    """
-    Background jobs, Reports
-    """
-    def report_metadata(self, query_params=None):
-        """
-        This endpoint is available on the Prisma Cloud Darwin release only.
-
-        Get Reports Metadata
-        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/list-reports/>`_
-        """
-        return self.execute('GET', 'report-service/api/v1/report', query_params=query_params)
-
 
 
     """
