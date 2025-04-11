@@ -61,7 +61,6 @@ class EndpointsPrismaCloudAPIMixin():
     def alert_count_by_policy(self, query_params):
         return self.execute('GET', 'alert/policy')
 
-
     """
     Policies
 
@@ -138,6 +137,7 @@ class EndpointsPrismaCloudAPIMixin():
     [ ] UPDATE
     [ ] DELETE
     """
+
     def compliance_posture_statistics(self):
         """Get Compliance Statistics Breakdown V2
         `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-compliance-posture-v-2/>`_
@@ -196,8 +196,8 @@ class EndpointsPrismaCloudAPIMixin():
 
     def compliance_posture_trend_for_requirement_post(self, compliance_id, requirement_id, body_params):
         """Get Compliance Trend for Requirement ID V2 """
-        return self.execute('POST', f'v2/compliance/posture/trend/{compliance_id}/{requirement_id}', body_params=body_params)
-
+        return self.execute('POST', f'v2/compliance/posture/trend/{compliance_id}/{requirement_id}',
+                            body_params=body_params)
 
     """
     Compliance Standards
@@ -554,7 +554,6 @@ class EndpointsPrismaCloudAPIMixin():
         # use
         return self.execute('GET', f'v1/tenant/{tenant_id}/integration')
 
-
     """
     Resource Lists
 
@@ -611,7 +610,7 @@ class EndpointsPrismaCloudAPIMixin():
     def compliance_report_create(self, report_to_add):
         return self.execute('POST', 'report', body_params=report_to_add)
 
-    def compliance_report_create_v2(self, name, cloud_type, locale=None,  target=None, type=None):
+    def compliance_report_create_v2(self, name, cloud_type, locale=None, target=None, type=None):
         body_params = dict(name=name, cloudType=cloud_type)
         if locale:
             body_params['locale'] = locale
@@ -696,7 +695,6 @@ class EndpointsPrismaCloudAPIMixin():
         `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/download-report-by-id/>`_
         """
         return self.execute('GET', f'report-service/api/v1/report/{report_id}/download')
-
 
     """
     Search
@@ -798,8 +796,8 @@ class EndpointsPrismaCloudAPIMixin():
         return
 
     def search_config_read_v2(self, query, start_time=None, skip_results=None, limit=100,
-                                    with_resource_json=None, # time_range=None,
-                                    sort=None, next_page_token=None, paginate=True):
+                              with_resource_json=None,  # time_range=None,
+                              sort=None, next_page_token=None, paginate=True):
         """
         Perform Config Search V2
         `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/search-config-v-2/>`_
@@ -807,7 +805,7 @@ class EndpointsPrismaCloudAPIMixin():
         # if time_range is None:
         #     time_range = dict(type="relative", value=dict(unit="hour", amount=24))
         body_params = dict(query=query, limit=limit, startTime=start_time,
-                           withResourceJson=with_resource_json, # timeRange=time_range,
+                           withResourceJson=with_resource_json,  # timeRange=time_range,
                            skipResult=skip_results,
                            sort=sort,
                            nextPageToken=next_page_token)
@@ -826,7 +824,6 @@ class EndpointsPrismaCloudAPIMixin():
                 yield from api_response['items']
             next_page_token = api_response.pop('nextPageToken', None)
         return
-
 
     def search_network_read(self, search_params, filtered=False):
         search_url = 'search'
@@ -948,6 +945,7 @@ class EndpointsPrismaCloudAPIMixin():
     """
     Permission groups 
     """
+
     def permission_group_list(self):
         """
         Get All Permission Groups
@@ -955,14 +953,14 @@ class EndpointsPrismaCloudAPIMixin():
         """
         return self.execute('GET', 'authz/v1/permission_group')
 
-    def permission_group_get(self, group_id, include_associated_roles: bool=None):
+    def permission_group_get(self, group_id, include_associated_roles: bool = None):
         """
         Get Permission Group by ID
         `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-1/>`_
         """
         query_params = dict()
         if include_associated_roles:
-            query_params=dict(includeAssociatedRoles=include_associated_roles)
+            query_params = dict(includeAssociatedRoles=include_associated_roles)
         return self.execute('GET', f'authz/v1/permission_group/{group_id}', query_params=query_params)
 
     def permission_group_feature_list(self):
@@ -971,7 +969,6 @@ class EndpointsPrismaCloudAPIMixin():
         `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-features/>`_
         """
         return self.execute('GET', 'authz/v1/feature')
-
 
     """
     Enterprise Settings 
@@ -1016,10 +1013,10 @@ class EndpointsPrismaCloudAPIMixin():
     def check(self):
         return self.execute('GET', 'check')
 
-
     """
     Notifications Templates
     """
+
     def templates_list(self):
         """
         List Templates
@@ -1037,6 +1034,7 @@ class EndpointsPrismaCloudAPIMixin():
     """
     Cloud Ingested Logs
     """
+
     def aws_eventbridge_configuration_for_account(self, tenant_id, account_id):
         """
         Get AWS Eventbridge configuration details
@@ -1049,4 +1047,84 @@ class EndpointsPrismaCloudAPIMixin():
         Fetch AWS S3 Flow Log details
         `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-aws-s-3-flowlog/>`_
         """
-        return self.execute('GET', f'cloud-accounts-manager/v1/cloud-accounts/aws/{account_id}/features/aws-flow-logs/s3')
+        return self.execute('GET',
+                            f'cloud-accounts-manager/v1/cloud-accounts/aws/{account_id}/features/aws-flow-logs/s3')
+
+    """
+    CSPM collections
+    """
+
+    def cspm_collections_list_read(self):
+        """
+        Get all collections.
+
+        Note this is different from CWP Collections
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-all-collections/>`_
+        """
+        query_params = dict()
+        # can't use paginated, data in data['value'] instead of 'items'. nextPageToken if more than X
+        result = self.execute('GET', f'entitlement/api/v1/collection', query_params=query_params)
+        while True:
+            yield from result['value']
+            if result['nextPageToken']:
+                query_params = dict(nextPageToken=result['nextPageToken'])
+                result = self.execute('GET', f'entitlement/api/v1/collection', query_params=query_params)
+            else:
+                break
+        return
+
+    def cspm_collections_get(self, collection_id):
+        """
+        Get collection by id.
+
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-collection-by-id/>`_
+        """
+        return self.execute('GET', f'entitlement/api/v1/collection/{collection_id}')
+
+    def cspm_collections_create(self, name, description, account_id_list: list = None,
+                                account_group_id_list: list = None, repository_id_list: list = None):
+        """
+        Create a Collection.
+
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/create-collection/>`_
+        """
+        body_params=dict(name=name, description=description)
+        if account_id_list or account_group_id_list or repository_id_list:
+            body_params['assetGroups'] = dict()
+            if account_id_list:
+                body_params['assetGroups']['accountIds'] = account_id_list
+            if account_group_id_list:
+                body_params['assetGroups']['accountGroupIds'] = account_group_id_list
+            if repository_id_list:
+                body_params['assetGroups']['repositoryIds'] = repository_id_list
+        return self.execute('POST', 'entitlement/api/v1/collection', body_params=body_params)
+
+    def cspm_collections_update(self, collection_id, name=None, description=None, account_id_list: list = None,
+                                account_group_id_list: list = None, repository_id_list: list = None):
+        """
+        Update a Collection.
+
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/update-collection-by-id/>`_
+        """
+        body_params=dict()
+        if name:
+            body_params['name'] = name
+        if description:
+            body_params['description'] = description
+        if account_id_list or account_group_id_list or repository_id_list:
+            body_params['assetGroups'] = dict()
+            if account_id_list:
+                body_params['assetGroups']['accountIds'] = account_id_list
+            if account_group_id_list:
+                body_params['assetGroups']['accountGroupIds'] = account_group_id_list
+            if repository_id_list:
+                body_params['assetGroups']['repositoryIds'] = repository_id_list
+        return self.execute('PUT', f'entitlement/api/v1/collection/{collection_id}', body_params=body_params)
+
+    def cspm_collections_delete(self, collection_id):
+        """
+        Delete a Collection.
+
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/delete-collection-by-id/>`_
+        """
+        return self.execute('DELETE', f'entitlement/api/v1/collection/{collection_id}')
