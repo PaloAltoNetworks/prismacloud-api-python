@@ -33,7 +33,7 @@ class PrismaCloudAPIMixin():
             # save tenant_id
             self.tenant_id = api_response['customerNames'][0]['prismaId']
         else:
-            self.error_and_exit(api_response.status_code, 'API (%s) responded with an error\n%s' % (url, api_response.text))
+            self.error_and_raise(api_response.status_code, 'API (%s) responded with an error\n%s' % (url, api_response.text))
         self.debug_print('New API Token: %s' % self.token)
 
     def extend_login(self):
@@ -85,11 +85,11 @@ class PrismaCloudAPIMixin():
                 self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                 if force:
                     return None
-                self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
+                self.error_and_raise(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
             return result
         else:
             self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (url, api_response.status_code, query_params, body_params))
-            self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
+            self.error_and_raise(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
         return None
 
     def execute_paginated(self, action, endpoint, query_params=None, body_params=None, request_headers=None):
@@ -130,7 +130,7 @@ class PrismaCloudAPIMixin():
                     result = api_response.json()
                 except ValueError:
                     self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
-                    self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
+                    self.error_and_raise(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                     return
                 if 'totalRows' in result:
                     total_count = int(result['totalRows'])
@@ -146,13 +146,17 @@ class PrismaCloudAPIMixin():
                     more = False
             else:
                 self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (url, api_response.status_code, query_params, body_params))
-                self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
+                self.error_and_raise(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
         return
     # Exit handler (Error).
 
     @classmethod
     def error_and_exit(cls, error_code, error_message='', system_message=''):
         raise SystemExit('\n\nStatus Code: %s\n%s\n%s\n' % (error_code, error_message, system_message))
+
+    @classmethod
+    def error_and_raise(cls, error_code, error_message='', system_message=''):
+        raise RuntimeError('\n\nStatus Code: %s\n%s\n%s\n' % (error_code, error_message, system_message))
 
     # Output counted errors.
 

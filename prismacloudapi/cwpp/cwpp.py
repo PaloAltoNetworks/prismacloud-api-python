@@ -23,7 +23,7 @@ class PrismaCloudAPICWPPMixin():
             self.token_compute_timer = time.time()
             self.session_compute.headers['Authorization'] = f"Bearer {self.token_compute}"
         else:
-            self.error_and_exit(api_response.status_code,
+            self.error_and_raise(api_response.status_code,
                                 'API (%s) responded with an error\n%s' % (url, api_response.text))
 
     def check_extend_login_compute(self):
@@ -70,11 +70,11 @@ class PrismaCloudAPICWPPMixin():
                 result = api_response.json()
             except ValueError:
                 self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
-                self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
+                self.error_and_raise(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
             return result
         else:
             self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (url, api_response.status_code, query_params, body_params))
-            self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
+            self.error_and_raise(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
         return
 
     def execute_compute_paginated(self, action, endpoint, query_params=None, body_params=None):
@@ -112,7 +112,7 @@ class PrismaCloudAPICWPPMixin():
                     results = api_response.json()
                 except ValueError:
                     self.logger.error('JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
-                    self.error_and_exit(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
+                    self.error_and_raise(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
                 if 'Total-Count' in api_response.headers:
                     total_count = int(api_response.headers['Total-Count'])
                     self.debug_print(f'Retrieving Next Page of Results: Offset/Total Count: {offset}/{total_count}')
@@ -131,7 +131,7 @@ class PrismaCloudAPICWPPMixin():
                 more = bool(offset < total_count)
             else:
                 self.logger.error('API: (%s) responded with a status of: (%s), with query: (%s) and body params: (%s)' % (url, api_response.status_code, query_params, body_params))
-                self.error_and_exit(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
+                self.error_and_raise(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
         return
 
     # The Compute API setting is optional.
@@ -145,6 +145,10 @@ class PrismaCloudAPICWPPMixin():
     @classmethod
     def error_and_exit(cls, error_code, error_message='', system_message=''):
         raise SystemExit('\n\nStatus Code: %s\n%s\n%s\n' % (error_code, error_message, system_message))
+
+    @classmethod
+    def error_and_raise(cls, error_code, error_message='', system_message=''):
+        raise RuntimeError('\n\nStatus Code: %s\n%s\n%s\n' % (error_code, error_message, system_message))
 
     # various API
 

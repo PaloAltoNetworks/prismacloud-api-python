@@ -138,41 +138,41 @@ class EndpointsPrismaCloudAPIMixin():
     [ ] DELETE
     """
 
-    def compliance_posture_statistics(self):
+    def compliance_posture_statistics(self, query_params):
         """Get Compliance Statistics Breakdown V2
         `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-compliance-posture-v-2/>`_
         """
-        return self.execute('GET', 'v2/compliance/posture')
+        return self.execute('GET', 'v2/compliance/posture', query_params=query_params)
 
     def compliance_posture_statistics_post(self, body_params):
         """Get Compliance Statistics Breakdown V2"""
         return self.execute('POST', 'v2/compliance/posture', body_params=body_params)
 
-    def compliance_posture_statistics_for_standard(self, compliance_id):
+    def compliance_posture_statistics_for_standard(self, compliance_id, query_params):
         """Get Compliance Statistics for Standard ID V2
         `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-compliance-posture-for-standard-v-2/>`_
         """
-        return self.execute('GET', f'v2/compliance/posture/{compliance_id}')
+        return self.execute('GET', f'v2/compliance/posture/{compliance_id}', query_params=query_params)
 
     def compliance_posture_statistics_for_standard_post(self, compliance_id, body_params):
         """Get Compliance Statistics for Standard ID V2"""
         return self.execute('POST', f'v2/compliance/posture/{compliance_id}', body_params=body_params)
 
-    def compliance_posture_statistics_for_requirement(self, compliance_id, requirement_id):
+    def compliance_posture_statistics_for_requirement(self, compliance_id, requirement_id, query_params):
         """Get Compliance Statistics for Requirement ID V2
         `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-compliance-posture-for-requirement-v-2/>`_
         """
-        return self.execute('GET', f'v2/compliance/posture/{compliance_id}/{requirement_id}')
+        return self.execute('GET', f'v2/compliance/posture/{compliance_id}/{requirement_id}', query_params=query_params)
 
     def compliance_posture_statistics_for_requirement_post(self, compliance_id, requirement_id, body_params):
         """Get Compliance Statistics for Requirement ID V2"""
         return self.execute('POST', f'v2/compliance/posture/{compliance_id}/{requirement_id}', body_params=body_params)
 
-    def compliance_posture_trend(self):
+    def compliance_posture_trend(self, query_params):
         """Get Compliance Trend V2
         `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-compliance-posture-trend-for-standard-v-2/>`_
         """
-        return self.execute('GET', 'v2/compliance/posture/trend')
+        return self.execute('GET', 'v2/compliance/posture/trend', query_params=query_params)
 
     def compliance_posture_trend_post(self, body_params):
         """Get Compliance Trend V2"""
@@ -188,11 +188,11 @@ class EndpointsPrismaCloudAPIMixin():
         """Get Compliance Trend for Standard ID V2"""
         return self.execute('POST', f'v2/compliance/posture/trend/{compliance_id}', body_params=body_params)
 
-    def compliance_posture_trend_for_requirement(self, compliance_id, requirement_id):
+    def compliance_posture_trend_for_requirement(self, compliance_id, requirement_id, query_params):
         """Get Compliance Trend for Requirement ID V2
         `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-compliance-posture-trend-for-requirement-v-2/>`_
         """
-        return self.execute('GET', f'v2/compliance/posture/trend/{compliance_id}/{requirement_id}')
+        return self.execute('GET', f'v2/compliance/posture/trend/{compliance_id}/{requirement_id}', query_params=query_params)
 
     def compliance_posture_trend_for_requirement_post(self, compliance_id, requirement_id, body_params):
         """Get Compliance Trend for Requirement ID V2 """
