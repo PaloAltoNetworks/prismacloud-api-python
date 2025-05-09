@@ -418,17 +418,38 @@ class EndpointsPrismaCloudAPIMixin():
     [x] DELETE
     """
 
-    def cloud_account_group_list_read(self):
-        return self.execute('GET', 'cloud/group')
+    def cloud_account_group_list_read(self,exclude_details: bool=None, include_pending_accounts:bool=None):
+        """
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/get-account-groups/>`_
+        """
+        query_params = {}
+        if exclude_details is not None:
+            query_params['excludeAccountGroupDetails'] = exclude_details
+        if include_pending_accounts is not None:
+            query_params['includePendingAccounts'] = include_pending_accounts
+        return self.execute('GET', 'cloud/group', query_params=query_params)
 
-    def cloud_account_group_create(self, cloud_account_group_to_add):
-        return self.execute('POST', 'cloud/group', body_params=cloud_account_group_to_add)
+    def cloud_account_group_create(self, name, description, account_id_list: list):
+        """
+        Create an account group.
+
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/add-account-group/>`_
+        """
+        body_params=dict(name=name, description=description, accountIds=account_id_list)
+        return self.execute('POST', 'cloud/group', body_params=body_params)
 
     def cloud_account_group_read(self, cloud_account_group_id):
         return self.execute('GET', 'cloud/group/%s' % cloud_account_group_id)
 
-    def cloud_account_group_update(self, cloud_account_group_id, cloud_account_group_update):
-        return self.execute('PUT', 'cloud/group/%s' % cloud_account_group_id, body_params=cloud_account_group_update)
+    def cloud_account_group_update(self, cloud_account_group_id, name=None, description=None, account_id_list=None):
+        body_params=dict(id=cloud_account_group_id)
+        if name is not None:
+            body_params['name'] = name
+        if description is not None:
+            body_params['description'] = description
+        if account_id_list is not None:
+            body_params['accountIds'] = account_id_list
+        return self.execute('PUT', 'cloud/group/%s' % cloud_account_group_id, body_params=body_params)
 
     def cloud_account_group_delete(self, cloud_account_group_id):
         return self.execute('DELETE', 'cloud/group/%s' % cloud_account_group_id)
