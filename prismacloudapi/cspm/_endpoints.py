@@ -2,7 +2,6 @@
 import logging
 import pprint
 
-
 # TODO: Split into multiple files, one per endpoint ...
 
 # pylint: disable=too-many-public-methods
@@ -46,7 +45,7 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('POST', 'alert', query_params=query_params, body_params=body_params)
 
     def alert_v2_list_read(self, query_params=None, body_params=None):
-        # returns items in results['items']. But really does not respect paginatin request.
+        # returns items in results['items']. But really does not respect pagination request.
         return self.execute_paginated('POST', 'v2/alert', query_params=query_params, body_params=body_params)
 
     def alert_csv_create(self, body_params=None):
@@ -59,7 +58,20 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('GET', 'alert/csv/%s/download' % csv_report_id)
 
     def alert_count_by_policy(self, query_params):
-        return self.execute('GET', 'alert/policy')
+        """
+        `https://pan.dev/prisma-cloud/api/cspm/get-alerts-grouped/`
+        """
+        return self.execute('GET', 'alert/policy', query_params=query_params)
+
+    def alert_count_by_policy_post(self, detailed, body_params):
+        """
+        `https://pan.dev/prisma-cloud/api/cspm/post-alerts-grouped/`
+        """
+        body_params['detailed'] = detailed
+        return self.execute('POST', 'alert/policy', body_params=body_params)
+
+    def alert_count_by_status(self, status):
+        return self.execute('GET', f'alert/count/{status}')
 
     """
     Policies
@@ -588,6 +600,9 @@ class EndpointsPrismaCloudAPIMixin():
     def resource_list_read(self):
         return self.execute('GET', 'v1/resource_list')
 
+    def resource_list_types_read(self):
+        return self.execute('GET', 'v1/resource_list/types')
+
     def resource_list_delete(self, resource_list_id):
         return self.execute('DELETE', 'v1/resource_list/%s' % resource_list_id)
 
@@ -898,6 +913,31 @@ class EndpointsPrismaCloudAPIMixin():
 
     def search_suggest_list_read(self, query_to_suggest):
         return self.execute('POST', 'search/suggest', body_params=query_to_suggest)
+
+    def get_permissions_v4(self, query, limit=100, search_id=None, groupByFields=None, paginate=True):
+        """
+        Returns permissions grouped by requested fields and a page token for the next page if applicable.
+
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/permission-search-v-4/>`_
+        """
+        body_params = dict(query=query)
+        if search_id:
+            body_params['search_id'] = search_id
+        if groupByFields:
+            body_params['groupByFields'] = groupByFields
+        #
+        next_page_token = None
+        api_response = self.execute('POST', 'iam/api/v4/search/permission', query_params=dict(limit=limit), body_params=body_params)
+        if 'data' in api_response and 'items' in api_response['data']:
+            yield from api_response['data']['items']
+            next_page_token = api_response['data'].pop('nextPageToken', None)
+        while paginate and next_page_token:
+            body_params['nextPageToken'] = next_page_token
+            api_response = self.execute('POST', 'iam/api/v4/search/permission', query_params=dict(limit=limit), body_params=body_params)
+            if 'items' in api_response['data']:
+                yield from api_response['data']['items']
+            next_page_token = api_response.pop('nextPageToken', None)
+
 
     """
     Configuration
