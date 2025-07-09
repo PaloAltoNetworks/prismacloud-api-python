@@ -417,6 +417,9 @@ class EndpointsPrismaCloudAPIMixin():
     def cloud_account_delete(self, cloud_type, cloud_account_id):
         return self.execute('DELETE', 'cloud/%s/%s' % (cloud_type, cloud_account_id))
 
+    def cloud_account_status(self, cloud_account_id):
+        return self.execute('GET', f'account/{cloud_account_id}/config/status')
+
     def cloud_types_list_read(self, query_params=None):
         return self.execute('GET', 'cloud/type', query_params=query_params)
 
