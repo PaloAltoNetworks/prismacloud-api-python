@@ -31,7 +31,7 @@ jobs:
           coverage run -m unittest discover -v -s "./tests" -p "test*.py"
 
       - name: Publish
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
